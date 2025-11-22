@@ -1,0 +1,143 @@
+{
+  "name": "signalforge",
+  "version": "2.0.0",
+  "description": "Fine-grained reactive state management with automatic dependency tracking - Ultra-optimized, zero dependencies",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "react-native": "dist/index.js",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/entries/core.d.ts",
+      "import": "./dist/entries/core.mjs",
+      "require": "./dist/entries/core.js"
+    },
+    "./react": {
+      "types": "./dist/entries/react.d.ts",
+      "import": "./dist/entries/react.mjs",
+      "require": "./dist/entries/react.js"
+    },
+    "./devtools": {
+      "types": "./dist/entries/devtools.d.ts",
+      "import": "./dist/entries/devtools.mjs",
+      "require": "./dist/entries/devtools.js"
+    },
+    "./plugins": {
+      "types": "./dist/entries/plugins.d.ts",
+      "import": "./dist/entries/plugins.mjs",
+      "require": "./dist/entries/plugins.js"
+    },
+    "./utils": {
+      "types": "./dist/entries/utils.d.ts",
+      "import": "./dist/entries/utils.mjs",
+      "require": "./dist/entries/utils.js"
+    },
+    "./minimal": {
+      "types": "./dist/core/minimal.d.ts",
+      "import": "./dist/core/minimal.mjs",
+      "require": "./dist/core/minimal.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "npm run build:clean && npm run build:tsc && npm run build:bundle",
+    "build:clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
+    "build:tsc": "tsc",
+    "build:bundle": "node build.js",
+    "build:watch": "tsc --watch",
+    "size": "npm run build && node scripts/check-size.js",
+    "test": "tsx tests/store.test.ts",
+    "test:perf": "tsx tests/store.test.ts",
+    "test:arch": "tsx tests/architecture.test.ts",
+    "test:sub": "tsx tests/subscription.test.ts",
+    "test:memory": "node --expose-gc -r tsx/cjs tests/memory.test.ts",
+    "test:batching": "tsx tests/batching.test.ts",
+    "test:hooks": "tsx tests/hooks.test.tsx",
+    "test:persistence": "tsx tests/persistence.test.ts",
+    "test:types": "tsx tests/types.test.ts",
+    "test:devtools": "tsx tests/devtools.test.ts",
+    "test:all": "tsx tests/store.test.ts && tsx tests/architecture.test.ts && tsx tests/subscription.test.ts && npm run test:memory && npm run test:batching && npm run test:hooks && npm run test:persistence && npm run test:types && npm run test:devtools",
+    "benchmark": "node --expose-gc -r tsx/cjs benchmarks/standalone.ts",
+    "benchmark:quick": "tsx benchmarks/standalone.ts"
+  },
+  "keywords": [
+    "reactive",
+    "state",
+    "signals",
+    "reactivity",
+    "observable",
+    "computed",
+    "fine-grained",
+    "react-native",
+    "jsi",
+    "turbomodule",
+    "native",
+    "state-management",
+    "react",
+    "typescript",
+    "performance",
+    "zero-dependencies"
+  ],
+  "author": "ForgeCommunity",
+  "license": "MIT",
+  "homepage": "https://github.com/signalforge/signalforge#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/signalforge/signalforge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/signalforge/signalforge/issues"
+  },
+  "devDependencies": {
+    "@reduxjs/toolkit": "^2.10.1",
+    "@size-limit/preset-small-lib": "^11.2.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/jsdom": "^27.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.2.6",
+    "@types/react-dom": "^19.2.2",
+    "@types/react-native": "^0.73.0",
+    "esbuild": "^0.20.2",
+    "happy-dom": "^20.0.10",
+    "jsdom": "^27.1.0",
+    "redux": "^5.0.1",
+    "size-limit": "^11.2.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.0.0",
+    "zustand": "^5.0.8"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-native": ">=0.60.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
+  },
+  "codegenConfig": {
+    "name": "SignalForgeSpec",
+    "type": "modules",
+    "jsSrcsDir": "src/native",
+    "android": {
+      "javaPackageName": "com.signalforge"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "CMakeLists.txt",
+    "README.md",
+    "LICENSE"
+  ]
+}

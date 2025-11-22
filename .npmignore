@@ -1,0 +1,26 @@
+# Development files
+.examples-archive/
+tests/
+*.test.ts
+*.test.tsx
+
+# Documentation (keep only README)
+docs/
+
+# Build artifacts
+node_modules/
+.vscode/
+.idea/
+
+# Config files
+tsconfig.json
+.eslintrc*
+.prettierrc*
+
+# Git
+.git/
+.gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
