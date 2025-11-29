@@ -2380,7 +2380,7 @@ function Settings() {
 - Context API: 3 components re-render
 - SignalForge: 1 component re-renders
 
-Fewer renders usually reduce work, but measure inside your own app. The benchmark suite in this repository provides repeatable numbers for SignalForge-specific operations.【F:benchmark-result.md†L7-L65】
+Fewer renders usually reduce work, but measure inside your own app. Run `npm run benchmark` to get repeatable, machine-specific numbers for SignalForge operations.
 
 ---
 
@@ -2512,7 +2512,7 @@ Fewer renders usually reduce work, but measure inside your own app. The benchmar
 
 ### Q: Is it faster than Redux?
 
-**A:** The benchmark suite in this repository measures SignalForge reads at ~5ns and writes at ~197ns. Compare those numbers to your Redux baseline to understand the impact in your project.【F:benchmark-result.md†L7-L36】
+**A:** Running `npm run benchmark` on the reference machine yields ~5ns reads and ~197ns writes. Compare the output on your hardware to your Redux baseline to understand the impact in your project.
 
 ---
 

@@ -66,7 +66,7 @@ name.set('Bob'); // Logs: "Hello, Bob!"
 
 - **Hook-first ergonomics:** `useSignal`, `useSignalValue`, and `useSignalEffect` expose signal values directly to components without selector boilerplate.【F:src/react/hooks.ts†L7-L99】
 - **Built-in plugins:** Logging, time travel, and persistence plugins ship in the package so debugging and replaying state changes does not require external middleware.【F:docs/getting-started.md†L671-L700】
-- **Measured speed:** Reads and writes land in the single-digit nanosecond range with ~1.6KB per signal in the repository benchmark suite.【F:benchmark-result.md†L7-L36】
+- **Measured speed:** Running `npm run benchmark` locally shows single-digit nanosecond reads and writes with ~1.6KB per signal (Node.js v20, Intel i7 reference machine).
 - **Cross-platform reach:** Works in React, React Native, and vanilla JavaScript while sharing the same API surface.
 
 ### Feature comparison
@@ -172,7 +172,7 @@ Standalone benchmarks from `npm run benchmark` show:
 - Computed reads: 0.003ms for 1,000 reads (3ns per read)
 - 10,000 signals occupy ~15.84MB (about 1,661 bytes each)
 
-See `benchmark-result.md` for the complete output and instructions to reproduce.【F:benchmark-result.md†L7-L65】
+Run `npm run benchmark` to print the full output and reproduce the numbers on your machine.
 
 ### When to Use SignalForge
 
