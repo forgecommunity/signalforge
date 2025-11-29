@@ -110,17 +110,32 @@ SignalValue Signal::getValue() const {
  * Thread-safe setValue - updates value and increments version atomically
  * The version bump allows React components to detect changes without locking
  * Notifies all subscribers after the update
+ * FIXED: Copy subscribers before releasing mutex to prevent race condition
  */
 void Signal::setValue(const SignalValue& newValue) {
+    std::unordered_map<size_t, std::function<void(const SignalValue&)>> subscribersCopy;
+    SignalValue currentValue;
+    
     {
         std::lock_guard<std::mutex> lock(mutex_);
         value_ = newValue;
         // Atomic increment ensures version is always consistent
         // memory_order_release ensures write is visible to other threads
         version_.fetch_add(1, std::memory_order_release);
+        
+        // Copy subscribers and value while holding lock
+        subscribersCopy = subscribers_;
+        currentValue = value_;
     }
-    // Notify outside the lock to avoid deadlocks
-    notifySubscribers();
+    
+    // Execute callbacks outside the lock to prevent deadlocks
+    for (const auto& [id, callback] : subscribersCopy) {
+        try {
+            callback(currentValue);
+        } catch (...) {
+            // Swallow exceptions to prevent one subscriber from breaking others
+        }
+    }
 }
 
 /**
@@ -140,30 +155,6 @@ size_t Signal::subscribe(std::function<void(const SignalValue&)> callback) {
 void Signal::unsubscribe(size_t id) {
     std::lock_guard<std::mutex> lock(mutex_);
     subscribers_.erase(id);
-}
-
-/**
- * Notify all subscribers of value change
- * Called without holding the mutex to prevent deadlocks
- */
-void Signal::notifySubscribers() {
-    std::unordered_map<size_t, std::function<void(const SignalValue&)>> subscribersCopy;
-    SignalValue currentValue;
-    
-    {
-        std::lock_guard<std::mutex> lock(mutex_);
-        subscribersCopy = subscribers_;
-        currentValue = value_;
-    }
-    
-    // Execute callbacks outside the lock
-    for (const auto& [id, callback] : subscribersCopy) {
-        try {
-            callback(currentValue);
-        } catch (...) {
-            // Swallow exceptions to prevent one subscriber from breaking others
-        }
-    }
 }
 
 // ============================================================================

@@ -56,7 +56,6 @@ import {
   useSignal,
   useSignalValue,
   useSignalEffect,
-  useSignalEffectV2,
   
   // Utility functions
   derive,
@@ -684,10 +683,6 @@ test('useSignalValue hook exists and is a function', () => {
 
 test('useSignalEffect hook exists and is a function', () => {
   assertIsFunction(useSignalEffect, 'useSignalEffect');
-});
-
-test('useSignalEffectV2 hook exists and is a function', () => {
-  assertIsFunction(useSignalEffectV2, 'useSignalEffectV2');
 });
 
 // ============================================================================

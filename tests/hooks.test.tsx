@@ -27,7 +27,8 @@ import React, { useState } from 'react';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import { act } from '@testing-library/react';
 import { createSignal, createComputed, flushSync } from '../src/core/store';
-import { useSignal, useSignalValue, useSignalEffect } from '../src/hooks/useSignal';
+import { useSignal, useSignalValue } from '../src/hooks/useSignal';
+import { useSignalEffect } from '../src/hooks/useSignalEffect';
 
 // ============================================================================
 // Test Utilities

@@ -104,9 +104,28 @@ export interface StorageOptions {
 
 /**
  * Detect the current environment
+ * FIXED: Improved SSR-safe and React Native detection
  */
 export function detectEnvironment(): Environment {
-  // Check for React Native
+  // SSR-safe check: ensure we're not on the server
+  if (typeof window === 'undefined') {
+    return 'node';
+  }
+
+  // Enhanced React Native detection
+  if (typeof global !== 'undefined') {
+    const g: any = global;
+    // Check for Hermes engine or React Native bridge
+    if (
+      g.HermesInternal ||
+      g.__fbBatchedBridgeConfig ||
+      g.nativeModuleProxy
+    ) {
+      return 'react-native';
+    }
+  }
+
+  // Check for React Native via navigator
   if (
     typeof navigator !== 'undefined' &&
     navigator.product === 'ReactNative'
@@ -114,24 +133,16 @@ export function detectEnvironment(): Environment {
     return 'react-native';
   }
 
-  // Check for web browser
+  // Check for web browser with localStorage
   if (
     typeof window !== 'undefined' &&
+    typeof document !== 'undefined' &&
     typeof window.localStorage !== 'undefined'
   ) {
     return 'web';
   }
 
-  // Check for Node.js
-  if (
-    typeof process !== 'undefined' &&
-    process.versions &&
-    process.versions.node
-  ) {
-    return 'node';
-  }
-
-  return 'unknown';
+  return 'node';
 }
 
 // ============================================================================

@@ -1,12 +1,16 @@
 {
-  "name": "signalforge",
-  "version": "2.0.0",
+  "name": "signalforge-alpha",
+  "version": "0.1.0",
   "description": "Fine-grained reactive state management with automatic dependency tracking - Ultra-optimized, zero dependencies",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "react-native": "dist/index.js",
-  "sideEffects": false,
+  "sideEffects": [
+    "./dist/hooks/*.js",
+    "./dist/plugins/*.js",
+    "./dist/devtools/*.js"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -21,8 +25,10 @@
     },
     "./react": {
       "types": "./dist/entries/react.d.ts",
+      "react-native": "./dist/entries/react.js",
       "import": "./dist/entries/react.mjs",
-      "require": "./dist/entries/react.js"
+      "require": "./dist/entries/react.js",
+      "default": "./dist/entries/react.js"
     },
     "./devtools": {
       "types": "./dist/entries/devtools.d.ts",
@@ -52,6 +58,7 @@
     "build:tsc": "tsc",
     "build:bundle": "node build.js",
     "build:watch": "tsc --watch",
+    "prepare": "npm run build",
     "size": "npm run build && node scripts/check-size.js",
     "test": "tsx tests/store.test.ts",
     "test:perf": "tsx tests/store.test.ts",
@@ -87,13 +94,13 @@
   ],
   "author": "ForgeCommunity",
   "license": "MIT",
-  "homepage": "https://github.com/signalforge/signalforge#readme",
+  "homepage": "https://github.com/forgecommunity/signalforge#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/signalforge/signalforge.git"
+    "url": "https://github.com/forgecommunity/signalforge.git"
   },
   "bugs": {
-    "url": "https://github.com/signalforge/signalforge/issues"
+    "url": "https://github.com/forgecommunity/signalforge/issues"
   },
   "devDependencies": {
     "@reduxjs/toolkit": "^2.10.1",
@@ -114,8 +121,8 @@
     "zustand": "^5.0.8"
   },
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-native": ">=0.60.0"
+    "react": ">=18.0.0",
+    "react-native": ">=0.74.0"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -135,7 +142,6 @@
   },
   "files": [
     "dist",
-    "src",
     "CMakeLists.txt",
     "README.md",
     "LICENSE"

@@ -23,13 +23,15 @@ const sharedConfig = {
   treeShaking: true,
   target: 'es2020',
   platform: 'neutral',
-  external: ['react', 'react-dom', 'react-native'],
+  // Mark React and React Native as external to avoid bundling them
+  external: ['react', 'react-dom', 'react-native', 'react/jsx-runtime'],
+  // Keep NODE_ENV checks for better tree-shaking in consuming apps
   define: {
     '__DEV__': 'false',
-    'process.env.NODE_ENV': '"production"',
   },
   legalComments: 'none',
-  drop: ['console', 'debugger'],
+  // Don't drop console in library code - let consumers decide
+  drop: ['debugger'],
   pure: ['console.log', 'console.warn'],
 };
 

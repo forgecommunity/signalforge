@@ -67,6 +67,7 @@ export interface DevToolsEvent<T = any> {
 /**
  * Signal created event payload
  */
+
 export interface SignalCreatedPayload {
   id: string;
   type: 'signal' | 'computed' | 'effect';
@@ -78,6 +79,7 @@ export interface SignalCreatedPayload {
 /**
  * Signal updated event payload
  */
+
 export interface SignalUpdatedPayload {
   id: string;
   previousValue: any;
@@ -86,9 +88,11 @@ export interface SignalUpdatedPayload {
   skipped: boolean;
 }
 
+
 /**
  * Signal destroyed event payload
  */
+
 export interface SignalDestroyedPayload {
   id: string;
   type: 'signal' | 'computed' | 'effect';

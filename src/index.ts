@@ -82,11 +82,10 @@ export {
 export {
   useSignal,
   useSignalValue,
-  useSignalEffect,
 } from './hooks/useSignal';
 
 export {
-  useSignalEffect as useSignalEffectV2,
+  useSignalEffect,
 } from './hooks/useSignalEffect';
 
 // Utility functions

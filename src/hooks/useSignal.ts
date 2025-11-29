@@ -1,13 +1,58 @@
 /**
  * React integration for SignalForge
  * 
+ * Simple, stable implementation for React and React Native.
+ * Works with React 16.8+ and React Native 0.60+
+ * 
  * Provides hooks to use signals within React components.
  * Optional - only use if you're building a React application.
  * The core SignalForge system is framework-agnostic.
  */
 
-import { Signal, createSignal, createEffect } from '../core/store';
-import { useState, useEffect, useRef } from 'react';
+import { Signal, createSignal } from '../core/store';
+import { useState, useEffect } from 'react';
+
+// Runtime guard to surface duplicate React or missing hook dispatcher early
+function assertReactHooksAvailable() {
+  if (typeof useState !== 'function' || typeof useEffect !== 'function') {
+    throw new Error('[SignalForge] React hooks unavailable. Possible duplicate React instance or invalid bundler resolution.\n' +
+      'Troubleshooting:\n' +
+      '  1. Ensure only one react copy: node_modules/react (no nested copy under library).\n' +
+      '  2. Clear Metro cache: npx react-native start --reset-cache.\n' +
+      '  3. Verify metro.config.js extraNodeModules maps react to example app node_modules.');
+  }
+}
+assertReactHooksAvailable();
+
+/**
+ * Hook to subscribe to a signal's value within a React component.
+ * Automatically triggers re-render when the signal changes.
+ * 
+ * Simple implementation using useState and useEffect.
+ * 
+ * @param signal - Signal to subscribe to
+ * @returns Current signal value
+ * 
+ * @example
+ * ```tsx
+ * const count = createSignal(0);
+ * 
+ * function Display() {
+ *   const value = useSignalValue(count);
+ *   return <div>Count: {value}</div>;
+ * }
+ * ```
+ */
+export function useSignalValue<T>(signal: Signal<T>): T {
+  const [value, setValue] = useState(() => signal.get());
+  
+  useEffect(() => {
+    setValue(signal.get()); // Update to current value
+    return signal.subscribe(() => setValue(signal.get()));
+  }, [signal]);
+  
+  return value;
+}
 
 /**
  * Hook to create a signal within a React component.
@@ -33,144 +78,19 @@ export function useSignal<T>(
 ): [T, (value: T | ((prev: T) => T)) => void] {
   // Create signal once on mount
   const [signal] = useState(() => {
-    const init = typeof initialValue === 'function' 
-      ? (initialValue as () => T)() 
+    const value = typeof initialValue === 'function' 
+      ? (initialValue as any)() 
       : initialValue;
-    return createSignal(init);
+    return createSignal(value);
   });
-  
-  // Track current value and trigger re-renders
-  const [value, setValue] = useState(() => signal.get());
-  
-  // Subscribe to signal changes
-  useEffect(() => {
-    return signal.subscribe(setValue);
-  }, [signal]);
-  
+
+  // Subscribe to signal updates
+  const value = useSignalValue(signal);
+
   return [value, signal.set.bind(signal)];
 }
 
 /**
- * Hook to subscribe to a signal's value within a React component.
- * Automatically triggers re-render when the signal changes.
- * 
- * @param signal - Signal to subscribe to
- * @returns Current signal value
- * 
- * @example
- * ```tsx
- * const count = createSignal(0);
- * 
- * function Display() {
- *   const value = useSignalValue(count);
- *   return <div>Count: {value}</div>;
- * }
- * ```
- */
-export function useSignalValue<T>(signal: Signal<T>): T {
-  const [value, setValue] = useState(() => signal.get());
-  
-  useEffect(() => {
-    // Subscribe and get initial value
-    setValue(signal.get());
-    return signal.subscribe(setValue);
-  }, [signal]);
-  
-  return value;
-}
-
-/**
- * Hook to create an effect that runs when signal dependencies change.
- * Similar to useEffect but with automatic dependency tracking.
- * Note: This is a simpler version. For the full implementation, see useSignalEffect.ts
- * 
- * @param effectFn - Effect function to run
- * @param deps - Optional React dependency array
- * 
- * @example
- * ```tsx
- * function Logger() {
- *   const count = createSignal(0);
- *   
- *   useSignalEffect(() => {
- *     console.log('Count changed:', count.get());
- *   });
- *   
- *   return <button onClick={() => count.set(c => c + 1)}>Increment</button>;
- * }
- * ```
- */
-export function useSignalEffect(
-  effectFn: () => void | (() => void),
-  deps?: any[]
-): void {
-  const cleanupRef = useRef(undefined) as any;
-  
-  useEffect(() => {
-    // Run user's effect and capture cleanup
-    const wrappedEffect = () => {
-      if (cleanupRef.current) {
-        cleanupRef.current();
-      }
-      cleanupRef.current = effectFn();
-    };
-    
-    // Create SignalForge effect
-    const dispose = createEffect(wrappedEffect);
-    
-    return () => {
-      if (cleanupRef.current) {
-        cleanupRef.current();
-      }
-      dispose();
-    };
-  }, deps ?? []);
-}
-
-/**
- * Example of full React integration (commented out to avoid React dependency)
- * 
- * Uncomment and install React types to enable:
- * 
- * ```ts
- * import { useState, useEffect } from 'react';
- * 
- * export function useSignal<T>(
- *   initialValue: T | (() => T)
- * ): [T, (value: T | ((prev: T) => T)) => void] {
- *   const [signal] = useState(() => {
- *     const init = typeof initialValue === 'function' 
- *       ? (initialValue as () => T)() 
- *       : initialValue;
- *     return createSignal(init);
- *   });
- *   
- *   const [value, setValue] = useState(() => signal.get());
- *   
- *   useEffect(() => {
- *     return signal.subscribe(setValue);
- *   }, [signal]);
- *   
- *   return [value, signal.set.bind(signal)];
- * }
- * 
- * export function useSignalValue<T>(signal: Signal<T>): T {
- *   const [value, setValue] = useState(() => signal.get());
- *   
- *   useEffect(() => {
- *     return signal.subscribe(setValue);
- *   }, [signal]);
- *   
- *   return value;
- * }
- * 
- * export function useSignalEffect(
- *   effectFn: () => void | (() => void),
- *   deps?: any[]
- * ): void {
- *   useEffect(() => {
- *     return createEffect(effectFn);
- *   }, deps ?? []);
- * }
- * ```
+ * Note: For useSignalEffect, please import from './useSignalEffect'
+ * This file only contains useSignal and useSignalValue hooks.
  */

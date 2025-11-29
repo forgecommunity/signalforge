@@ -77,7 +77,9 @@ function releaseNodeToPool(node: any): void {
 // PLUGIN SYSTEM INTEGRATION
 // ============================================================================
 
-import { __registerSignal, __notifyAfterUpdate, __notifySignalDestroy } from './plugins.js';
+// IMPORTANT: Use extension-less import so Metro (React Native) resolves the TypeScript source
+// The previous './plugins.js' caused RN to look for a built JS file under src which doesn't exist.
+import { __registerSignal, __notifyAfterUpdate, __notifySignalDestroy } from './plugins';
 
 /**
  * WeakMap to store plugin signal IDs on signal instances
@@ -127,15 +129,25 @@ let isFlushing = false;
 
 /**
  * Add node to batch queue (O(1))
+ * FIXED: Added overflow detection and forced flush
  */
 function enqueueForBatchUpdate(node: any): void {
   // Check if already in queue
   if (node.flags & IS_SCHEDULED_FLAG) return;
   
+  // Calculate next tail position
+  const nextTail = (queueTailIndex + 1) % BATCH_QUEUE_SIZE;
+  
+  // Check for queue overflow
+  if (nextTail === queueHeadIndex) {
+    console.error('[SignalForge] Batch queue overflow → forcing flush');
+    flushBatchUpdates();
+  }
+  
   node.flags |= IS_SCHEDULED_FLAG;
   
   batchQueue[queueTailIndex] = node;
-  queueTailIndex = (queueTailIndex + 1) % BATCH_QUEUE_SIZE;
+  queueTailIndex = nextTail;
   
   if (!isFlushing) {
     isFlushing = true;

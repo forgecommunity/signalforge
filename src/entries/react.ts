@@ -4,14 +4,24 @@
  * Target: < 3KB gzipped (core + react)
  */
 
-export * from './core';
+// Export only core primitives needed for React usage
+export {
+  createSignal,
+  createComputed,
+  createEffect,
+  batch,
+  untrack,
+  flushSync,
+  type Signal,
+  type ComputedSignal,
+} from '../core/store';
 
+// Export React-specific hooks
 export {
   useSignal,
   useSignalValue,
-  useSignalEffect,
 } from '../hooks/useSignal';
 
 export {
-  useSignalEffect as useSignalEffectV2,
+  useSignalEffect,
 } from '../hooks/useSignalEffect';
