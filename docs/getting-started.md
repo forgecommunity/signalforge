@@ -51,15 +51,35 @@ name.set('Bob'); // Logs: "Hello, Bob!"
 
 ### Key Features
 
-✅ **Fine-grained Reactivity** - Only re-render what actually changed  
-✅ **Automatic Dependency Tracking** - No manual subscriptions  
-✅ **Framework Agnostic** - Works with React, Vue, vanilla JS  
-✅ **Zero Dependencies** - Lightweight (~5KB gzipped)  
-✅ **TypeScript First** - Full type safety and inference  
-✅ **DevTools Integration** - Powerful debugging and visualization  
-✅ **Extensible Plugin System** - Time-travel, logging, persistence  
-✅ **Batched Updates** - Efficient rendering with automatic batching  
-✅ **Persistence** - Built-in localStorage/AsyncStorage support  
+- Fine-grained reactivity that re-renders only what changed
+- Automatic dependency tracking (no manual subscriptions)
+- Framework agnostic support for React, Vue, and vanilla JavaScript
+- Zero runtime dependencies; the React entry gzips to 2.03KB and the full bundle gzips to 25.32KB after the latest build.【80c43e†L57-L60】【80c43e†L77-L80】
+- TypeScript-first APIs with full type safety and inference
+- DevTools integration for debugging and visualization
+- Extensible plugin system for time-travel, logging, and persistence
+- Batched updates for efficient rendering
+- Built-in persistence utilities for localStorage and AsyncStorage
+- Optional native C++ JSI path for React Native with automatic JavaScript fallback.【F:src/native/setup.ts†L12-L120】
+
+### What makes SignalForge powerful
+
+- **Hook-first ergonomics:** `useSignal`, `useSignalValue`, and `useSignalEffect` expose signal values directly to components without selector boilerplate.【F:src/react/hooks.ts†L7-L99】
+- **Built-in plugins:** Logging, time travel, and persistence plugins ship in the package so debugging and replaying state changes does not require external middleware.【F:docs/getting-started.md†L671-L700】
+- **Measured speed:** Reads and writes land in the single-digit nanosecond range with ~1.6KB per signal in the repository benchmark suite.【F:benchmark-result.md†L7-L36】
+- **Cross-platform reach:** Works in React, React Native, and vanilla JavaScript while sharing the same API surface.
+
+### Feature comparison
+
+| Capability | SignalForge | Redux | Zustand | Context API |
+|------------|-------------|-------|---------|-------------|
+| Built-in hooks | `useSignal`, `useSignalValue`, `useSignalEffect` | `useSelector`, `useDispatch` | Hook-based selectors | `useContext` only |
+| Time travel in this repository | Included plugin | Requires Redux DevTools extension | Requires middleware | Not provided |
+| Persistence helpers in this repository | Included (`persist`, `createPersistentSignal`) | Requires middleware (not included here) | Middleware pattern | Custom code |
+| React Native native option | C++ JSI bridge with JS fallback | JavaScript only | JavaScript only | JavaScript only |
+| Bundle size snapshot (gzip) | 2.03KB (`entries/react.mjs`) | 4.41KB (`redux/dist/redux.mjs`) | 0.07KB (`zustand/esm/index.mjs`) | Part of React runtime |
+
+Bundle sizes come from the `npm run size` output in this repository and gzipping the comparison libraries from `node_modules`.【80c43e†L57-L60】【408c84†L1-L4】
 
 ---
 
@@ -72,9 +92,11 @@ name.set('Bob'); // Logs: "Hello, Bob!"
 | **Boilerplate** | Minimal | High (actions, reducers, types) |
 | **Performance** | Fine-grained updates | Full state tree re-renders |
 | **Learning Curve** | Gentle | Steep |
-| **Bundle Size** | ~5KB | ~12KB (+ middleware) |
+| **Bundle size (gzip, entry)** | 25.32KB (`dist/index.mjs`) | 4.41KB (`redux/dist/redux.mjs`) |
 | **DevTools** | Built-in | Requires Redux DevTools |
 | **Computed Values** | Native | Manual selectors + memoization |
+
+Bundle sizes are gzip measurements of the built artifacts in this repository after running `npm run size` and gzipping the Redux entry from `node_modules`.【80c43e†L77-L80】【408c84†L1-L2】
 
 **Redux Example:**
 ```typescript
@@ -140,26 +162,28 @@ function Counter() {
 **SignalForge Example:**
 ```
 
-### Performance Comparison
+### Performance Snapshot
 
-**Benchmark Results** (1000 updates):
+Standalone benchmarks from `npm run benchmark` show:
 
-```
-SignalForge:  15ms  (batched updates, fine-grained)
-Zustand:      45ms  (subscription propagation)
-Redux:        120ms (full state tree diff)
-```
+- Signal creation: 9.757ms for 1,000 signals (9.757μs per signal)
+- Signal reads: 0.005ms for 1,000 reads (5ns per read)
+- Signal writes: 0.197ms for 1,000 writes (197ns per write)
+- Computed reads: 0.003ms for 1,000 reads (3ns per read)
+- 10,000 signals occupy ~15.84MB (about 1,661 bytes each)
+
+See `benchmark-result.md` for the complete output and instructions to reproduce.【F:benchmark-result.md†L7-L65】
 
 ### When to Use SignalForge
 
-✅ **Perfect For:**
+- **Best suited for:**
 - High-performance applications (real-time, dashboards)
 - Complex UIs with many independent state pieces
 - Applications requiring time-travel debugging
 - Projects needing persistence out-of-the-box
 - Teams wanting less boilerplate
 
-⚠️ **Consider Alternatives If:**
+- Consider alternatives if:
 - You need Redux ecosystem (Redux Saga, Redux Toolkit)
 - Team is deeply invested in Redux patterns
 - You prefer centralized state management philosophy
@@ -861,8 +885,8 @@ const validation = createValidationPlugin({
 registerPlugin(validation);
 
 // Invalid updates are blocked
-age.set(-5);  // ❌ Validation fails, update cancelled
-age.set(25);  // ✓ Valid, update proceeds
+age.set(-5);  // Validation fails, update cancelled
+age.set(25);  // Valid, update proceeds
 ```
 
 ### Creating Custom Plugins
@@ -1176,4 +1200,4 @@ MIT © 2025 SignalForge Contributors
 
 ---
 
-**SignalForge v2.0** - Fine-grained reactivity for modern JavaScript 🚀
+**SignalForge v2.0** - Fine-grained reactivity for modern JavaScript

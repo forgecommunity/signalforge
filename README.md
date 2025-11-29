@@ -1,14 +1,10 @@
-# SignalForge ⚡
+# SignalForge
 
-**The Easiest and Fastest State Management Library**
-
-Works everywhere - React, Vue, Angular, React Native, or plain JavaScript!
-
-Built by **[ForgeCommunity](https://github.com/forgecommunity)** 🚀
+Fine-grained state management for web and React Native applications. Built by **[ForgeCommunity](https://github.com/forgecommunity)**.
 
 ---
 
-## 📚 Table of Contents
+## Table of Contents
 
 1. [Why SignalForge?](#why-signalforge)
 2. [Quick Start](#quick-start)
@@ -23,21 +19,31 @@ Built by **[ForgeCommunity](https://github.com/forgecommunity)** 🚀
 
 ---
 
-## 🎯 Why SignalForge?
+## Why SignalForge?
 
-✅ **Super Easy** - Just 3 main functions to learn!  
-⚡ **100x Faster** - Lightning fast performance  
-🪶 **Super Small** - Only 2KB (tiny!)  
-🌍 **Works Everywhere** - Any framework or no framework  
-🔄 **Auto-Updates** - Changes happen automatically  
-💾 **Auto-Save** - Built-in storage  
-🛠️ **Debugger** - See what's happening  
-📦 **TypeScript** - Full type safety  
-🔐 **Safe** - No memory leaks
+- **Purpose-built hooks:** `useSignal`, `useSignalValue`, and `useSignalEffect` keep React and React Native components synced without selectors or manual subscriptions.
+- **Debuggable by default:** Devtools plugins include logging and time-travel support so you can replay state changes without custom middleware.【F:docs/getting-started.md†L80-L106】
+- **Persistence baked in:** Helpers like `persist` and `createPersistentSignal` ship in the core package, covering localStorage and AsyncStorage out of the box.【F:docs/getting-started.md†L107-L117】
+- **Measured performance:** Reads complete in ~5ns and writes in ~197ns in the standalone benchmark suite; 10,000 signals consume ~15.84MB of memory.【F:benchmark-result.md†L7-L36】
+- **Small bundles:** The React-ready entry (`dist/entries/react.mjs`) gzips to 2.03KB and the minimal core gzips to 0.42KB after the latest build.【80c43e†L57-L60】【80c43e†L47-L50】
+- **Native option for React Native:** A C++ JSI bridge installs automatically on the new architecture and falls back to JavaScript when unavailable.【F:src/native/setup.ts†L12-L120】
+- **Cross-library familiarity:** Signals feel like "smart variables" while computed values and effects mirror patterns from SolidJS and Preact, reducing onboarding time.
+
+### How SignalForge compares
+
+| Capability | SignalForge | Redux | Zustand | MobX | Context API |
+|------------|-------------|-------|---------|------|-------------|
+| Built-in React/React Native hooks | Yes (`useSignal`, `useSignalValue`, `useSignalEffect`) | Yes (`useSelector`, `useDispatch`) | Yes (selectors) | Yes (`observer`, reactions) | Yes (`useContext`) |
+| Time travel available in this repository | Included as a plugin | Requires external devtools | Requires middleware | Requires community tooling | Not provided |
+| Persistence helpers in this repository | Included (localStorage/AsyncStorage adapters) | Requires middleware (not included here) | Middleware pattern | Not documented in this repo | Custom code |
+| Native React Native path | Optional C++ JSI bridge with JS fallback | JS only | JS only | JS only | JS only |
+| Bundle size snapshot (gzip) | 2.03KB for `entries/react.mjs` | 4.41KB for `redux/dist/redux.mjs` | 0.07KB for `zustand/esm/index.mjs` | Not measured here | Part of React runtime |
+
+All size measurements come from the `npm run size` output in this repository and gzipping the comparison libraries from `node_modules`.【80c43e†L57-L60】【408c84†L1-L4】
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ### Step 1: Install
 ```bash
@@ -59,11 +65,11 @@ count.set(5);
 console.log(count.get()); // Output: 5
 ```
 
-That's it! You just created your first signal! 🎉
+That's it! You just created your first signal.
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### For Web Projects
 ```bash
@@ -113,7 +119,7 @@ Notes:
   - `npm run build` at repo root, then restart `npm start` in the example.
 ---
 
-## 🧠 Basic Concepts
+## Basic Concepts
 
 ### What is a Signal?
 A **signal** is like a smart variable that:
@@ -125,12 +131,13 @@ A **signal** is like a smart variable that:
 
 ### Three Main Functions
 
-2. **`createComputed`** - Calculate based on other signals (auto-updates!)
-3. **`createEffect`** - Do something when signals change
+1. **`createSignal`** - Holds a value and notifies subscribers
+2. **`createComputed`** - Calculates based on other signals (auto-updates)
+3. **`createEffect`** - Runs side effects when dependencies change
 
 ---
 
-## 📖 Step-by-Step Guide
+## Step-by-Step Guide
 
 ### Level 1: Basic Signal (Beginner)
 
@@ -254,13 +261,13 @@ const firstName = createSignal('John');
 const lastName = createSignal('Doe');
 const fullName = createComputed(() => `${firstName.get()} ${lastName.get()}`);
 
-// fullName recalculates twice ❌
+// fullName recalculates twice without batching
 
-// With batch - recalculates once!
+// With batch - recalculates once
 batch(() => {
   firstName.set('Jane');
 });
-// fullName recalculates once ✅ (33x faster!)
+// fullName recalculates once (33x faster!)
 ```
 
 ---
@@ -311,16 +318,16 @@ const doubled = createComputed(() => {
   return value;
 });
 
-// Changing count triggers recompute ✅
+// Changing count triggers recompute
 count.set(5); // Output: "Debug: 10"
 
-// Changing debugMode does NOT trigger recompute ✅
+// Changing debugMode does NOT trigger recompute
 debugMode.set(false); // No output (not dependent!)
 ```
 
 ---
 
-## ⚛️ React Integration
+## React Integration
 
 ### Step 1: Install
 ```bash
@@ -395,9 +402,9 @@ function UserProfile() {
 
 ---
 
-## 📱 React Native Specific Guide
+## React Native Specific Guide
 
-SignalForge works perfectly in React Native! Here's what you need to know:
+SignalForge supports React Native with the JavaScript API and an optional C++ JSI bridge for lower-latency updates. Here's what you need to know:
 
 ### Installation
 
@@ -408,6 +415,8 @@ npm install signalforge-alpha
 npm install @react-native-async-storage/async-storage
 cd ios && pod install  # iOS only
 ```
+
+To enable the native C++ path on React Native 0.68+ with the new architecture, turn on the new-architecture flags (`newArchEnabled=true` on Android, `ENV['RCT_NEW_ARCH_ENABLED']='1'` on iOS) and rebuild so the JSI bindings are compiled and auto-linked.【F:src/native/setup.ts†L12-L50】 For older architectures, you can install the bindings at runtime using `installJSIBindings()` during app startup.【F:src/native/setup.ts†L67-L120】 If the native module is unavailable, SignalForge falls back to the JavaScript implementation automatically.【F:src/native/setup.ts†L93-L120】
 
 ### Basic Usage
 
@@ -509,7 +518,7 @@ module.exports = mergeConfig(getDefaultConfig(__dirname), config);
 
 ---
 
-## 📚 All Functions Explained
+## All Functions Explained
 
 ### Core Functions
 
@@ -682,7 +691,7 @@ console.log(user.get().data); // Result when loaded
 
 ### Storage Functions
 
-**⚠️ React Native Requirement**: For persistent signals in React Native, you **must** install AsyncStorage:
+**React Native requirement**: For persistent signals in React Native, you **must** install AsyncStorage:
 ```bash
 npm install @react-native-async-storage/async-storage
 cd ios && pod install  # iOS only
@@ -962,7 +971,7 @@ localStorage.setItem('debug', JSON.stringify(session));
 
 ---
 
-## 🛠️ DevTools
+## DevTools
 
 SignalForge includes powerful developer tools for debugging!
 
@@ -1095,7 +1104,7 @@ function DevPanel() {
 
 ---
 
-## 📱 React Native Native Bridge (JSI)
+## React Native Native Bridge (JSI)
 
 Ultra-fast native C++ implementation for React Native!
 
@@ -1118,7 +1127,7 @@ installJSIBindings();
 import { isNativeAvailable } from 'signalforge-alpha/native';
 
 if (isNativeAvailable()) {
-  console.log('Using native JSI! 🚀');
+  console.log('Using native JSI!');
 } else {
   console.log('Using JS fallback');
 }
@@ -1163,7 +1172,7 @@ console.log(jsiBridge.isUsingNative()); // true if JSI installed
 
 ---
 
-## 📊 Benchmarking
+## Benchmarking
 
 Built-in benchmark utilities!
 
@@ -1193,7 +1202,7 @@ console.table(results);
 
 ---
 
-## 💡 Real Examples
+## Real Examples
 
 ### Example 1: Counter App
 ```javascript
@@ -1307,39 +1316,74 @@ function TodoApp() {
 
 ---
 
-## 🚀 Performance
+## Performance
 
-SignalForge is **100x faster** than other libraries!
+### Standalone Benchmark Snapshot
 
-| Operation | SignalForge | Redux | MobX |
-|-----------|-------------|-------|------|
-| Read | 2ns | 100ms | 300ms |
-| Write | 111ns | 200ms | 500ms |
-| Batch | 0.003ms | 100ms | 200ms |
+- **Reads:** ~5ns per `get()` call.
+- **Writes:** ~197ns per `set()` call.
+- **Batching:** 100-signal batch completes in ~0.002ms.
+- **Memory:** 10,000 signals consume ~15.84MB (~1.6KB per signal).
 
-**Why so fast?**
-- Zero dependencies
-- Optimized code
-- Smart batching
-- Efficient memory use
+All figures come from the repository's benchmark suite (Node.js v20, Intel i7, Windows 11).【F:benchmark-result.md†L7-L36】
+
+### How It Compares in a 1000-item Todo Benchmark
+
+| Library       | Initial Render | Update Single Item | Update All Items | Memory Usage |
+|---------------|----------------|--------------------|------------------|--------------|
+| SignalForge   | 16ms           | 1ms                | 18ms             | 2MB          |
+| Redux         | 45ms           | 8ms                | 85ms             | 5MB          |
+| MobX          | 28ms           | 3ms                | 52ms             | 4MB          |
+
+### Bundle Size Snapshot (gzip)
+
+| Library entry point | Measured size | How we measured |
+| --- | --- | --- |
+| SignalForge React entry (`dist/entries/react.mjs`) | 2.03KB | `npm run size` (gzip output from `scripts/check-size.js`).【853e6c†L33-L59】 |
+| SignalForge minimal core (`dist/core/minimal.mjs`) | 0.42KB | `npm run size` (gzip output from `scripts/check-size.js`).【853e6c†L23-L35】 |
+| Redux (`node_modules/redux/dist/redux.mjs`) | 4.41KB | `gzip -c node_modules/redux/dist/redux.mjs | wc -c`.【0120ad†L1-L3】 |
+| Zustand (`node_modules/zustand/esm/index.mjs`) | 0.07KB | `gzip -c node_modules/zustand/esm/index.mjs | wc -c`.【4bfd60†L1-L3】 |
+| Recoil        | 35ms           | 5ms                | 68ms             | 6MB          |
+| Zustand       | 24ms           | 4ms                | 48ms             | 3MB          |
+
+Numbers are from the architecture benchmark section included in this repository.【F:docs/architecture.md†L876-L892】
+
+### Bundle Size Comparison (minified + gzipped)
+
+| Library     | Size |
+|-------------|------|
+| SignalForge | 2.1 KB |
+| Zustand     | 2.9 KB |
+| Jotai       | 3.1 KB |
+| Solid.js    | 5.2 KB |
+| Recoil      | 18.4 KB |
+| MobX        | 16.2 KB |
+| Redux       | 8.1 KB (+13KB for Toolkit) |
+
+Bundle sizes reflect the comparison recorded in the architecture documentation.【F:docs/architecture.md†L894-L901】
+
+**Why it performs well**
+- Zero external dependencies in the core runtime.
+- Fine-grained dependency graph with lazy recomputation.
+- Batching to collapse cascaded updates into a single frame.
 
 ---
 
-## 🌍 Works Everywhere
+## Works Everywhere
 
-✅ **React** - with hooks  
-✅ **Vue** - framework-agnostic  
-✅ **Angular** - framework-agnostic  
-✅ **Svelte** - framework-agnostic  
-✅ **React Native** - with native C++ bridge  
-✅ **Next.js** - SSR support  
-✅ **Vanilla JS** - no framework needed  
-✅ **Node.js** - server-side  
-✅ **Electron** - desktop apps
+- React with hooks
+- Vue (framework-agnostic signals)
+- Angular (framework-agnostic signals)
+- Svelte (framework-agnostic signals)
+- React Native with the native C++ bridge
+- Next.js with SSR support
+- Vanilla JS
+- Node.js
+- Electron
 
 ---
 
-## 📦 Import Options
+## Import Options
 
 SignalForge provides multiple entry points for optimal bundle size:
 
@@ -1402,7 +1446,7 @@ count(prev => prev + 1); // Update
 ## 🆘 Need Help?
 
 ### Quick Links
-- 📖 [Full Documentation](https://github.com/forgecommunity/signalforge)
+- [Full Documentation](https://github.com/forgecommunity/signalforge)
 - 🐛 [Report Issues](https://github.com/forgecommunity/signalforge/issues)
 - 💬 [Ask Questions](https://github.com/forgecommunity/signalforge/discussions)
 
@@ -1425,13 +1469,13 @@ A: Yes! React Native with native C++ for 10x speed.
 
 ---
 
-## 📄 License
+## License
 
 MIT - Free to use in any project!
 
 ---
 
-## 🙏 Built By
+## Built By
 
 **[ForgeCommunity](https://github.com/forgecommunity)** - A collective of developers creating high-performance, open-source tools.
 
@@ -1441,15 +1485,15 @@ Contributions welcome! Please open an issue or PR on our [GitHub repository](htt
 
 ---
 
-## ⭐ Support Us
+## Support Us
 
 If you like SignalForge, please:
-- ⭐ Star us on [GitHub](https://github.com/forgecommunity/signalforge)
-- 🐦 Share on social media
-- 🐛 Report bugs
-- 💡 Suggest features
-- 📝 Improve docs
+- Star us on [GitHub](https://github.com/forgecommunity/signalforge)
+- Share feedback and improvement ideas
+- Report bugs
+- Suggest features
+- Improve docs
 
 ---
 
-**Happy coding with SignalForge! 🚀**
+**Happy coding with SignalForge!**

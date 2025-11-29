@@ -1,26 +1,26 @@
-﻿# 📱 SignalForge for React Native - The Complete Beginner's Guide
+# SignalForge for React Native - Complete Guide
 
-**State management made so simple, even your grandma could use it! 🎉**
+SignalForge brings the library's fine-grained signals to React Native applications with persistence helpers, React hooks, and optional native bridges.
 
----
+## What is SignalForge?
 
-## 🤔 What is SignalForge?
+SignalForge provides signals that hold values, notify subscribers, and update React Native components automatically when they change. This guide focuses on how to use those primitives effectively on mobile platforms.
 
-Imagine you have a **magic box** that:
-- Holds a value (like a number, text, or list)
-- **Automatically tells** all your app screens when the value changes
-- Updates the screen **instantly** without you doing anything
+## Why use SignalForge?
 
-That's SignalForge! It's like having a personal assistant that handles all the boring state management work for you.
+SignalForge ships both a JavaScript implementation and a native C++ JSI path for React Native. The native bridge installs global functions so reads/writes run inside the C++ store, and it falls back to JavaScript automatically when the bridge is unavailable.【F:src/native/setup.ts†L67-L120】
 
----
+Key advantages for React Native teams:
 
-## 🆚 Why Should I Use SignalForge? (Simple Comparison)
+- **Native bridge when available:** Installs C++ bindings on the new architecture or through the runtime installer while preserving a safe JavaScript fallback.【F:src/native/setup.ts†L12-L120】
+- **React-first hooks:** `useSignal`, `useSignalValue`, and `useSignalEffect` keep components in sync without selector wiring or manual subscriptions.【F:src/react/hooks.ts†L7-L99】
+- **Built-in debugging:** Logging and time-travel plugins ship with the library so you can trace and replay changes without additional middleware.【F:docs/getting-started.md†L671-L700】
+- **Persistence helpers:** AsyncStorage adapters are included through `persist` and `createPersistentSignal` to keep data across sessions.【F:docs/getting-started.md†L107-L117】
 
-### The Old Way (Without SignalForge) 😫
+### Redux-style baseline (for comparison)
 
 ```typescript
-// With Redux (100+ lines of code just for a counter!)
+// With Redux
 // 1. Create action types
 const INCREMENT = 'INCREMENT';
 const DECREMENT = 'DECREMENT';
@@ -60,20 +60,16 @@ function Counter({ count, increment, decrement }) {
 }
 ```
 
-**Result:** 😫 Too much code! Too complicated! Takes 30 minutes to understand!
-
----
-
-### The New Way (With SignalForge) 🎉
+### Using SignalForge
 
 ```typescript
-// Step 1: Create a signal (1 line!)
+// Step 1: Create a signal
 const count = createSignal(0);
 
-// Step 2: Use in component (2 lines!)
+// Step 2: Use in component
 function Counter() {
   const value = useSignalValue(count);
-  
+
   return (
     <View>
       <Text>{value}</Text>
@@ -83,89 +79,87 @@ function Counter() {
 }
 ```
 
-**Result:** 🎉 Done in 5 lines! Easy to understand! Takes 30 seconds to learn!
+## Feature comparison
 
----
+| Aspect | SignalForge | Redux | MobX | Zustand | Context API |
+|--------|-------------|-------|------|---------|-------------|
+| React Native guidance in this repo | Documented throughout this guide | Not covered here | Not covered here | Not covered here | Built into React |
+| Persistence helpers | Built-in (`persist`, `createPersistentSignal`) | Requires middleware (not included here) | Not covered here | Middleware pattern (not included here) | Custom code |
+| Devtools support | Plugins included with the library | Requires Redux DevTools | External tools | Basic logger middleware | Custom logging |
+| Time travel in this repository | Included plugin | Requires Redux DevTools extension | Requires community plugin | Requires middleware | Not provided |
+| React Native native option | C++ JSI bridge with JS fallback | JavaScript only | JavaScript only | JavaScript only | JavaScript only |
+| Bundle size (gzip, entry from this repo) | 2.03KB (`dist/entries/react.mjs`) | 4.41KB (`redux/dist/redux.mjs`) | Not measured in this repository | 0.07KB (`node_modules/zustand/esm/index.mjs`) | Part of React runtime |
+| Hooks for components | `useSignal`, `useSignalValue`, `useSignalEffect` | `useSelector`, `useDispatch` | `observer`, reactions | Store selectors | `useContext` |
 
-## 📊 Feature Comparison Table
+Bundle sizes are gzip measurements taken from the built artifacts in this repository after running `npm run size` and compressing the comparison libraries directly from `node_modules`.【853e6c†L23-L59】【0120ad†L1-L3】【4bfd60†L1-L3】
 
-| Feature | SignalForge | Redux | MobX | Zustand | Context API |
-|---------|------------|-------|------|---------|-------------|
-| **Lines of code for counter** | 5 | 100+ | 30 | 15 | 40 |
-| **Learning time** | 5 minutes | 2 days | 1 day | 30 minutes | 2 hours |
-| **Bundle size** | **1.08KB** ⚡ | 12KB | 16KB | 1.2KB | 0KB (built-in) |
-| **Speed** | **Fastest** 🚀 | Slow | Fast | Fast | Medium |
-| **No boilerplate** | ✅ | ❌ | ⚠️ | ✅ | ⚠️ |
-| **Time Travel (undo/redo)** | ✅ Built-in | ⚠️ Need setup | ❌ | ❌ | ❌ |
-| **Auto-logging** | ✅ Built-in | ⚠️ Need setup | ❌ | ❌ | ❌ |
-| **TypeScript support** | ✅ Perfect | ✅ Good | ✅ Good | ✅ Good | ✅ Good |
-| **React Native support** | ✅ Perfect | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
-| **Plugin system** | ✅ **Unique!** | ⚠️ Middleware | ❌ | ❌ | ❌ |
-| **Beginner friendly** | ✅ **Very easy** | ❌ Hard | ⚠️ Medium | ✅ Easy | ⚠️ Medium |
+## When should you use SignalForge?
 
-**Winner:** 🏆 SignalForge wins in almost everything!
+Use SignalForge when you want:
 
----
+1. A React Native app that shares state across screens without boilerplate
+2. Simple code paths with minimal setup
+3. Strong performance characteristics for interactive views
+4. Built-in debugging and persistence helpers
 
-## 🎯 When Should You Use SignalForge?
+Consider alternatives when you:
 
-### ✅ Use SignalForge When:
+1. Already have a stable Redux setup and do not want to migrate
+2. Depend on existing middleware from another ecosystem
+3. Prefer centralized state management patterns
 
-1. **You're building a React Native app** (iOS/Android)
-2. **You want simple code** (less code = less bugs)
-3. **You want fast development** (build features quickly)
-4. **You need fast performance** (smooth animations)
-5. **You want debugging tools** (find bugs easily)
-6. **You're a beginner** (easy to learn)
-7. **You're a pro** (powerful features)
-
-### ❌ Don't Use SignalForge When:
-
-1. **You have no state to manage** (your app has 1 screen with no data)
-2. **You already use Redux and don't want to change** (if it works, don't fix it)
-
----
-
-## 🚀 Installation (Super Easy!)
+## Installation
 
 ### Step 1: Install the package
 
-Open your terminal (command prompt) and type this:
-
 ```bash
-# If you're using npm (most common):
+# npm
 npm install signalforge
 
-# If you're using yarn:
+# yarn
 yarn add signalforge
 
-# If you're using pnpm:
+# pnpm
 pnpm add signalforge
 ```
 
-**Don't know which one you're using?** 
-- Type `npm --version` in terminal
-- If you see a number (like 9.8.1), use npm!
-- If you see an error, ask your team which package manager they use
+### Step 2: Confirm your package manager
 
-### Step 2: That's it! 🎉
+If you're unsure which package manager your project uses, check for a lockfile (package-lock.json, yarn.lock, or pnpm-lock.yaml) or run the corresponding `--version` command.
 
-No configuration files needed!  
-No setup required!  
-Just install and start using!
+### Step 3: Enable the native C++ path (optional but fastest)
 
----
+**New Architecture (React Native 0.68+)**
 
-## 📁 Understanding Your Project Structure
+1. Enable the new architecture flags:
+   - Android: set `newArchEnabled=true` in `android/gradle.properties`
+   - iOS: set `ENV['RCT_NEW_ARCH_ENABLED'] = '1'` in `ios/Podfile`
+2. Rebuild the app so the C++ JSI bindings compile and auto-link into your binary.【F:src/native/setup.ts†L12-L50】
 
-**Before we start, let's understand where files go:**
+**Old Architecture (runtime installation)**
+
+Add this to your app startup to install the bindings at runtime:
+
+```typescript
+import { installJSIBindings } from 'signalforge/native/setup';
+
+if (!installJSIBindings()) {
+  console.warn('SignalForge running in JS mode');
+}
+```
+
+The installer checks for the native module and logs a fallback warning if it is missing, so you can safely deploy to environments where the C++ bridge is not available.【F:src/native/setup.ts†L93-L120】
+
+## Project Structure
+
+Before you start wiring signals, align on where files belong:
 
 ```
 YourReactNativeApp/
 ├── android/                   ← Android native code (don't touch!)
 ├── ios/                       ← iOS native code (don't touch!)
-├── node_modules/              ← Installed packages (don't touch!)
-├── src/                       ← YOUR CODE GOES HERE! ⭐
+├── node_modules/              ← Installed packages (do not edit)
+├── src/                       ← Application source
 │   ├── screens/              ← All your screens (HomeScreen, ProfileScreen, etc.)
 │   │   ├── HomeScreen.tsx
 │   │   ├── ProfileScreen.tsx
@@ -179,7 +173,7 @@ YourReactNativeApp/
 ├── package.json               ← List of packages
 └── tsconfig.json              ← TypeScript config
 
-KEY FOLDERS YOU'LL USE:
+Key folders to customize:
 - src/screens/  → Create new screens here
 - src/store/    → Create shared data here
 - App.tsx       → Setup navigation here
@@ -200,7 +194,7 @@ KEY FOLDERS YOU'LL USE:
 
 ---
 
-## 🎯 Quick Start: 3 Simple Steps
+##  Quick Start: 3 Simple Steps
 
 **Complete beginner? Follow these 3 steps:**
 
@@ -240,11 +234,11 @@ export default function HomeScreen() {
 }
 ```
 
-**That's it! You're done! Run your app and see the magic!** 🎉
+**That's it! You're done! Run your app and see the magic!** 
 
 ---
 
-## 📚 Understanding Imports (For Complete Beginners)
+##  Understanding Imports (For Complete Beginners)
 
 **If you see this code and don't understand it:**
 
@@ -336,7 +330,7 @@ import { currentUser, login, logout } from '../store/userStore';
 ```
 
 **Think of it like a restaurant menu:**
-- The file (userStore.ts) is the restaurant 🍽️
+- The file (userStore.ts) is the restaurant 🍽
 - `export` means "these items are on the menu"
 - `import { ... }` means "I want to order these specific items"
 - You only get what you order!
@@ -344,21 +338,21 @@ import { currentUser, login, logout } from '../store/userStore';
 ### Common Import Patterns
 
 ```typescript
-// ✅ Pattern 1: Import specific items (most common)
+//  Pattern 1: Import specific items (most common)
 import { currentUser, login } from '../store/userStore';
 
-// ✅ Pattern 2: Import everything as a group
+//  Pattern 2: Import everything as a group
 import * as UserStore from '../store/userStore';
 // Now use: UserStore.currentUser, UserStore.login
 
-// ✅ Pattern 3: Import from installed packages (no ../ needed!)
+//  Pattern 3: Import from installed packages (no ../ needed!)
 import { createSignal } from 'signalforge';
 import { useSignal } from 'signalforge/react';
 
-// ✅ Pattern 4: Import default export
+//  Pattern 4: Import default export
 import React from 'react';  // React is the "default" export
 
-// ✅ Pattern 5: Import React Native components
+//  Pattern 5: Import React Native components
 import { View, Text, Button } from 'react-native';
 ```
 
@@ -435,21 +429,21 @@ Answer:       import Button from '../components/Button';
 
 ### Common Mistakes
 
-❌ **WRONG:**
+ **WRONG:**
 ```typescript
 import { currentUser } from 'userStore';  // Missing path!
 import { currentUser } from 'store/userStore';  // Missing ../
 import { currentUser } from '../store/userStore.ts';  // Don't add .ts
 ```
 
-✅ **CORRECT:**
+ **CORRECT:**
 ```typescript
 import { currentUser } from '../store/userStore';  // Perfect!
 ```
 
 ---
 
-## 🔄 Sharing Data Between Screens (The EASY Way!)
+##  Sharing Data Between Screens (The EASY Way!)
 
 **This is the #1 question beginners ask: "How do I share data between screens?"**
 
@@ -599,10 +593,10 @@ After Login:
 │ isLoggedIn: true                │  ← Logged in!
 └─────────────────────────────────┘
 
-ALL screens see this change INSTANTLY! 🎉
+ALL screens see this change INSTANTLY! 
 ```
 
-#### 📱 Step 3: Use in HomeScreen (Login Screen)
+####  Step 3: Use in HomeScreen (Login Screen)
 
 **Where:** Create a new file at `src/screens/HomeScreen.tsx`
 
@@ -759,7 +753,7 @@ const styles = StyleSheet.create({
 // 4. HomeScreen automatically re-renders with new user data
 // 5. ProfileScreen (if open) ALSO automatically updates!
 // 
-// NO PROPS NEEDED! NO CONTEXT API! JUST WORKS! 🎉
+// NO PROPS NEEDED! NO CONTEXT API! JUST WORKS! 
 // ============================================================================
 ```
 
@@ -794,7 +788,7 @@ export default function ProfileScreen() {
   // ↑ MAGIC MOMENT! 
   // When HomeScreen calls login() and updates currentUser,
   // THIS screen automatically gets the new data!
-  // No props! No Context! No Redux! Just works! 🎉
+  // No props! No Context! No Redux! Just works! 
   
   // ============================================================================
   // STEP 3: Render the UI
@@ -917,11 +911,11 @@ const styles = StyleSheet.create({
 // ============================================================================
 ```
 
-**🎉 That's it! Data is shared! No Context API, no Redux, no passing props!**
+** That's it! Data is shared! No Context API, no Redux, no passing props!**
 
 ---
 
-#### 🎯 Quick Summary for Beginners
+####  Quick Summary for Beginners
 
 **What we just did:**
 
@@ -970,7 +964,7 @@ const styles = StyleSheet.create({
 
 When Login button is clicked:
 1. `login()` updates the signal
-2. **BOTH** screens see the change instantly! 🎉
+2. **BOTH** screens see the change instantly! 
 
 ---
 
@@ -1101,7 +1095,7 @@ function ProductScreen() {
 }
 ```
 
-**🎉 Super organized! Easy to find everything! Professional structure!**
+** Super organized! Easy to find everything! Professional structure!**
 
 ---
 
@@ -1176,7 +1170,7 @@ import { createSignal, createComputed } from 'signalforge';
 
 // Products
 export const products = createSignal([
-  { id: 1, name: 'iPhone 15', price: 999, image: '📱' },
+  { id: 1, name: 'iPhone 15', price: 999, image: '' },
   { id: 2, name: 'MacBook Pro', price: 2499, image: '💻' },
   { id: 3, name: 'AirPods Pro', price: 249, image: '🎧' },
 ]);
@@ -1340,18 +1334,18 @@ export default function CartScreen() {
 }
 ```
 
-**🎉 Look at that! 3 screens, all connected, all in sync, zero props drilling!**
+** Look at that! 3 screens, all connected, all in sync, zero props drilling!**
 
 **What's amazing:**
-- ✅ Cart count updates **everywhere** automatically
-- ✅ Add to cart on one screen → Shows on all screens instantly
-- ✅ No props passing between screens
-- ✅ No Context providers
-- ✅ Simple and clean code
+-  Cart count updates **everywhere** automatically
+-  Add to cart on one screen → Shows on all screens instantly
+-  No props passing between screens
+-  No Context providers
+-  Simple and clean code
 
 ---
 
-## 📚 Complete API Reference
+##  Complete API Reference
 
 ### Core APIs (from 'signalforge')
 
@@ -1394,7 +1388,7 @@ export default function CartScreen() {
 
 ---
 
-## 📚 Tutorial: Your First SignalForge App
+##  Tutorial: Your First SignalForge App
 
 Let's build a simple counter app. I'll explain **every single line** of code!
 
@@ -1519,7 +1513,7 @@ const styles = StyleSheet.create({
 5. **Render it:** `<CounterScreen />`
 6. **Run your app:** `npm run android` or `npm run ios`
 
-**Result:** You'll see a working counter! Press buttons and watch the number change! 🎉
+**Result:** You'll see a working counter! Press buttons and watch the number change! 
 
 ---
 
@@ -1557,13 +1551,13 @@ const currentCount = useSignalValue(count);
 
 **Without `useSignalValue()`:**
 ```typescript
-// ❌ WRONG WAY
+//  WRONG WAY
 const value = count.get(); // Just reads once, never updates
 ```
 
 **With `useSignalValue()`:**
 ```typescript
-// ✅ RIGHT WAY
+//  RIGHT WAY
 const value = useSignalValue(count); // Reads AND subscribes to updates
 ```
 
@@ -1619,10 +1613,10 @@ count.update(current => current + 1); // Same as above, but cleaner
 ## 🌟 Real-World Example: Todo List App
 
 Let's build something useful! A complete todo list with:
-- ✅ Add todos
-- ✅ Mark as complete
-- ✅ Delete todos
-- ✅ Counter showing total/completed
+-  Add todos
+-  Mark as complete
+-  Delete todos
+-  Counter showing total/completed
 
 ### Complete Code (Copy & Paste)
 
@@ -1798,7 +1792,7 @@ export default function TodoListScreen() {
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No todos yet! 🎉</Text>
+            <Text style={styles.emptyText}>No todos yet! </Text>
             <Text style={styles.emptySubtext}>Add one above to get started</Text>
           </View>
         }
@@ -2022,10 +2016,10 @@ function CartScreen() {
 ```
 
 **Why is this amazing?**
-- ✅ No manual calculations
-- ✅ Always accurate
-- ✅ Updates automatically
-- ✅ Performs only when dependencies change (efficient!)
+-  No manual calculations
+-  Always accurate
+-  Updates automatically
+-  Performs only when dependencies change (efficient!)
 
 ---
 
@@ -2049,7 +2043,7 @@ import { registerPlugin, LoggerPlugin } from 'signalforge/plugins';
 if (__DEV__) {
   const logger = new LoggerPlugin({ verbose: true });
   await registerPlugin('logger', logger.getPlugin());
-  console.log('✅ Logger enabled! Now you can see all state changes.');
+  console.log(' Logger enabled! Now you can see all state changes.');
 }
 
 // That's it! Now EVERY signal change is logged automatically
@@ -2059,14 +2053,14 @@ if (__DEV__) {
 
 ```
 🆕 [Logger] +0ms Created signal "todos" = []
-🔄 [Logger] +1520ms Updated signal "todos" [] → [{id: 1, text: "Buy milk", completed: false}]
-🔄 [Logger] +3240ms Updated signal "todos" [...] → [...] (item marked complete)
+ [Logger] +1520ms Updated signal "todos" [] → [{id: 1, text: "Buy milk", completed: false}]
+ [Logger] +3240ms Updated signal "todos" [...] → [...] (item marked complete)
 ```
 
 **Why is this useful?**
 - 🐛 **Debugging**: See exactly what changed and when
-- 📊 **Understanding**: Understand how your app works
-- 🎯 **Finding bugs**: Quickly find where things go wrong
+-  **Understanding**: Understand how your app works
+-  **Finding bugs**: Quickly find where things go wrong
 
 ---
 
@@ -2113,18 +2107,18 @@ function TextEditor() {
 ```
 
 **Why is this amazing?**
-- ✅ **Professional feature**: Apps like Photoshop, Word have undo/redo
-- ✅ **User-friendly**: Users can fix mistakes easily
-- ✅ **Easy to implement**: Just 3 lines of code!
+-  **Professional feature**: Apps like Photoshop, Word have undo/redo
+-  **User-friendly**: Users can fix mistakes easily
+-  **Easy to implement**: Just 3 lines of code!
 
 ---
 
 ## 💡 Tips for Success
 
-### ✅ DO: Create Signals Outside Components
+###  DO: Create Signals Outside Components
 
 ```typescript
-// ✅ GOOD
+//  GOOD
 const count = createSignal(0);
 
 function Counter() {
@@ -2134,7 +2128,7 @@ function Counter() {
 ```
 
 ```typescript
-// ❌ BAD
+//  BAD
 function Counter() {
   const count = createSignal(0); // Created on every render! Memory leak!
   const value = useSignalValue(count);
@@ -2146,16 +2140,16 @@ function Counter() {
 
 ---
 
-### ✅ DO: Give Signals Meaningful Labels
+###  DO: Give Signals Meaningful Labels
 
 ```typescript
-// ✅ GOOD
+//  GOOD
 const userAge = createSignal(25, { label: 'userAge' });
 const userName = createSignal('John', { label: 'userName' });
 ```
 
 ```typescript
-// ❌ BAD
+//  BAD
 const signal1 = createSignal(25);
 const signal2 = createSignal('John');
 ```
@@ -2164,17 +2158,17 @@ const signal2 = createSignal('John');
 
 ---
 
-### ✅ DO: Use Computed for Calculations
+###  DO: Use Computed for Calculations
 
 ```typescript
-// ✅ GOOD
+//  GOOD
 const totalPrice = createComputed(() => {
   return cartItems.get().reduce((sum, item) => sum + item.price, 0);
 });
 ```
 
 ```typescript
-// ❌ BAD
+//  BAD
 function CartScreen() {
   const items = useSignal(cartItems);
   const total = items.reduce((sum, item) => sum + item.price, 0); // Recalculated every render!
@@ -2186,10 +2180,10 @@ function CartScreen() {
 
 ---
 
-### ✅ DO: Use TypeScript
+###  DO: Use TypeScript
 
 ```typescript
-// ✅ GOOD
+//  GOOD
 interface User {
   id: number;
   name: string;
@@ -2203,7 +2197,7 @@ const currentUser = createSignal<User>({
 });
 
 // TypeScript will catch mistakes!
-currentUser.set({ id: 2, name: 'Jane' }); // ❌ Error: Missing 'email'
+currentUser.set({ id: 2, name: 'Jane' }); //  Error: Missing 'email'
 ```
 
 **Why?** TypeScript catches bugs before they happen. It's like having a safety net.
@@ -2215,13 +2209,13 @@ currentUser.set({ id: 2, name: 'Jane' }); // ❌ Error: Missing 'email'
 ### Mistake 1: Not Using useSignalValue()
 
 ```typescript
-// ❌ WRONG
+//  WRONG
 function Counter() {
   const value = count.get(); // Just reads once, never updates!
   return <Text>{value}</Text>;
 }
 
-// ✅ CORRECT
+//  CORRECT
 function Counter() {
   const value = useSignalValue(count); // Subscribes to updates!
   return <Text>{value}</Text>;
@@ -2235,13 +2229,13 @@ function Counter() {
 ### Mistake 2: Creating Signals Inside Components
 
 ```typescript
-// ❌ WRONG
+//  WRONG
 function Counter() {
   const count = createSignal(0); // New signal every render!
   return <Text>{useSignalValue(count)}</Text>;
 }
 
-// ✅ CORRECT
+//  CORRECT
 const count = createSignal(0); // Created once outside
 
 function Counter() {
@@ -2256,19 +2250,19 @@ function Counter() {
 ### Mistake 3: Forgetting to Update the Signal
 
 ```typescript
-// ❌ WRONG
+//  WRONG
 function Counter() {
   const count = useSignalValue(countSignal);
   // This changes the local variable, not the signal!
-  count = count + 1; // ❌ Error!
+  count = count + 1; //  Error!
   return <Text>{count}</Text>;
 }
 
-// ✅ CORRECT
+//  CORRECT
 function Counter() {
   const count = useSignalValue(countSignal);
   // This updates the signal
-  countSignal.set(count + 1); // ✅ Correct!
+  countSignal.set(count + 1); //  Correct!
   return <Text>{count}</Text>;
 }
 ```
@@ -2283,10 +2277,10 @@ function Counter() {
 
 **Time needed:** 15 minutes
 
-1. ✅ Install SignalForge
-2. ✅ Create your first signal
-3. ✅ Use `useSignal()` in a component
-4. ✅ Update signal with `signal.set()`
+1.  Install SignalForge
+2.  Create your first signal
+3.  Use `useSignal()` in a component
+4.  Update signal with `signal.set()`
 
 **Practice:** Build the counter app (see example above)
 
@@ -2296,10 +2290,10 @@ function Counter() {
 
 **Time needed:** 30 minutes
 
-1. ✅ Learn computed values
-2. ✅ Build a todo list app
-3. ✅ Enable logger plugin
-4. ✅ Use TypeScript types
+1.  Learn computed values
+2.  Build a todo list app
+3.  Enable logger plugin
+4.  Use TypeScript types
 
 **Practice:** Build the todo list app (see example above)
 
@@ -2309,10 +2303,10 @@ function Counter() {
 
 **Time needed:** 1 hour
 
-1. ✅ Learn effects (side effects)
-2. ✅ Enable time travel plugin
-3. ✅ Create custom plugins
-4. ✅ Build a full shopping cart app
+1.  Learn effects (side effects)
+2.  Enable time travel plugin
+3.  Create custom plugins
+4.  Build a full shopping cart app
 
 **Practice:** Build the shopping cart app (see example in docs)
 
@@ -2322,22 +2316,22 @@ function Counter() {
 
 **Time needed:** 2 hours
 
-1. ✅ Master all plugin hooks
-2. ✅ Create advanced custom plugins
-3. ✅ Optimize performance
-4. ✅ Build production apps
+1.  Master all plugin hooks
+2.  Create advanced custom plugins
+3.  Optimize performance
+4.  Build production apps
 
 **Practice:** Build a complete app with all features!
 
 ---
 
-## 📊 Performance Benefits
+##  Performance Benefits
 
 ### Why SignalForge is Fast
 
 ```typescript
 // Problem with other libraries (like Context API):
-// When ANY value changes, ALL components re-render! 😫
+// When ANY value changes, ALL components re-render! 
 
 // Context API
 const AppContext = createContext();
@@ -2357,7 +2351,7 @@ function App() {
 }
 
 // With SignalForge:
-// Only components using the changed signal re-render! ⚡
+// Only components using the changed signal re-render! 
 
 const user = createSignal({});
 const cart = createSignal([]);
@@ -2365,59 +2359,42 @@ const settings = createSignal({});
 
 function UserProfile() {
   const userData = useSignal(user);
-  // ✅ Only re-renders when user changes!
+  //  Only re-renders when user changes!
   return <View>...</View>;
 }
 
 function ShoppingCart() {
   const cartItems = useSignal(cart);
-  // ✅ Only re-renders when cart changes!
+  //  Only re-renders when cart changes!
   return <View>...</View>;
 }
 
 function Settings() {
   const settingsData = useSignal(settings);
-  // ✅ Only re-renders when settings changes!
+  //  Only re-renders when settings changes!
   return <View>...</View>;
 }
 ```
 
 **Result:**
-- **Context API**: 3 components re-render (wasteful!)
-- **SignalForge**: 1 component re-renders (efficient!) ⚡
+- Context API: 3 components re-render
+- SignalForge: 1 component re-renders
 
-**Speed improvement:** 3x faster! 🚀
-
----
-
-## 🎯 Comparison: SignalForge vs Others
-
-### 1. SignalForge vs Redux
-
-| Aspect | Redux | SignalForge |
-|--------|-------|------------|
-| **Setup code** | 100+ lines | 5 lines |
-| **Learning curve** | 2 days | 5 minutes |
-| **Boilerplate** | High | Zero |
-| **Time travel** | Need setup | Built-in |
-| **Logging** | Need middleware | Built-in |
-| **Speed** | Slow | **10x faster** |
-
-**Winner:** 🏆 SignalForge
+Fewer renders usually reduce work, but measure inside your own app. The benchmark suite in this repository provides repeatable numbers for SignalForge-specific operations.【F:benchmark-result.md†L7-L65】
 
 ---
 
-### 2. SignalForge vs MobX
+## Next Steps
 
-| Aspect | MobX | SignalForge |
-|--------|------|------------|
-| **API style** | OOP (classes) | Functional |
-| **Bundle size** | 16KB | **1.08KB** |
+1. Build your own app
+2. Try out the examples
+3. Explore plugins (logger, time travel, persistence)
+4. Have fun! 
 | **Decorators** | Required | Not needed |
 | **React Native** | Works | **Perfect support** |
 | **Beginner-friendly** | Medium | **Very easy** |
 
-**Winner:** 🏆 SignalForge
+**Winner:**  SignalForge
 
 ---
 
@@ -2431,7 +2408,7 @@ function Settings() {
 | **Computed values** | Manual | **Built-in** |
 | **Learning curve** | Easy | **Very easy** |
 
-**Winner:** 🏆 SignalForge (slightly better in every way)
+**Winner:**  SignalForge (slightly better in every way)
 
 ---
 
@@ -2446,11 +2423,11 @@ function Settings() {
 | **Logging** | No | **Yes** |
 | **Beginner-friendly** | Medium | **Very easy** |
 
-**Winner:** 🏆 SignalForge (much better performance and features)
+**Winner:**  SignalForge (much better performance and features)
 
 ---
 
-## 🚀 Next Steps
+##  Next Steps
 
 ### What to Do Now
 
@@ -2478,14 +2455,14 @@ function Settings() {
 6. **Build Your Own App!**
    - Start with something simple
    - Add features gradually
-   - Have fun! 🎉
+   - Have fun! 
 
 ---
 
-## 📚 Resources
+##  Resources
 
 ### Documentation
-- 📖 **API Reference**: [signalforge.dev/docs/api](https://signalforge.dev/docs/api)
+-  **API Reference**: [signalforge.dev/docs/api](https://signalforge.dev/docs/api)
 - 🎓 **Tutorials**: [signalforge.dev/tutorials](https://signalforge.dev/tutorials)
 - 💻 **Examples**: [github.com/signalforge/examples](https://github.com/signalforge/examples)
 
@@ -2505,25 +2482,25 @@ function Settings() {
 
 ### Q: Is SignalForge free?
 
-**A:** Yes! 100% free and open source! 🎉
+**A:** Yes! 100% free and open source! 
 
 ---
 
 ### Q: Can I use it in production?
 
-**A:** Yes! SignalForge is battle-tested and production-ready! ✅
+**A:** Yes! SignalForge is battle-tested and production-ready! 
 
 ---
 
 ### Q: Do I need to learn Redux first?
 
-**A:** No! SignalForge is actually **easier** than Redux. Start with SignalForge! 🚀
+**A:** No! SignalForge is actually **easier** than Redux. Start with SignalForge! 
 
 ---
 
 ### Q: Does it work with Expo?
 
-**A:** Yes! Works perfectly with Expo! 📱
+**A:** Yes! Works perfectly with Expo! 
 
 ---
 
@@ -2535,13 +2512,13 @@ function Settings() {
 
 ### Q: Is it faster than Redux?
 
-**A:** Yes! **10-100x faster** than Redux in most cases! ⚡
+**A:** The benchmark suite in this repository measures SignalForge reads at ~5ns and writes at ~197ns. Compare those numbers to your Redux baseline to understand the impact in your project.【F:benchmark-result.md†L7-L36】
 
 ---
 
 ### Q: Can I migrate from Redux to SignalForge?
 
-**A:** Yes! You can gradually migrate. Use both together during transition! 🔄
+**A:** Yes! You can gradually migrate. Use both together during transition! 
 
 ---
 
@@ -2553,13 +2530,13 @@ function Settings() {
 
 ### Q: Can I persist state to AsyncStorage?
 
-**A:** Yes! Create a persistence plugin (example in docs) or use effects! 💾
+**A:** Yes! Create a persistence plugin (example in docs) or use effects! 
 
 ---
 
 ### Q: Is there a learning curve?
 
-**A:** Minimal! You can learn the basics in **5 minutes**! 📚
+**A:** Minimal! You can learn the basics in **5 minutes**! 
 
 ---
 
@@ -2678,10 +2655,10 @@ export default function RegisterScreen() {
 ```
 
 **Benefits:**
-- ✅ Real-time validation
-- ✅ Clean, readable code
-- ✅ Easy to add/remove fields
-- ✅ Automatic form state management
+-  Real-time validation
+-  Clean, readable code
+-  Easy to add/remove fields
+-  Automatic form state management
 
 ---
 
@@ -2805,10 +2782,10 @@ function SettingsScreen() {
 ```
 
 **Benefits:**
-- ✅ Works everywhere automatically
-- ✅ Persists across app restarts
-- ✅ Easy to add new themes
-- ✅ Type-safe colors
+-  Works everywhere automatically
+-  Persists across app restarts
+-  Easy to add new themes
+-  Type-safe colors
 
 ---
 
@@ -2993,10 +2970,10 @@ export default function SearchScreen() {
 ```
 
 **Benefits:**
-- ✅ Real-time filtering (no button needed!)
-- ✅ Combine multiple filters easily
-- ✅ Efficient (only recalculates when needed)
-- ✅ Clean, readable code
+-  Real-time filtering (no button needed!)
+-  Combine multiple filters easily
+-  Efficient (only recalculates when needed)
+-  Clean, readable code
 
 ---
 
@@ -3047,9 +3024,9 @@ export async function likePost(postId) {
 ```
 
 **Benefits:**
-- ✅ Instant feedback (feels faster!)
-- ✅ Rollback on errors
-- ✅ Better user experience
+-  Instant feedback (feels faster!)
+-  Rollback on errors
+-  Better user experience
 
 ---
 
@@ -3111,18 +3088,18 @@ function FeedScreen() {
 
 ---
 
-## 🎉 Conclusion
+##  Conclusion
 
 **SignalForge makes state management:**
-- ✅ **Simple** (5 lines vs 100 lines)
-- ✅ **Fast** (10x faster than Redux)
-- ✅ **Powerful** (built-in time travel, logging, plugins)
-- ✅ **Beginner-friendly** (learn in 5 minutes)
-- ✅ **Production-ready** (battle-tested)
-- ✅ **Scalable** (works for small and large apps)
-- ✅ **Cross-screen** (share data effortlessly)
+-  **Simple** (5 lines vs 100 lines)
+-  **Fast** (see benchmark metrics for timing data)
+-  **Powerful** (built-in time travel, logging, plugins)
+-  **Beginner-friendly** (learn in 5 minutes)
+-  **Production-ready** (battle-tested)
+-  **Scalable** (works for small and large apps)
+-  **Cross-screen** (share data effortlessly)
 
-**Start building amazing React Native apps today!** 🚀
+**Start building amazing React Native apps today!** 
 
 ---
 
@@ -3130,10 +3107,10 @@ function FeedScreen() {
 
 **Found a bug? Report it on GitHub!** 🐛
 
-**Love SignalForge? Give us a star on GitHub!** ⭐
+**Love SignalForge? Give us a star on GitHub!** 
 
 ---
 
-*Made with ❤️ by developers who believe state management should be simple, not complicated!*
+*Made with ❤ by developers who believe state management should be simple, not complicated!*
 
 *Last updated: November 19, 2025*
