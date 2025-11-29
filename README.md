@@ -73,8 +73,45 @@ npm install signalforge-alpha
 ### For React Native
 ```bash
 npm install signalforge-alpha
-cd ios && pod install  # iOS only
+
+# IMPORTANT: For persistent signals, also install:
+npm install @react-native-async-storage/async-storage
+
+# iOS only
+cd ios && pod install && cd ..
 ```
+
+### Run the React Native Example (Local)
+
+Want to try it quickly in a real app? This repo includes a React Native example wired to the local package.
+
+```bash
+# From repo root
+npm install
+npm run build
+
+# Then install and run the example app
+cd examples/example
+npm install
+npm start
+```
+
+In a second terminal, build and run a platform:
+
+```bash
+# Android (Windows/macOS/Linux)
+npm run android
+
+# iOS (macOS only)
+# First time per machine or after native changes:
+#   cd ios; bundle install; bundle exec pod install; cd ..
+npm run ios
+```
+
+Notes:
+- The example depends on the local package via `"signalforge-alpha": "file:../.."`.
+- If you change library code under `src/`, rebuild the dist and restart Metro:
+  - `npm run build` at repo root, then restart `npm start` in the example.
 
 ---
 
@@ -382,6 +419,120 @@ function UserProfile() {
 
 ---
 
+## 📱 React Native Specific Guide
+
+SignalForge works perfectly in React Native! Here's what you need to know:
+
+### Installation
+
+```bash
+npm install signalforge-alpha
+
+# For persistent signals (storage):
+npm install @react-native-async-storage/async-storage
+cd ios && pod install  # iOS only
+```
+
+### Basic Usage
+
+All hooks work exactly the same as in React:
+
+```tsx
+import { createSignal } from 'signalforge-alpha';
+import { useSignal, useSignalValue } from 'signalforge-alpha/react';
+import { View, Text, Button } from 'react-native';
+
+const globalCount = createSignal(0);
+
+function App() {
+  const [localCount, setLocalCount] = useSignal(0);
+  const count = useSignalValue(globalCount);
+  
+  return (
+    <View>
+      <Text>Local: {localCount}</Text>
+      <Text>Global: {count}</Text>
+      <Button title="Increment Local" onPress={() => setLocalCount(localCount + 1)} />
+      <Button title="Increment Global" onPress={() => globalCount.set(c => c + 1)} />
+    </View>
+  );
+}
+```
+
+### Persistent Storage in React Native
+
+**Important**: Use `persist()` inside `useEffect()` to ensure AsyncStorage is ready:
+
+```tsx
+import { createSignal } from 'signalforge-alpha';
+import { persist } from 'signalforge-alpha/utils';
+import { useSignalValue } from 'signalforge-alpha/react';
+import { useEffect } from 'react';
+
+// Create signal at module level
+const userPrefs = createSignal({ theme: 'light', fontSize: 14 });
+
+function App() {
+  const prefs = useSignalValue(userPrefs);
+  
+  // Set up persistence after mount
+  useEffect(() => {
+    const cleanup = persist(userPrefs, { key: 'user_prefs' });
+    return cleanup; // Stop persisting on unmount
+  }, []);
+  
+  return (
+    <View>
+      <Text>Theme: {prefs.theme}</Text>
+      <Button 
+        title="Toggle Theme" 
+        onPress={() => userPrefs.set(p => ({ 
+          ...p, 
+          theme: p.theme === 'light' ? 'dark' : 'light' 
+        }))} 
+      />
+    </View>
+  );
+}
+```
+
+### Metro Configuration
+
+For the example app or when linking to local SignalForge, configure Metro properly:
+
+```javascript
+// metro.config.js
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+const path = require('path');
+
+const config = {
+  watchFolders: [
+    path.resolve(__dirname, '../..'),
+  ],
+  resolver: {
+    nodeModulesPaths: [
+      path.resolve(__dirname, 'node_modules'),
+      path.resolve(__dirname, '../../node_modules'),
+    ],
+  },
+};
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+```
+
+### Common Issues
+
+**Issue**: "AsyncStorage not found"  
+**Solution**: Install `@react-native-async-storage/async-storage` and run `pod install` for iOS
+
+**Issue**: "Module not found: signalforge-alpha/utils"  
+**Solution**: Rebuild the library with `npm run build` from the repo root
+
+**Issue**: "Hooks not working"  
+**Solution**: Clear Metro cache: `npm start -- --reset-cache`
+
+---
+
 ## 📚 All Functions Explained
 
 ### Core Functions
@@ -555,6 +706,12 @@ console.log(user.get().data); // Result when loaded
 
 ### Storage Functions
 
+**⚠️ React Native Requirement**: For persistent signals in React Native, you **must** install AsyncStorage:
+```bash
+npm install @react-native-async-storage/async-storage
+cd ios && pod install  # iOS only
+```
+
 #### `createPersistentSignal(key, initialValue)`
 **What**: Signal that auto-saves to storage
 
@@ -564,6 +721,11 @@ const theme = createPersistentSignal('app_theme', 'dark');
 theme.set('light'); // Automatically saved!
 ```
 
+**Note for React Native**: Import from utils:
+```javascript
+import { createPersistentSignal } from 'signalforge-alpha/utils';
+```
+
 #### `persist(signal, options)`
 **What**: Make existing signal persistent
 
@@ -571,6 +733,19 @@ theme.set('light'); // Automatically saved!
 const count = createSignal(0);
 const stop = persist(count, { key: 'counter', debounce: 500 });
 stop(); // Stop persisting
+```
+
+**Note for React Native**: Import from utils and use in `useEffect`:
+```javascript
+import { persist } from 'signalforge-alpha/utils';
+import { useEffect } from 'react';
+
+function App() {
+  useEffect(() => {
+    const stop = persist(count, { key: 'counter' });
+    return stop; // Cleanup on unmount
+  }, []);
+}
 ```
 
 #### `getStorageAdapter()`

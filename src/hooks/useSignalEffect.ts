@@ -101,7 +101,7 @@ export function useSignalEffect(
   deps: any[] = []
 ): void {
   // Create stable hook ID for this instance
-  const hookId = useRef(Symbol("useSignalEffectId"));
+  const hookId = useRef<object>({});
   
   // Store cleanup function from user's effect
   const userCleanup = useRef<null | (() => void)>(null);
