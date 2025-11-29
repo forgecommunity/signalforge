@@ -18,7 +18,6 @@ lib/
 release/
 
 # Examples folder
-examples/
 
 # Misc
 .DS_Store
