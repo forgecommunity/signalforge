@@ -1,6 +1,6 @@
 {
-  "name": "signalforge-alpha",
-  "version": "0.1.1",
+  "name": "signalforge",
+  "version": "0.1.0",
   "description": "Fine-grained reactive state management with automatic dependency tracking - Ultra-optimized, zero dependencies",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
