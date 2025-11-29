@@ -1,6 +1,6 @@
 'use client';
 
-import { createPersistentSignal } from 'signalforge-alpha/utils';
+import { createPersistentSignal } from 'signalforge/utils';
 import { useState, useEffect } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -171,7 +171,7 @@ export default function PersistentSignalDemo() {
         {/* Code Example */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { createPersistentSignal } from 'signalforge-alpha/utils';
+{`import { createPersistentSignal } from 'signalforge/utils';
 
 // Create persistent signals
 const count = createPersistentSignal('demo-count', 0);

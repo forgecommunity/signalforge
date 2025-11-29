@@ -5,8 +5,8 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal, createComputed, untrack } from 'signalforge-alpha';
-import { useSignalValue } from 'signalforge-alpha/react';
+import { createSignal, createComputed, untrack } from 'signalforge';
+import { useSignalValue } from 'signalforge/react';
 
 const count = createSignal(1);
 const debugMode = createSignal(true);

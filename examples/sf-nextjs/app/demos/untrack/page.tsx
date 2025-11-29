@@ -1,7 +1,7 @@
 'use client';
 
-import { useSignal } from 'signalforge-alpha/react';
-import { untrack } from 'signalforge-alpha/core';
+import { useSignal } from 'signalforge/react';
+import { untrack } from 'signalforge/core';
 import { useState } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -133,7 +133,7 @@ export default function UntrackDemo() {
         {/* Code Example */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { createSignal, createComputed, untrack } from 'signalforge-alpha/core';
+{`import { createSignal, createComputed, untrack } from 'signalforge/core';
 
 const count = createSignal(0);
 const dependency = createSignal(0);

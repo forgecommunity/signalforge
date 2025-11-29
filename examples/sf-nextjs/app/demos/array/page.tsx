@@ -1,6 +1,6 @@
 'use client';
 
-import { createArraySignal } from 'signalforge-alpha/utils';
+import { createArraySignal } from 'signalforge/utils';
 import { useState, useEffect } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -125,7 +125,7 @@ export default function ArraySignalDemo() {
         {/* Code Example */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { createArraySignal } from 'signalforge-alpha/utils';
+{`import { createArraySignal } from 'signalforge/utils';
 
 const arr = createArraySignal([1, 2, 3, 4, 5]);
 

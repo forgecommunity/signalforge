@@ -5,8 +5,8 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal, createComputed } from 'signalforge-alpha';
-import { useSignalValue } from 'signalforge-alpha/react';
+import { createSignal, createComputed } from 'signalforge';
+import { useSignalValue } from 'signalforge/react';
 
 interface Todo {
   id: number;

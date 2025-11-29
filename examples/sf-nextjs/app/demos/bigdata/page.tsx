@@ -1,6 +1,6 @@
 'use client';
 
-import { createSignal } from 'signalforge-alpha/core';
+import { createSignal } from 'signalforge/core';
 import { useState, useEffect } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -182,7 +182,7 @@ export default function BigDataDemo() {
         {/* Code Example */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { createSignal, batch } from 'signalforge-alpha/core';
+{`import { createSignal, batch } from 'signalforge/core';
 
 // Create thousands of signals
 const signals = Array.from({ length: 10000 }, () => 

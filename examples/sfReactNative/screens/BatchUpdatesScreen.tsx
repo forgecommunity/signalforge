@@ -5,8 +5,8 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal, createComputed, batch } from 'signalforge-alpha';
-import { useSignalValue } from 'signalforge-alpha/react';
+import { createSignal, createComputed, batch } from 'signalforge';
+import { useSignalValue } from 'signalforge/react';
 
 const firstName = createSignal('John');
 const lastName = createSignal('Doe');

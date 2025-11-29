@@ -5,8 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal, createEffect } from 'signalforge-alpha';
-import { useSignalValue } from 'signalforge-alpha/react';
+import { createSignal, createEffect } from 'signalforge';
+import { useSignalValue } from 'signalforge/react';
 
 // Create signal
 const userName = createSignal('John');

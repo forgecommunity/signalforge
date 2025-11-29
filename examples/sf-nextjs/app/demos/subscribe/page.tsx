@@ -1,6 +1,6 @@
 'use client';
 
-import { createSignal } from 'signalforge-alpha/core';
+import { createSignal } from 'signalforge/core';
 import { useState, useEffect } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -146,7 +146,7 @@ export default function SubscribeDemo() {
         {/* Code Example */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { createSignal, subscribe } from 'signalforge-alpha/core';
+{`import { createSignal, subscribe } from 'signalforge/core';
 
 const signal = createSignal(0);
 

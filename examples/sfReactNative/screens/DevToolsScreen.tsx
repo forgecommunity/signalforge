@@ -5,8 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal, createComputed, createEffect } from 'signalforge-alpha/core';
-import { useSignalValue } from 'signalforge-alpha/react';
+import { createSignal, createComputed, createEffect } from 'signalforge/core';
+import { useSignalValue } from 'signalforge/react';
 
 // Create signals for monitoring
 const debugCounter = createSignal(0);

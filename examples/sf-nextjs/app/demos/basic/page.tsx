@@ -1,6 +1,6 @@
 'use client';
 
-import { useSignal } from 'signalforge-alpha/react';
+import { useSignal } from 'signalforge/react';
 import DemoLayout from '../../components/DemoLayout';
 
 export default function BasicSignalDemo() {
@@ -73,7 +73,7 @@ export default function BasicSignalDemo() {
         {/* Code Example */}
         <div className="mt-8 p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { useSignal } from 'signalforge-alpha/react';
+{`import { useSignal } from 'signalforge/react';
 
 const [count, setCount] = useSignal(0);
 

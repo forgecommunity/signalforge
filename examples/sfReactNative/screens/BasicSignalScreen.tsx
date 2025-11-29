@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal } from 'signalforge-alpha';
-import { useSignalValue } from 'signalforge-alpha/react';
+import { createSignal } from 'signalforge';
+import { useSignalValue } from 'signalforge/react';
 
 // Create a signal (like a smart variable)
 const age = createSignal(25);

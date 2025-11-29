@@ -1,6 +1,6 @@
 'use client';
 
-import { useSignal } from 'signalforge-alpha/react';
+import { useSignal } from 'signalforge/react';
 import DemoLayout from '../../components/DemoLayout';
 
 export default function DevToolsDemo() {
@@ -147,7 +147,7 @@ export default function DevToolsDemo() {
         {/* Usage Preview */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { enableDevTools } from 'signalforge-alpha/devtools';
+{`import { enableDevTools } from 'signalforge/devtools';
 
 // Enable DevTools (development only)
 if (process.env.NODE_ENV === 'development') {

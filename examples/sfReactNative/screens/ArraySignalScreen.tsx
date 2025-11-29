@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { createArraySignal } from 'signalforge-alpha/utils';
-import { useSignalValue } from 'signalforge-alpha/react';
+import { createArraySignal } from 'signalforge/utils';
+import { useSignalValue } from 'signalforge/react';
 
 const fruits = createArraySignal(['🍎 Apple', '🍌 Banana', '🍊 Orange']);
 

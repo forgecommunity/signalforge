@@ -5,8 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal } from 'signalforge-alpha/core';
-import { useSignalValue } from 'signalforge-alpha/react';
+import { createSignal } from 'signalforge/core';
+import { useSignalValue } from 'signalforge/react';
 
 // Simple time travel implementation for demo
 class SimpleTimeTravel<T> {

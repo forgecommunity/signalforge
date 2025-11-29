@@ -1,6 +1,6 @@
 'use client';
 
-import { useSignal, useSignalEffect } from 'signalforge-alpha/react';
+import { useSignal, useSignalEffect } from 'signalforge/react';
 import { useState } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -84,7 +84,7 @@ export default function EffectsDemo() {
         {/* Code Example */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { useSignal, useSignalEffect } from 'signalforge-alpha/react';
+{`import { useSignal, useSignalEffect } from 'signalforge/react';
 
 const count = useSignal(0);
 

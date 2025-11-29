@@ -5,8 +5,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList } from 'react-native';
-import { createSignal, batch } from 'signalforge-alpha/core';
-import { useSignalValue } from 'signalforge-alpha/react';
+import { createSignal, batch } from 'signalforge/core';
+import { useSignalValue } from 'signalforge/react';
 
 // Large dataset signals
 const largeArray = createSignal<any[]>([]);

@@ -3,7 +3,7 @@ const path = require('path');
 
 /**
  * Metro configuration for SignalForge example
- * Resolves the local signalforge-alpha package correctly
+ * Resolves the local signalforge package correctly
  * https://reactnative.dev/docs/metro
  *
  * @type {import('@react-native/metro-config').MetroConfig}

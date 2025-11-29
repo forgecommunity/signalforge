@@ -1,6 +1,6 @@
 'use client';
 
-import { createSignal } from 'signalforge-alpha/core';
+import { createSignal } from 'signalforge/core';
 import { useState } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -192,8 +192,8 @@ export default function TimeTravelDemo() {
         {/* Code Example */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { createSignal } from 'signalforge-alpha/core';
-import { TimeTravelPlugin } from 'signalforge-alpha/plugins';
+{`import { createSignal } from 'signalforge/core';
+import { TimeTravelPlugin } from 'signalforge/plugins';
 
 const count = createSignal(0);
 const timeTravel = new TimeTravelPlugin();

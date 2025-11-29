@@ -55,7 +55,7 @@ npm run dev
 
 ### Basic Signal
 ```typescript
-import { useSignal } from 'signalforge-alpha/react';
+import { useSignal } from 'signalforge/react';
 
 const count = useSignal(0);
 count.value++; // Update
@@ -64,7 +64,7 @@ console.log(count.value); // Read
 
 ### Computed Signal
 ```typescript
-import { useSignal, useComputed } from 'signalforge-alpha/react';
+import { useSignal, useComputed } from 'signalforge/react';
 
 const width = useSignal(10);
 const height = useSignal(5);
@@ -74,7 +74,7 @@ const area = useComputed(() => width.value * height.value);
 
 ### Effects
 ```typescript
-import { useSignalEffect } from 'signalforge-alpha/react';
+import { useSignalEffect } from 'signalforge/react';
 
 useSignalEffect(() => {
   console.log('Count changed:', count.value);
@@ -88,7 +88,7 @@ useSignalEffect(() => {
 
 ### Batch Updates
 ```typescript
-import { batch } from 'signalforge-alpha/core';
+import { batch } from 'signalforge/core';
 
 // ❌ Without batch - triggers 3 re-renders
 count1.value++;
@@ -105,7 +105,7 @@ batch(() => {
 
 ### Persistent Signals
 ```typescript
-import { createPersistentSignal } from 'signalforge-alpha/utils';
+import { createPersistentSignal } from 'signalforge/utils';
 
 const theme = createPersistentSignal('theme', 'light');
 // Automatically saves to localStorage
@@ -166,12 +166,12 @@ app/
 ## 📦 Installation
 
 ```bash
-npm install signalforge-alpha
+npm install signalforge
 ```
 
 ## 🔗 Links
 
-- **npm Package**: https://www.npmjs.com/package/signalforge-alpha
+- **npm Package**: https://www.npmjs.com/package/signalforge
 - **GitHub**: https://github.com/forgecommunity/signalforge
 - **Documentation**: See main repository README
 

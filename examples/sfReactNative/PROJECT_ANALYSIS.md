@@ -12,7 +12,7 @@
 
 #### 2. **Incorrect Metro Configuration**
 - **Location**: `examples/sfReactNative/metro.config.js`
-- **Problem**: Metro was not configured to properly resolve the local `signalforge-alpha` package
+- **Problem**: Metro was not configured to properly resolve the local `signalforge` package
 - **Impact**: Module resolution errors, build failures
 - **Status**: ✅ **FIXED**
 
@@ -89,7 +89,7 @@ const config = {
 
 ```markdown
 ### For React Native
-npm install signalforge-alpha
+npm install signalforge
 
 # IMPORTANT: For persistent signals, also install:  ✅ ADDED
 npm install @react-native-async-storage/async-storage

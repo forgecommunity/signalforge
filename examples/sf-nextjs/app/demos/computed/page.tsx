@@ -1,6 +1,6 @@
 'use client';
 
-import { useSignal, createComputed, useSignalValue } from 'signalforge-alpha/react';
+import { useSignal, createComputed, useSignalValue } from 'signalforge/react';
 import { useState } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -100,7 +100,7 @@ export default function ComputedSignalDemo() {
         {/* Code Example */}
         <div className="mt-8 p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { useSignal, useComputed } from 'signalforge-alpha/react';
+{`import { useSignal, useComputed } from 'signalforge/react';
 
 const [width, setWidth] = useSignal(10);
 const [height, setHeight] = useSignal(5);

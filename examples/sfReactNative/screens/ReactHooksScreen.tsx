@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal } from 'signalforge-alpha';
-import { useSignal, useSignalValue, useSignalEffect } from 'signalforge-alpha/react';
+import { createSignal } from 'signalforge';
+import { useSignal, useSignalValue, useSignalEffect } from 'signalforge/react';
 
 // Global signal
 const globalCounter = createSignal(0);

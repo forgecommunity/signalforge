@@ -117,7 +117,7 @@ cd ..
 npm run android  # or npm run ios
 ```
 
-### ❌ Error: "Module not found: signalforge-alpha/utils"
+### ❌ Error: "Module not found: signalforge/utils"
 
 **Cause**: Library not built or Metro not resolving correctly
 
@@ -203,7 +203,7 @@ SignalForge/
 │   └── sfReactNative/
 │       ├── node_modules/
 │       │   ├── @react-native-async-storage/  ✅ Required for persistence
-│       │   └── signalforge-alpha/            ✅ Linked to parent
+│       │   └── signalforge/            ✅ Linked to parent
 │       ├── screens/              ✅ 12 demo screens
 │       ├── ios/
 │       │   └── Pods/             ✅ iOS only

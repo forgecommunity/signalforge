@@ -1,7 +1,7 @@
 'use client';
 
-import { useSignal } from 'signalforge-alpha/react';
-import { batch } from 'signalforge-alpha/core';
+import { useSignal } from 'signalforge/react';
+import { batch } from 'signalforge/core';
 import { useState } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -106,8 +106,8 @@ export default function BatchUpdatesDemo() {
         {/* Code Example */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { useSignal } from 'signalforge-alpha/react';
-import { batch } from 'signalforge-alpha/core';
+{`import { useSignal } from 'signalforge/react';
+import { batch } from 'signalforge/core';
 
 const count1 = useSignal(0);
 const count2 = useSignal(0);

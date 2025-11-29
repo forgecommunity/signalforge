@@ -1,8 +1,8 @@
 'use client';
 
-import { createSignal } from 'signalforge-alpha/core';
-import { useSignalValue } from 'signalforge-alpha/react';
-import { createComputed } from 'signalforge-alpha/core';
+import { createSignal } from 'signalforge/core';
+import { useSignalValue } from 'signalforge/react';
+import { createComputed } from 'signalforge/core';
 import { useState } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -191,7 +191,7 @@ export default function ShoppingCartDemo() {
         {/* Code Example */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { useSignal, useComputed } from 'signalforge-alpha/react';
+{`import { useSignal, useComputed } from 'signalforge/react';
 
 const cart = useSignal<CartItem[]>([]);
 

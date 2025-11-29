@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { createSignal, createComputed } from 'signalforge-alpha';
-import { useSignalValue } from 'signalforge-alpha/react';
+import { createSignal, createComputed } from 'signalforge';
+import { useSignalValue } from 'signalforge/react';
 
 // Create base signals
 const price = createSignal(100);
