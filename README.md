@@ -45,6 +45,16 @@ All size measurements come from the `npm run size` output in this repository and
 
 ---
 
+
+## Demo Samples
+
+Explore SignalForge in live deployments and runnable samples:
+
+- **Try it now:** Visit [`signalforge-fogecommunity.vercel.app`](https://signalforge-fogecommunity.vercel.app/) to see the Next.js demo powered by this repo.
+- **Run locally:** All examples (Next.js and React Native) live in [`examples/`](examples/) and are wired to the workspace build for quick iteration.
+- **Deploy if you want:** The Next.js sample in [`examples/sf-nextjs`](examples/sf-nextjs) can be published to your own Vercel project using the steps in its README, but the hosted playground link above is enough to check SignalForge in action.
+
+
 ## Quick Start
 
 ### Step 1: Install
@@ -1205,14 +1215,6 @@ console.table(results);
 ```
 
 ---
-
-## Real Examples
-
-Explore SignalForge in live deployments and runnable samples:
-
-- **Try it now:** Visit [`signalforge-fogecommunity.vercel.app`](https://signalforge-fogecommunity.vercel.app/) to see the Next.js demo powered by this repo.
-- **Run locally:** All examples (Next.js and React Native) live in [`examples/`](examples/) and are wired to the workspace build for quick iteration.
-- **Deploy if you want:** The Next.js sample in [`examples/sf-nextjs`](examples/sf-nextjs) can be published to your own Vercel project using the steps in its README, but the hosted playground link above is enough to check SignalForge in action.
 
 ### Example 1: Counter App
 ```javascript
