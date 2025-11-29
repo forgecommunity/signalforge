@@ -14,6 +14,16 @@ npm run dev
 # Open http://localhost:3000
 ```
 
+## ☁️ Deploying to Vercel
+
+This demo is production-ready on Vercel. Use the repository as the source and set the project root to `examples/sf-nextjs` or deploy with the CLI:
+
+1. From the repo root, build the library so the example pulls the latest artifacts: `npm install && npm run build`.
+2. Move into the example: `cd examples/sf-nextjs && npm install`.
+3. Smoke-test locally with `npm run dev`.
+4. Deploy: `npx vercel --prod` (requires a Vercel account and the `vercel` CLI). The default build output is static and works with Vercel's defaults.
+
+
 ## 📚 Demos Included
 
 ### Core Concepts

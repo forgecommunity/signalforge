@@ -21,13 +21,15 @@ SignalForge is the flagship signal engine for web and React Native teams that re
 
 ## Why SignalForge?
 
-- **Purpose-built hooks for React and React Native:** `useSignal`, `useSignalValue`, and `useSignalEffect` keep components synchronized without selectors, boilerplate reducers, or hand-rolled subscriptions—production ergonomics without sacrificing insight.
-- **Debuggable from day one:** Logging and time-travel plugins ship with the repository so you can replay state changes without inventing middleware.【F:docs/getting-started.md†L80-L106】
-- **Persistence in the box:** `persist` and `createPersistentSignal` cover localStorage and AsyncStorage without extra packages or glue code, so durability is a first-class capability rather than an afterthought.【F:docs/getting-started.md†L107-L117】
-- **Benchmark-backed dominance:** The bundled suite (`npm run benchmark` on Node.js v20, Intel i7, Windows 11) reports ~5ns reads, ~197ns writes, and only ~15.84MB of memory for 10,000 signals—performance envelopes that Redux, Zustand, and MobX demos rarely match without heavy tuning.
-- **Lean shipping artifacts:** The React entry (`dist/entries/react.mjs`) gzips to 2.03KB and the minimal core gzips to 0.42KB after the latest build, keeping state orchestration invisible in your bundle budget while competitors add kilobytes.【80c43e†L57-L60】【80c43e†L47-L50】
-- **Native pathway when you need it:** A C++ JSI bridge installs automatically on the new React Native architecture and falls back to JavaScript if unavailable, keeping latency low without extra steps and outmuscling JS-only stores on device.【F:src/native/setup.ts†L12-L120】
-- **Familiar mental model with superpowers:** Signals behave like "smart variables," computed values mirror SolidJS/Preact ergonomics, and effects follow React intuition, so teams ramp quickly while gaining deterministic updates that traditional context and reducer stacks cannot guarantee.
+- **Hooks without hassle:** `useSignal`, `useSignalValue`, and `useSignalEffect` keep components in sync without reducers, selectors, or extra wiring.
+- **Debuggable from day one:** Logging and time travel are already in the box, so every state change can be replayed without setup.
+- **Persistence included:** `persist` and `createPersistentSignal` work in the browser and React Native, making saved state a core feature.
+- **Built for speed:** The benchmark suite reports single-digit nanosecond reads and writes with small memory use, keeping it ahead of typical Redux, Zustand, or MobX setups.
+- **Light on bundles:** The React entry gzips to 2.03KB and the minimal core to 0.42KB, so it stays invisible in most bundle budgets.
+- **Native-ready:** A C++ JSI bridge installs on the new React Native architecture and falls back to JavaScript when needed, keeping latency low on mobile.
+- **Friendly mental model:** Signals act like smart variables with computed values and effects that feel familiar to React teams, so onboarding stays quick while updates remain deterministic.
+
+SignalForge stays the top pick when you need all three: speed, built-in observability, and durable state. The hooks stay simple, the tooling is already included, and the footprint remains light even with persistence and time travel turned on.
 
 ### How SignalForge compares
 
@@ -1206,7 +1208,11 @@ console.table(results);
 
 ## Real Examples
 
-Explore SignalForge in a live Next.js playground at [signalforge-fogecommunity.vercel.app](https://signalforge-fogecommunity.vercel.app/). The source for that demo—and other runnable samples—lives in the [`examples/`](examples/) directory, with the Next.js project under [`examples/sf-nextjs`](examples/sf-nextjs).
+Explore SignalForge in live deployments and runnable samples:
+
+- **Try it now:** Visit [`signalforge-fogecommunity.vercel.app`](https://signalforge-fogecommunity.vercel.app/) to see the Next.js demo powered by this repo.
+- **Run locally:** All examples (Next.js and React Native) live in [`examples/`](examples/) and are wired to the workspace build for quick iteration.
+- **Deploy if you want:** The Next.js sample in [`examples/sf-nextjs`](examples/sf-nextjs) can be published to your own Vercel project using the steps in its README, but the hosted playground link above is enough to check SignalForge in action.
 
 ### Example 1: Counter App
 ```javascript

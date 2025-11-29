@@ -60,12 +60,12 @@ name.set('Bob'); // Logs: "Hello, Bob!"
 - Extensible plugin system for time-travel, logging, and persistence
 - Batched updates for efficient rendering
 - Built-in persistence utilities for localStorage and AsyncStorage
-- Optional native C++ JSI path for React Native with automatic JavaScript fallback.【F:src/native/setup.ts†L12-L120】
+- Optional native C++ JSI path for React Native with automatic JavaScript fallback.
 
 ### What makes SignalForge powerful
 
-- **Hook-first ergonomics:** `useSignal`, `useSignalValue`, and `useSignalEffect` expose signal values directly to components without selector boilerplate.【F:src/react/hooks.ts†L7-L99】
-- **Built-in plugins:** Logging, time travel, and persistence plugins ship in the package so debugging and replaying state changes does not require external middleware.【F:docs/getting-started.md†L671-L700】
+- **Hook-first ergonomics:** `useSignal`, `useSignalValue`, and `useSignalEffect` expose signal values directly to components without selector boilerplate.
+- **Built-in plugins:** Logging, time travel, and persistence plugins ship in the package so debugging and replaying state changes does not require external middleware.
 - **Measured speed:** Running `npm run benchmark` locally shows single-digit nanosecond reads and writes with ~1.6KB per signal (Node.js v20, Intel i7 reference machine).
 - **Cross-platform reach:** Works in React, React Native, and vanilla JavaScript while sharing the same API surface.
 
