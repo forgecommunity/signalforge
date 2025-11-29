@@ -1206,6 +1206,8 @@ console.table(results);
 
 ## Real Examples
 
+Explore SignalForge in a live Next.js playground at [signalforge-fogecommunity.vercel.app](https://signalforge-fogecommunity.vercel.app/). The source for that demo—and other runnable samples—lives in the [`examples/`](examples/) directory, with the Next.js project under [`examples/sf-nextjs`](examples/sf-nextjs).
+
 ### Example 1: Counter App
 ```javascript
 import { createSignal } from 'signalforge';
