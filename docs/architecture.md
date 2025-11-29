@@ -1,6 +1,5 @@
 # SignalForge Architecture Documentation
 
-## Table of Contents
 1. [Overview](#overview)
 2. [Core Concepts](#core-concepts)
 3. [Internal Graph System](#internal-graph-system)
@@ -11,7 +10,6 @@
 
 ---
 
-## Overview
 
 SignalForge is a **fine-grained reactive state management library** built on a directed acyclic graph (DAG) architecture with automatic dependency tracking. Unlike traditional state management solutions, SignalForge updates only the precise parts of your application that depend on changed values, providing exceptional performance and developer experience.
 
@@ -20,8 +18,6 @@ SignalForge is a **fine-grained reactive state management library** built on a d
 #### vs Redux
 - **Redux**: Centralized store with manual action creators and reducers
 - **SignalForge**: Distributed signals with automatic reactivity
-
-```typescript
 // Redux: Manual wiring, global store
 dispatch({ type: 'INCREMENT' });
 // Reducer runs, entire tree may re-render
@@ -34,8 +30,6 @@ count.set(count.get() + 1);
 #### vs Zustand
 - **Zustand**: Selector-based subscriptions, manual optimization
 - **SignalForge**: Automatic dependency tracking, zero manual optimization
-
-```typescript
 // Zustand: Manual selectors
 const count = useStore(state => state.count);
 
@@ -46,8 +40,6 @@ const count = useSignalValue(countSignal);
 #### vs Recoil
 - **Recoil**: Atom-based with explicit selectors
 - **SignalForge**: Signal-based with computed signals
-
-```typescript
 // Recoil: Atoms + selectors
 const textState = atom({ key: 'text', default: '' });
 const charCountState = selector({
@@ -74,11 +66,11 @@ const charCount = createComputed(() => text.get().length);
 
 ---
 
-## Core Concepts
 
 ### 1. Signals
 
 **Signals** are the fundamental reactive primitive. They hold a value and notify subscribers when the value changes.
+
 
 ```typescript
 const count = createSignal(0);
@@ -93,7 +85,6 @@ count.set(5);
 count.set(prev => prev + 1);
 
 // Subscribe
-const unsubscribe = count.subscribe(value => {
   console.log('Changed to:', value);
 });
 ```
@@ -101,10 +92,6 @@ const unsubscribe = count.subscribe(value => {
 **Architecture:**
 - Each signal maintains a `Set<ReactiveNode>` of subscribers
 - Updates are O(1) for the signal itself
-- Propagation is O(N) where N = number of subscribers
-- Uses reference equality to skip redundant updates
-
-```plantuml
 @startuml
 class Signal<T> {
   -value: T
@@ -130,17 +117,9 @@ class ReactiveNode<T> {
 }
 
 Signal --> ReactiveNode : notifies
-ReactiveNode --> Signal : depends on
-@enduml
-```
-
 ### 2. Computed Signals
 
 **Computed signals** are derived values that automatically recompute when their dependencies change.
-
-```typescript
-const firstName = createSignal('John');
-const lastName = createSignal('Doe');
 
 const fullName = createComputed(() => 
   `${firstName.get()} ${lastName.get()}`
@@ -157,11 +136,7 @@ console.log(fullName.get()); // "Jane Doe" (auto-updated)
 - **Lazy evaluation** - Only recomputes when read
 - **Memoization** - Caches result until dependencies change
 - **Multi-level** - Computed signals can depend on other computed signals
-
-```plantuml
-@startuml
 participant "firstName" as A
-participant "lastName" as B
 participant "fullName\n(computed)" as C
 participant "display\n(effect)" as D
 

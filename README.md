@@ -104,7 +104,6 @@ npm run android
 
 # iOS (macOS only)
 # First time per machine or after native changes:
-#   cd ios; bundle install; bundle exec pod install; cd ..
 npm run ios
 ```
 
@@ -112,7 +111,6 @@ Notes:
 - The example depends on the local package via `"signalforge-alpha": "file:../.."`.
 - If you change library code under `src/`, rebuild the dist and restart Metro:
   - `npm run build` at repo root, then restart `npm start` in the example.
-
 ---
 
 ## 🧠 Basic Concepts
@@ -127,7 +125,6 @@ A **signal** is like a smart variable that:
 
 ### Three Main Functions
 
-1. **`createSignal`** - Create a smart variable
 2. **`createComputed`** - Calculate based on other signals (auto-updates!)
 3. **`createEffect`** - Do something when signals change
 
@@ -141,7 +138,6 @@ A **signal** is like a smart variable that:
 
 **How to use**:
 ```javascript
-import { createSignal } from 'signalforge-alpha';
 
 // Step 1: Create a signal with initial value
 const age = createSignal(25);
@@ -167,7 +163,6 @@ function addToCart() {
   cartItems.set(count => count + 1);
 }
 
-// Get current count
 console.log('Items in cart:', cartItems.get());
 ```
 
@@ -184,6 +179,7 @@ import { createSignal, createComputed } from 'signalforge-alpha';
 // Step 1: Create base signals
 const price = createSignal(100);
 const quantity = createSignal(2);
+
 
 // Step 2: Create computed signal (auto-calculates!)
 const total = createComputed(() => {
@@ -202,7 +198,6 @@ console.log(total.get()); // 300 (auto-updated!)
 const itemPrice = createSignal(50);
 const itemCount = createSignal(3);
 const tax = createSignal(0.1); // 10% tax
-
 // Calculates automatically!
 const subtotal = createComputed(() => itemPrice.get() * itemCount.get());
 const taxAmount = createComputed(() => subtotal.get() * tax.get());
@@ -210,15 +205,6 @@ const finalTotal = createComputed(() => subtotal.get() + taxAmount.get());
 
 console.log('Subtotal:', subtotal.get());     // 150
 console.log('Tax:', taxAmount.get());         // 15
-console.log('Total:', finalTotal.get());      // 165
-
-// Change quantity - everything updates!
-itemCount.set(5);
-console.log('New Total:', finalTotal.get());  // 275 (auto-calculated!)
-```
-
----
-
 ### Level 3: Effects (Do Something When Changed)
 
 **What**: Run code automatically when signals change
@@ -255,12 +241,6 @@ createEffect(() => {
   console.log('Settings saved!');
 });
 
-// Change settings - automatically saves!
-userSettings.set({ theme: 'light', fontSize: 16 });
-// Output: "Settings saved!"
-```
-
----
 
 ### Level 4: Batch Updates (Multiple Changes at Once)
 
@@ -274,15 +254,11 @@ const firstName = createSignal('John');
 const lastName = createSignal('Doe');
 const fullName = createComputed(() => `${firstName.get()} ${lastName.get()}`);
 
-// Without batch - recalculates twice
-firstName.set('Jane');
-lastName.set('Smith');
 // fullName recalculates twice ❌
 
 // With batch - recalculates once!
 batch(() => {
   firstName.set('Jane');
-  lastName.set('Smith');
 });
 // fullName recalculates once ✅ (33x faster!)
 ```

@@ -10,11 +10,9 @@
 2. [Why SignalForge?](#why-signalforge)
 3. [Installation & Setup](#installation--setup)
 4. [Basic API Usage](#basic-api-usage)
-5. [DevTools Overview](#devtools-overview)
 6. [Plugins & Ecosystem](#plugins--ecosystem)
 7. [Roadmap](#roadmap)
 
----
 
 ## What is SignalForge?
 
@@ -26,7 +24,6 @@ SignalForge is a **lightweight, framework-agnostic reactive state management lib
 
 ```typescript
 const count = createSignal(0);
-console.log(count.get()); // 0
 count.set(5);             // Notifies all subscribers
 ```
 
@@ -76,7 +73,6 @@ name.set('Bob'); // Logs: "Hello, Bob!"
 | **Performance** | Fine-grained updates | Full state tree re-renders |
 | **Learning Curve** | Gentle | Steep |
 | **Bundle Size** | ~5KB | ~12KB (+ middleware) |
-| **Async** | Built-in | Requires middleware (thunk/saga) |
 | **DevTools** | Built-in | Requires Redux DevTools |
 | **Computed Values** | Native | Manual selectors + memoization |
 
@@ -90,6 +86,7 @@ const counterReducer = (state = { value: 0 }, action) => {
   switch (action.type) {
     case INCREMENT: return { value: state.value + 1 };
     case DECREMENT: return { value: state.value - 1 };
+
     default: return state;
   }
 };
@@ -104,7 +101,6 @@ const decrement = () => ({ type: DECREMENT });
 **SignalForge Example:**
 ```typescript
 // SignalForge: 3 lines for counter
-const count = createSignal(0);
 const increment = () => count.set(count.get() + 1);
 const decrement = () => count.set(count.get() - 1);
 
@@ -142,15 +138,6 @@ function Counter() {
 ```
 
 **SignalForge Example:**
-```typescript
-// SignalForge: Automatic optimization
-const count = createSignal(0);
-const increment = () => count.set(count.get() + 1);
-
-function Counter() {
-  return <button onClick={increment}>{useSignalValue(count)}</button>;
-}
-// Only this component re-renders, not parent or siblings
 ```
 
 ### Performance Comparison
@@ -245,7 +232,6 @@ function Counter() {
 ### React Native Setup
 
 ```typescript
-import { createSignal, useSignalValue } from 'signalforge';
 import { View, Text, Button } from 'react-native';
 
 const count = createSignal(0);

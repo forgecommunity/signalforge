@@ -24,7 +24,6 @@ function Counter() {
 
 ## 📦 Installation
 
-```bash
 npm install signalforge
 ```
 
@@ -46,7 +45,6 @@ const user = createSignal({ name: 'John', age: 30 });
 const value = count.get();
 
 // Write
-count.set(10);
 count.set(prev => prev + 1);
 
 // Subscribe to changes
@@ -54,7 +52,6 @@ const unsubscribe = count.subscribe(value => console.log(value));
 
 // Cleanup
 unsubscribe();
-```
 
 #### `createComputed<T>(fn: () => T): ComputedSignal<T>`
 
@@ -104,6 +101,7 @@ batch(() => {
   a.set(10);
   b.set(20);
 });
+
 ```
 
 #### `untrack<T>(fn: () => T): T`
@@ -215,30 +213,16 @@ Log all signal changes automatically.
 
 ```typescript
 import { registerPlugin } from 'signalforge/plugins';
-import { LoggerPlugin } from 'signalforge/plugins';
-
-// Enable in development
 if (__DEV__) {
   const logger = new LoggerPlugin({ 
     verbose: true,
-    logLevel: 'info'
-  });
-  registerPlugin('logger', logger);
 }
 
 // Now all signal changes are logged!
-```
-
-#### Time Travel Plugin
 
 Undo/redo functionality.
 
-```typescript
-import { registerPlugin } from 'signalforge/plugins';
-import { TimeTravelPlugin } from 'signalforge/plugins';
-
 const timeTravel = new TimeTravelPlugin({ 
-  maxHistory: 100 
 });
 registerPlugin('timeTravel', timeTravel);
 
