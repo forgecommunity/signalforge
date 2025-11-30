@@ -43,7 +43,7 @@ export interface Spec extends TurboModule {
    * - Stores in thread-safe unordered_map
    * - Returns generated unique ID
    */
-  createSignal(initialValue: any): string;
+  createSignal(initialValue: Object): string;
 
   /**
    * Get the current value of a signal
@@ -57,7 +57,7 @@ export interface Spec extends TurboModule {
    * - Acquires read lock
    * - Returns value (converted to JS type)
    */
-  getSignal(signalId: string): any;
+  getSignal(signalId: string): Object;
 
   /**
    * Update a signal's value
@@ -73,7 +73,7 @@ export interface Spec extends TurboModule {
    * - Atomically increments version
    * - Notifies subscribers
    */
-  setSignal(signalId: string, newValue: any): void;
+  setSignal(signalId: string, newValue: Object): void;
 
   /**
    * Check if a signal exists
@@ -130,7 +130,7 @@ export interface Spec extends TurboModule {
    * - Updates each signal in sequence
    * - Version increments are atomic per signal
    */
-  batchUpdate(updates: Array<[string, any]>): void;
+  batchUpdate(updates: Array<[string, Object]>): void;
 
   /**
    * Get the total number of signals in the store
@@ -202,20 +202,10 @@ export interface Spec extends TurboModule {
 // avoid additional direct references outside the ensure function above.
 const moduleName = 'NativeSignalForge';
 const legacyModuleName = 'SignalForge';
-const turboModuleProxy: Spec | null =
-  TurboModuleRegistry.get<Spec>(moduleName) ??
-  TurboModuleRegistry.get<Spec>(legacyModuleName);
-
 export function getNativeModule(): Spec | null {
   try {
     // Access TurboModuleRegistry from React Native environment
-    const module = turboModuleProxy;
-    if (module) {
-      return module;
-    }
-
-    // Fallback for environments where TurboModuleRegistry is exposed differently
-    const registry = (global as any)?.TurboModuleRegistry;
+    const registry = (global as any)?.TurboModuleRegistry ?? TurboModuleRegistry;
     if (registry && typeof registry.get === 'function') {
       return (
         registry.get(moduleName) ??

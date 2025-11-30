@@ -41,7 +41,7 @@ SignalForge stays the top pick when you need all three: speed, built-in observab
 | Native React Native path | Optional C++ JSI bridge with JS fallback | JS only | JS only | JS only | JS only |
 | Bundle size snapshot (gzip) | 2.03KB for `entries/react.mjs` | 4.41KB for `redux/dist/redux.mjs` | 0.07KB for `zustand/esm/index.mjs` | Not measured here | Part of React runtime |
 
-All size measurements come from the `npm run size` output in this repository and gzipping the comparison libraries from `node_modules`.【80c43e†L57-L60】【408c84†L1-L4】
+All size measurements come from the `npm run size` output in this repository and gzipping the comparison libraries from `node_modules`.
 
 ---
 
@@ -465,7 +465,9 @@ npm install @react-native-async-storage/async-storage
 cd ios && pod install  # iOS only
 ```
 
-To enable the native C++ path on React Native 0.68+ with the new architecture, turn on the new-architecture flags (`newArchEnabled=true` on Android, `ENV['RCT_NEW_ARCH_ENABLED']='1'` on iOS) and rebuild so the JSI bindings are compiled and auto-linked.【F:src/native/setup.ts†L12-L50】 For older architectures, you can install the bindings at runtime using `installJSIBindings()` during app startup.【F:src/native/setup.ts†L67-L120】 If the native module is unavailable, SignalForge falls back to the JavaScript implementation automatically.【F:src/native/setup.ts†L93-L120】
+To enable the native C++ path on React Native 0.68+ with the new architecture, turn on the new-architecture flags (`newArchEnabled=true` on Android, `ENV['RCT_NEW_ARCH_ENABLED']='1'` on iOS) and rebuild so the JSI bindings are compiled and auto-linked.
+ For older architectures, you can install the bindings at runtime using `installJSIBindings()` during app startup.
+ If the native module is unavailable, SignalForge falls back to the JavaScript implementation automatically.
 
 ### Basic Usage
 
@@ -562,9 +564,6 @@ module.exports = mergeConfig(getDefaultConfig(__dirname), config);
 
 **Issue**: "AsyncStorage not found"  
 **Solution**: Install `@react-native-async-storage/async-storage` and run `pod install` for iOS
-
-**Issue**: "Module not found: signalforge/utils"  
-**Solution**: Rebuild the library with `npm run build` from the repo root
 
 **Issue**: "Hooks not working"  
 **Solution**: Clear Metro cache: `npm start -- --reset-cache`
@@ -1392,14 +1391,14 @@ All figures come from running `npm run benchmark` locally on Node.js v20 (Intel 
 
 | Library entry point | Measured size | How we measured |
 | --- | --- | --- |
-| SignalForge React entry (`dist/entries/react.mjs`) | 2.03KB | `npm run size` (gzip output from `scripts/check-size.js`).【853e6c†L33-L59】 |
-| SignalForge minimal core (`dist/core/minimal.mjs`) | 0.42KB | `npm run size` (gzip output from `scripts/check-size.js`).【853e6c†L23-L35】 |
-| Redux (`node_modules/redux/dist/redux.mjs`) | 4.41KB | `gzip -c node_modules/redux/dist/redux.mjs | wc -c`.【0120ad†L1-L3】 |
-| Zustand (`node_modules/zustand/esm/index.mjs`) | 0.07KB | `gzip -c node_modules/zustand/esm/index.mjs | wc -c`.【4bfd60†L1-L3】 |
+| SignalForge React entry (`dist/entries/react.mjs`) | 2.03KB | `npm run size` (gzip output from `scripts/check-size.js`). |
+| SignalForge minimal core (`dist/core/minimal.mjs`) | 0.42KB | `npm run size` (gzip output from `scripts/check-size.js`). |
+| Redux (`node_modules/redux/dist/redux.mjs`) | 4.41KB | `gzip -c node_modules/redux/dist/redux.mjs | wc -c`. |
+| Zustand (`node_modules/zustand/esm/index.mjs`) | 0.07KB | `gzip -c node_modules/zustand/esm/index.mjs | wc -c`.4b |
 | Recoil        | 35ms           | 5ms                | 68ms             | 6MB          |
 | Zustand       | 24ms           | 4ms                | 48ms             | 3MB          |
 
-Numbers are from the architecture benchmark section included in this repository.【F:docs/architecture.md†L876-L892】
+Numbers are from the architecture benchmark section included in this repository.
 
 ### Bundle Size Comparison (minified + gzipped)
 
@@ -1413,7 +1412,7 @@ Numbers are from the architecture benchmark section included in this repository.
 | MobX        | 16.2 KB |
 | Redux       | 8.1 KB (+13KB for Toolkit) |
 
-Bundle sizes reflect the comparison recorded in the architecture documentation.【F:docs/architecture.md†L894-L901】
+Bundle sizes reflect the comparison recorded in the architecture documentation.
 
 **Why it performs well**
 - Zero external dependencies in the core runtime.
@@ -1548,5 +1547,3 @@ If you like SignalForge, please:
 - Improve docs
 
 ---
-
-**Happy coding with SignalForge!**

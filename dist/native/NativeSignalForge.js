@@ -4,15 +4,9 @@ export function __ensureTurboModuleLoaded__() {
 }
 const moduleName = 'NativeSignalForge';
 const legacyModuleName = 'SignalForge';
-const turboModuleProxy = TurboModuleRegistry.get(moduleName) ??
-    TurboModuleRegistry.get(legacyModuleName);
 export function getNativeModule() {
     try {
-        const module = turboModuleProxy;
-        if (module) {
-            return module;
-        }
-        const registry = global?.TurboModuleRegistry;
+        const registry = global?.TurboModuleRegistry ?? TurboModuleRegistry;
         if (registry && typeof registry.get === 'function') {
             return (registry.get(moduleName) ??
                 registry.get(legacyModuleName));

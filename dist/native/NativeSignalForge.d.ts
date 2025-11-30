@@ -1,13 +1,13 @@
 import { TurboModule } from 'react-native';
 export declare function __ensureTurboModuleLoaded__(): void;
 export interface Spec extends TurboModule {
-    createSignal(initialValue: any): string;
-    getSignal(signalId: string): any;
-    setSignal(signalId: string, newValue: any): void;
+    createSignal(initialValue: Object): string;
+    getSignal(signalId: string): Object;
+    setSignal(signalId: string, newValue: Object): void;
     hasSignal(signalId: string): boolean;
     deleteSignal(signalId: string): void;
     getSignalVersion(signalId: string): number;
-    batchUpdate(updates: Array<[string, any]>): void;
+    batchUpdate(updates: Array<[string, Object]>): void;
     getSignalCount(): number;
     clearAllSignals(): void;
     getMetadata(): {
