@@ -196,6 +196,7 @@ export interface Spec extends TurboModule {
  * automatically handles fallback and provides a cleaner API.
  */
 // React Native codegen expects the module to be referenced with the exact
+<<<<<<< ours
 // TurboModule spec name. Load using the primary TurboModule name first to
 // satisfy codegen's "Unused NativeModule spec" validation. Codegen requires
 // the literal module name to appear in a `TurboModuleRegistry.get` call, so
@@ -203,6 +204,36 @@ export interface Spec extends TurboModule {
 const moduleName = 'NativeSignalForge';
 const turboModuleProxy: Spec | null =
   (TurboModuleRegistry.get as any)(moduleName) ?? null;
+=======
+// TurboModule spec name. Internally we still support the legacy module name
+<<<<<<< ours
+<<<<<<< ours
+// used by the ObjC bridge (SignalForge), so we attempt both via indirect
+// lookups to avoid triggering additional Codegen validations.
+const turboModuleProxy: Spec | null = (() => {
+  try {
+    return (TurboModuleRegistry.get as any)(MODULE_NAME) ?? null;
+  } catch {
+    return null;
+  }
+})();
+>>>>>>> theirs
+=======
+=======
+>>>>>>> theirs
+// used by the ObjC bridge (SignalForge), so we attempt both.
+// Load using the primary TurboModule name first to satisfy codegen's
+// "Unused NativeModule spec" validation. Codegen requires the literal module
+// name to appear in the `TurboModuleRegistry.get` call, so avoid indirection.
+// If the new architecture module isn't registered, fall back to the legacy
+// ObjC identifier.
+const turboModuleProxy: Spec | null =
+  TurboModuleRegistry.get<Spec>('NativeSignalForge') ??
+  TurboModuleRegistry.get<Spec>('SignalForge');
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 
 export function getNativeModule(): Spec | null {
   try {
@@ -212,12 +243,29 @@ export function getNativeModule(): Spec | null {
       return module;
     }
 
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
     // Fallback for environments where TurboModuleRegistry is exposed differently
     const registry = (global as any)?.TurboModuleRegistry as
       | { get?: (name: string) => Spec | null }
       | undefined;
     if (registry && typeof registry.get === 'function') {
       return registry.get(moduleName) ?? null;
+=======
+=======
+    // Fallback for environments where TurboModuleRegistry is exposed differently
+>>>>>>> theirs
+=======
+    // Fallback for environments where TurboModuleRegistry is exposed differently
+>>>>>>> theirs
+    const registry = (global as any)?.TurboModuleRegistry;
+    if (registry && typeof registry.get === 'function') {
+      return (
+        registry.get('NativeSignalForge') ??
+        registry.get('SignalForge')
+      ) as Spec | null;
+>>>>>>> theirs
     }
 
     return null;
