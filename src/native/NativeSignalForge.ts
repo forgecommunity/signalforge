@@ -15,23 +15,7 @@
  * operations as it avoids the TurboModule bridge overhead.
  */
 
-// Type declarations for React Native TurboModule system
-// These are provided by React Native when installed
-// Note: Commented out to avoid conflicts with react-native types
-// declare module 'react-native' {
-//   export interface TurboModuleRegistry {
-//     get<T extends TurboModule>(name: string): T | null;
-//   }
-//   export const TurboModuleRegistry: TurboModuleRegistry;
-// }
-
-/**
- * Base interface for TurboModules
- * Provided by React Native's new architecture
- */
-export interface TurboModule {
-  getConstants?: () => {};
-}
+import { TurboModule, TurboModuleRegistry } from 'react-native';
 
 /**
  * TurboModule Interface Specification
@@ -205,13 +189,35 @@ export interface Spec extends TurboModule {
  * Note: In most cases, you should use jsiBridge.ts instead, which
  * automatically handles fallback and provides a cleaner API.
  */
+const MODULE_NAME = 'SignalForge';
+
+// Load the TurboModule at module initialization time using a literal module
+// name so React Native codegen can detect that the spec is actually
+// referenced. This satisfies the "Unused NativeModule spec" guard while still
+// allowing us to fall back gracefully when the TurboModule is unavailable
+// (e.g., old architecture or not linked).
+const turboModuleProxy: Spec | null = (() => {
+  try {
+    return TurboModuleRegistry.get<Spec>('SignalForge');
+  } catch (e) {
+    return null;
+  }
+})();
+
 export function getNativeModule(): Spec | null {
   try {
-    // Access TurboModuleRegistry from global in React Native environment
+    // Access TurboModuleRegistry from React Native environment
+    const module = turboModuleProxy;
+    if (module) {
+      return module;
+    }
+
+    // Fallback for environments where TurboModuleRegistry is exposed differently
     const registry = (global as any)?.TurboModuleRegistry;
     if (registry && typeof registry.get === 'function') {
-      return registry.get('SignalForge') as Spec | null;
+      return registry.get(MODULE_NAME) as Spec | null;
     }
+
     return null;
   } catch (e) {
     // Module not available (not using new architecture or not linked)
