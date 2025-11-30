@@ -196,16 +196,13 @@ export interface Spec extends TurboModule {
  * automatically handles fallback and provides a cleaner API.
  */
 // React Native codegen expects the module to be referenced with the exact
-// TurboModule spec name. Internally we still support the legacy module name
-// used by the ObjC bridge (SignalForge), so we attempt both.
-// Load using the primary TurboModule name first to satisfy codegen's
-// "Unused NativeModule spec" validation. Codegen requires the literal module
-// name to appear in the `TurboModuleRegistry.get` call, so avoid indirection.
-// If the new architecture module isn't registered, fall back to the legacy
-// ObjC identifier.
+// TurboModule spec name. Load using the primary TurboModule name first to
+// satisfy codegen's "Unused NativeModule spec" validation. Codegen requires
+// the literal module name to appear in a `TurboModuleRegistry.get` call, so
+// avoid additional direct references outside the ensure function above.
+const moduleName = 'NativeSignalForge';
 const turboModuleProxy: Spec | null =
-  TurboModuleRegistry.get<Spec>('NativeSignalForge') ??
-  TurboModuleRegistry.get<Spec>('SignalForge');
+  (TurboModuleRegistry.get as any)(moduleName) ?? null;
 
 export function getNativeModule(): Spec | null {
   try {
@@ -216,12 +213,11 @@ export function getNativeModule(): Spec | null {
     }
 
     // Fallback for environments where TurboModuleRegistry is exposed differently
-    const registry = (global as any)?.TurboModuleRegistry;
+    const registry = (global as any)?.TurboModuleRegistry as
+      | { get?: (name: string) => Spec | null }
+      | undefined;
     if (registry && typeof registry.get === 'function') {
-      return (
-        registry.get('NativeSignalForge') ??
-        registry.get('SignalForge')
-      ) as Spec | null;
+      return registry.get(moduleName) ?? null;
     }
 
     return null;

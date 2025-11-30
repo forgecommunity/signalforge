@@ -2,8 +2,8 @@ import { TurboModuleRegistry } from 'react-native';
 export function __ensureTurboModuleLoaded__() {
     TurboModuleRegistry.get('NativeSignalForge');
 }
-const turboModuleProxy = TurboModuleRegistry.get('NativeSignalForge') ??
-    TurboModuleRegistry.get('SignalForge');
+const moduleName = 'NativeSignalForge';
+const turboModuleProxy = TurboModuleRegistry.get(moduleName) ?? null;
 export function getNativeModule() {
     try {
         const module = turboModuleProxy;
@@ -12,8 +12,7 @@ export function getNativeModule() {
         }
         const registry = global?.TurboModuleRegistry;
         if (registry && typeof registry.get === 'function') {
-            return (registry.get('NativeSignalForge') ??
-                registry.get('SignalForge'));
+            return registry.get(moduleName) ?? null;
         }
         return null;
     }

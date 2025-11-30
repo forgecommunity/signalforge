@@ -4,8 +4,8 @@ module.exports = {
       platforms: {
         ios: {
           codegenConfig: {
-            name: 'NativeSignalForge',
-            jsSrcsDir: 'src',
+            name: "NativeSignalForge",
+            jsSrcsDir: "src",
           },
         },
       },
