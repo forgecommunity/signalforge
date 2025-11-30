@@ -5,6 +5,29 @@ All notable changes to SignalForge will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2025-12-02
+
+### Added
+- Shipped `signalforge.podspec` with published native sources so iOS installs are just `npm install` followed by `cd ios && pod install`.
+- Added automatic React Native installer detection so the JSI bindings attempt to attach during startup before falling back to JavaScript.
+
+### Fixed
+- Documented iOS minimum version/support expectations and CocoaPods setup in the README.
+
+## [0.1.3] - 2025-12-01
+
+### Added
+- New `withSignals` / `withSignalValue` helpers for class components on React and React Native
+- React Native demo screen showing class component usage via `withSignals`
+
+### Changed
+- Documented minimum supported versions (React 18+, React Native 0.74+) and clarified iOS support expectations
+
+## [0.1.2] - 2025-11-30
+
+### Fixed
+- Included `src/native` in published files so React Native codegen can locate the TurboModule spec during iOS builds
+
 ## [0.1.1] - 2025-11-29
 
 ### Fixed

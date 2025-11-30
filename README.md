@@ -81,6 +81,14 @@ That's it! You just created your first signal.
 
 ---
 
+## Compatibility & Platform Support
+
+- **React**: 18.0.0 or newer (hooks and class helpers are tested on 18+)
+- **React Native**: 0.74.0 or newer (iOS + Android). The optional new-architecture JSI bridge is supported; JS fallback is automatic when the native module is unavailable.
+- **iOS**: iOS 13.0+ via CocoaPods. The npm package ships `signalforge.podspec` and `src/native` for codegen so a simple `cd ios && pod install` wires in the native bridge. JS-only mode works without native code if you prefer minimal setup.
+
+---
+
 ## Installation
 
 ### For Web Projects
@@ -99,6 +107,12 @@ npm install @react-native-async-storage/async-storage
 cd ios && pod install && cd ..
 ```
 
+**iOS installation checklist**
+
+- The package includes `signalforge.podspec`, so CocoaPods picks it up automatically when you run `pod install`.
+- No manual source copying is required; `src/native` is published with the npm package for codegen.
+- The runtime tries to install the JSI bindings automatically on React Native. If the native bridge is unavailable, the library falls back to JavaScript.
+
 ### Run the React Native Example (Local)
 
 Want to try it quickly in a real app? This repo includes a React Native example wired to the local package.
@@ -108,8 +122,8 @@ Want to try it quickly in a real app? This repo includes a React Native example 
 npm install
 npm run build
 
-# Then install and run the example app
-cd examples/example
+# Then install and run the React Native example app
+cd examples/sfReactNative
 npm install
 npm start
 ```
@@ -410,7 +424,30 @@ function UserProfile() {
   
   return <div>{userData?.name}</div>;
 }
+
+#### Method D: Class components (no hooks required)
+```tsx
+import React from 'react';
+import { createSignal } from 'signalforge';
+import { withSignals } from 'signalforge/react';
+
+const counter = createSignal(0);
+
+class CounterPanel extends React.Component<{ count: number }> {
+  render() {
+    return (
+      <div>
+        <p>Count: {this.props.count}</p>
+        <button onClick={() => counter.set((value) => value + 1)}>Add one</button>
+      </div>
+    );
+  }
+}
+
+export default withSignals(CounterPanel, { count: counter });
 ```
+
+`withSignals` subscribes on mount, unsubscribes on unmount, and injects the latest signal values as props—perfect for existing React or React Native class components that cannot use hooks.
 
 ---
 
@@ -455,6 +492,10 @@ function App() {
   );
 }
 ```
+
+### Class components in React Native
+
+Prefer classes over hooks? Use `withSignals` the same way you would on web. The demo app under `examples/sfReactNative` includes `ClassComponentScreen.tsx`, which renders a class-based panel that stays in sync with signals injected as props.
 
 ### Persistent Storage in React Native
 

@@ -1,10 +1,26 @@
+function getNativeInstaller() {
+    if (typeof global.installSignalForgeJSI === 'function') {
+        return global.installSignalForgeJSI;
+    }
+    try {
+        const { NativeModules } = require('react-native');
+        const installer = NativeModules?.SignalForge?.install;
+        if (typeof installer === 'function') {
+            return installer;
+        }
+    }
+    catch (error) {
+    }
+    return undefined;
+}
 export function installJSIBindings() {
     if (typeof global.__signalForgeCreateSignal === 'function') {
         return true;
     }
-    if (typeof global.installSignalForgeJSI === 'function') {
+    const installer = getNativeInstaller();
+    if (typeof installer === 'function') {
         try {
-            const result = global.installSignalForgeJSI();
+            const result = installer();
             if (result) {
                 console.log('[SignalForge] JSI bindings installed successfully');
                 return true;

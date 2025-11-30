@@ -655,7 +655,7 @@ export function createComputed<T>(computeFn: () => T): ComputedSignal<T> {
   const signal: ComputedSignal<T> = {
     get: () => getValue(node, signal),
     set: (() => {
-      throw new Error('Cannot set computed signal');
+      throw new Error('Cannot set a computed signal');
     }) as any,
     subscribe: (listener: (value: T) => void) => subscribe(node, listener),
     destroy: () => destroyNode(node),

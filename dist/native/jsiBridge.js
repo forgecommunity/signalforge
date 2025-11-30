@@ -8,7 +8,16 @@ const isNativeAvailable = () => {
         typeof global.__signalForgeGetVersion === 'function' &&
         typeof global.__signalForgeBatchUpdate === 'function');
 };
-const NATIVE_AVAILABLE = isNativeAvailable();
+const NATIVE_PRESENT_AT_LOAD = isNativeAvailable();
+try {
+    if (!NATIVE_PRESENT_AT_LOAD) {
+        const { installJSIBindings } = require('./setup');
+        installJSIBindings();
+    }
+}
+catch (error) {
+}
+const NATIVE_READY = isNativeAvailable();
 let jsStore = null;
 const getJsStore = () => {
     if (!jsStore) {
@@ -17,7 +26,7 @@ const getJsStore = () => {
     return jsStore;
 };
 export const createSignal = (initialValue) => {
-    if (NATIVE_AVAILABLE) {
+    if (NATIVE_READY) {
         const id = global.__signalForgeCreateSignal(initialValue);
         return { id };
     }
@@ -26,14 +35,14 @@ export const createSignal = (initialValue) => {
     return { id: signal.__id || String(Math.random()) };
 };
 export const getSignal = (signalRef) => {
-    if (NATIVE_AVAILABLE) {
+    if (NATIVE_READY) {
         return global.__signalForgeGetSignal(signalRef.id);
     }
     const store = getJsStore();
     throw new Error('JavaScript fallback for getSignal not fully implemented');
 };
 export const setSignal = (signalRef, value) => {
-    if (NATIVE_AVAILABLE) {
+    if (NATIVE_READY) {
         global.__signalForgeSetSignal(signalRef.id, value);
         return;
     }
@@ -41,25 +50,25 @@ export const setSignal = (signalRef, value) => {
     throw new Error('JavaScript fallback for setSignal not fully implemented');
 };
 export const hasSignal = (signalRef) => {
-    if (NATIVE_AVAILABLE) {
+    if (NATIVE_READY) {
         return global.__signalForgeHasSignal(signalRef.id);
     }
     return false;
 };
 export const deleteSignal = (signalRef) => {
-    if (NATIVE_AVAILABLE) {
+    if (NATIVE_READY) {
         global.__signalForgeDeleteSignal(signalRef.id);
         return;
     }
 };
 export const getSignalVersion = (signalRef) => {
-    if (NATIVE_AVAILABLE) {
+    if (NATIVE_READY) {
         return global.__signalForgeGetVersion(signalRef.id);
     }
     return 0;
 };
 export const batchUpdate = (updates) => {
-    if (NATIVE_AVAILABLE) {
+    if (NATIVE_READY) {
         const nativeUpdates = updates.map(([ref, value]) => [
             ref.id,
             value,
@@ -72,19 +81,19 @@ export const batchUpdate = (updates) => {
     }
 };
 export const isUsingNative = () => {
-    return NATIVE_AVAILABLE;
+    return NATIVE_READY;
 };
 export const getImplementationInfo = () => {
     return {
-        native: NATIVE_AVAILABLE,
-        engine: NATIVE_AVAILABLE
+        native: NATIVE_READY,
+        engine: NATIVE_READY
             ? (typeof HermesInternal !== 'undefined' ? 'Hermes' : 'JSC')
             : 'JavaScript',
         features: {
-            directMemoryAccess: NATIVE_AVAILABLE,
-            atomicOperations: NATIVE_AVAILABLE,
-            threadSafe: NATIVE_AVAILABLE,
-            sharedPtrManagement: NATIVE_AVAILABLE,
+            directMemoryAccess: NATIVE_READY,
+            atomicOperations: NATIVE_READY,
+            threadSafe: NATIVE_READY,
+            sharedPtrManagement: NATIVE_READY,
         },
     };
 };

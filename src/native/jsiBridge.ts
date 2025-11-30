@@ -80,10 +80,22 @@ const isNativeAvailable = (): boolean => {
 };
 
 /**
- * Cache the detection result
- * Native availability doesn't change during runtime
+ * Cache the detection result before attempting installation
  */
-const NATIVE_AVAILABLE = isNativeAvailable();
+const NATIVE_PRESENT_AT_LOAD = isNativeAvailable();
+
+// Attempt to install the native bindings on React Native before falling back
+try {
+  if (!NATIVE_PRESENT_AT_LOAD) {
+    // Lazy import to avoid bundling React Native in non-RN builds
+    const { installJSIBindings } = require('./setup');
+    installJSIBindings();
+  }
+} catch (error) {
+  // Non-RN environments (web/Node) will skip installation gracefully
+}
+
+const NATIVE_READY = isNativeAvailable();
 
 // ============================================================================
 // Fallback JavaScript Store
@@ -138,7 +150,7 @@ const getJsStore = (): FallbackStore => {
  * @returns SignalRef containing unique signal ID
  */
 export const createSignal = <T = any>(initialValue: T): SignalRef => {
-  if (NATIVE_AVAILABLE) {
+  if (NATIVE_READY) {
     // Direct JSI call - no overhead, direct C++ execution
     const id = global.__signalForgeCreateSignal!(initialValue);
     return { id };
@@ -168,7 +180,7 @@ export const createSignal = <T = any>(initialValue: T): SignalRef => {
  * @throws Error if signal doesn't exist
  */
 export const getSignal = <T = any>(signalRef: SignalRef): T => {
-  if (NATIVE_AVAILABLE) {
+  if (NATIVE_READY) {
     // Direct C++ memory access - returns value immediately
     return global.__signalForgeGetSignal!(signalRef.id) as T;
   }
@@ -204,7 +216,7 @@ export const getSignal = <T = any>(signalRef: SignalRef): T => {
  * @throws Error if signal doesn't exist
  */
 export const setSignal = <T = any>(signalRef: SignalRef, value: T): void => {
-  if (NATIVE_AVAILABLE) {
+  if (NATIVE_READY) {
     // Direct C++ call - updates C++ memory and triggers atomic version bump
     global.__signalForgeSetSignal!(signalRef.id, value);
     return;
@@ -226,7 +238,7 @@ export const setSignal = <T = any>(signalRef: SignalRef, value: T): void => {
  * @returns true if signal exists, false otherwise
  */
 export const hasSignal = (signalRef: SignalRef): boolean => {
-  if (NATIVE_AVAILABLE) {
+  if (NATIVE_READY) {
     return global.__signalForgeHasSignal!(signalRef.id);
   }
   
@@ -248,7 +260,7 @@ export const hasSignal = (signalRef: SignalRef): boolean => {
  * @param signalRef - Reference to the signal to delete
  */
 export const deleteSignal = (signalRef: SignalRef): void => {
-  if (NATIVE_AVAILABLE) {
+  if (NATIVE_READY) {
     global.__signalForgeDeleteSignal!(signalRef.id);
     return;
   }
@@ -281,7 +293,7 @@ export const deleteSignal = (signalRef: SignalRef): void => {
  * @returns Current version number (increments on each update)
  */
 export const getSignalVersion = (signalRef: SignalRef): number => {
-  if (NATIVE_AVAILABLE) {
+  if (NATIVE_READY) {
     // Lock-free atomic read - fastest possible change detection
     return global.__signalForgeGetVersion!(signalRef.id);
   }
@@ -308,7 +320,7 @@ export const getSignalVersion = (signalRef: SignalRef): number => {
  * @param updates - Array of [signalRef, value] tuples
  */
 export const batchUpdate = (updates: [SignalRef, any][]): void => {
-  if (NATIVE_AVAILABLE) {
+  if (NATIVE_READY) {
     // Convert SignalRef[] to string[] for C++ consumption
     const nativeUpdates: [string, any][] = updates.map(([ref, value]) => [
       ref.id,
@@ -335,7 +347,7 @@ export const batchUpdate = (updates: [SignalRef, any][]): void => {
  * @returns true if using native C++ implementation, false if using JS fallback
  */
 export const isUsingNative = (): boolean => {
-  return NATIVE_AVAILABLE;
+  return NATIVE_READY;
 };
 
 /**
@@ -345,15 +357,15 @@ export const isUsingNative = (): boolean => {
  */
 export const getImplementationInfo = () => {
   return {
-    native: NATIVE_AVAILABLE,
-    engine: NATIVE_AVAILABLE
+    native: NATIVE_READY,
+    engine: NATIVE_READY
       ? (typeof HermesInternal !== 'undefined' ? 'Hermes' : 'JSC')
       : 'JavaScript',
     features: {
-      directMemoryAccess: NATIVE_AVAILABLE,
-      atomicOperations: NATIVE_AVAILABLE,
-      threadSafe: NATIVE_AVAILABLE,
-      sharedPtrManagement: NATIVE_AVAILABLE,
+      directMemoryAccess: NATIVE_READY,
+      atomicOperations: NATIVE_READY,
+      threadSafe: NATIVE_READY,
+      sharedPtrManagement: NATIVE_READY,
     },
   };
 };

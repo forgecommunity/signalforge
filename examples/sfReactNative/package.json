@@ -15,7 +15,7 @@
     "react": "19.1.1",
     "react-native": "0.82.1",
     "react-native-safe-area-context": "^5.5.2",
-    "signalforge": "^0.1.0"
+    "signalforge": "^0.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

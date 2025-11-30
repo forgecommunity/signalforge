@@ -1,6 +1,6 @@
 {
   "name": "signalforge",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "Fine-grained reactive state management with automatic dependency tracking - Ultra-optimized, zero dependencies",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -142,6 +142,8 @@
   },
   "files": [
     "dist",
+    "src/native",
+    "signalforge.podspec",
     "CMakeLists.txt",
     "README.md",
     "LICENSE"

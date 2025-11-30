@@ -25,3 +25,9 @@ export {
 export {
   useSignalEffect,
 } from '../hooks/useSignalEffect';
+
+// Class component integration helpers
+export {
+  withSignals,
+  withSignalValue,
+} from '../react/classSupport';

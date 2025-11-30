@@ -69,6 +69,34 @@ declare global {
   var installSignalForgeJSI: (() => boolean) | undefined;
 }
 
+type NativeInstaller = (() => boolean) | undefined;
+
+/**
+ * Resolve the best available native installer.
+ *
+ * Priority order:
+ * 1) A global injected installer (old architecture/manual install)
+ * 2) The native module exported via React Native (new architecture default)
+ */
+function getNativeInstaller(): NativeInstaller {
+  if (typeof global.installSignalForgeJSI === 'function') {
+    return global.installSignalForgeJSI;
+  }
+
+  try {
+    // Lazy-require so web/Node builds do not attempt to load react-native
+    const { NativeModules } = require('react-native');
+    const installer = NativeModules?.SignalForge?.install;
+    if (typeof installer === 'function') {
+      return installer;
+    }
+  } catch (error) {
+    // Non-react-native environments will land here (expected)
+  }
+
+  return undefined;
+}
+
 /**
  * Install JSI bindings at runtime
  * 
@@ -97,9 +125,10 @@ export function installJSIBindings(): boolean {
   }
 
   // Check if installer function is available
-  if (typeof global.installSignalForgeJSI === 'function') {
+  const installer = getNativeInstaller();
+  if (typeof installer === 'function') {
     try {
-      const result = global.installSignalForgeJSI();
+      const result = installer();
       if (result) {
         console.log('[SignalForge] JSI bindings installed successfully');
         return true;

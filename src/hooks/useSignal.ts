@@ -2,7 +2,7 @@
  * React integration for SignalForge
  * 
  * Simple, stable implementation for React and React Native.
- * Works with React 16.8+ and React Native 0.60+
+ * Works with React 18+ and React Native 0.74+ (aligned with peer dependencies)
  * 
  * Provides hooks to use signals within React components.
  * Optional - only use if you're building a React application.

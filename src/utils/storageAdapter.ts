@@ -107,38 +107,20 @@ export interface StorageOptions {
  * FIXED: Improved SSR-safe and React Native detection
  */
 export function detectEnvironment(): Environment {
-  // SSR-safe check: ensure we're not on the server
-  if (typeof window === 'undefined') {
-    return 'node';
-  }
+  const g: any = typeof global !== 'undefined' ? global : undefined;
+  const w: any = typeof window !== 'undefined' ? window : undefined;
 
-  // Enhanced React Native detection
-  if (typeof global !== 'undefined') {
-    const g: any = global;
-    // Check for Hermes engine or React Native bridge
-    if (
-      g.HermesInternal ||
-      g.__fbBatchedBridgeConfig ||
-      g.nativeModuleProxy
-    ) {
-      return 'react-native';
-    }
-  }
-
-  // Check for React Native via navigator
+  // Enhanced React Native detection (works even when window is undefined in Node/SSR)
   if (
-    typeof navigator !== 'undefined' &&
-    navigator.product === 'ReactNative'
+    (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') ||
+    (w?.navigator?.product === 'ReactNative') ||
+    (g?.HermesInternal || g?.__fbBatchedBridgeConfig || g?.nativeModuleProxy || g?.__turboModuleProxy)
   ) {
     return 'react-native';
   }
 
-  // Check for web browser with localStorage
-  if (
-    typeof window !== 'undefined' &&
-    typeof document !== 'undefined' &&
-    typeof window.localStorage !== 'undefined'
-  ) {
+  // Web detection: prefer presence of localStorage on window/global even when document is missing (e.g., JSDOM/happy-dom)
+  if (w?.localStorage || g?.localStorage) {
     return 'web';
   }
 

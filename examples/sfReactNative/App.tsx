@@ -36,6 +36,7 @@ import PersistentSignalScreen from './screens/PersistentSignalScreen';
 import TimeTravelScreen from './screens/TimeTravelScreen';
 import DevToolsScreen from './screens/DevToolsScreen';
 import BigDataScreen from './screens/BigDataScreen';
+import ClassComponentScreen from './screens/ClassComponentScreen';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -67,7 +68,8 @@ function AppContent() {
     { id: 'persist', title: '12. Persistent Signal', component: PersistentSignalScreen },
     { id: 'timetravel', title: '13. Time Travel ⏱️', component: TimeTravelScreen },
     { id: 'devtools', title: '14. DevTools 🛠️', component: DevToolsScreen },
-    { id: 'bigdata', title: '15. Big Data 📊', component: BigDataScreen },
+    { id: 'class', title: '15. Class Components', component: ClassComponentScreen },
+    { id: 'bigdata', title: '16. Big Data 📊', component: BigDataScreen },
   ];
 
   const CurrentScreenComponent = screens.find(s => s.id === currentScreen)?.component;

@@ -1,23 +1,13 @@
 import { createSignal, createEffect } from '../core/store';
 export function detectEnvironment() {
-    if (typeof window === 'undefined') {
-        return 'node';
-    }
-    if (typeof global !== 'undefined') {
-        const g = global;
-        if (g.HermesInternal ||
-            g.__fbBatchedBridgeConfig ||
-            g.nativeModuleProxy) {
-            return 'react-native';
-        }
-    }
-    if (typeof navigator !== 'undefined' &&
-        navigator.product === 'ReactNative') {
+    const g = typeof global !== 'undefined' ? global : undefined;
+    const w = typeof window !== 'undefined' ? window : undefined;
+    if ((typeof navigator !== 'undefined' && navigator.product === 'ReactNative') ||
+        (w?.navigator?.product === 'ReactNative') ||
+        (g?.HermesInternal || g?.__fbBatchedBridgeConfig || g?.nativeModuleProxy || g?.__turboModuleProxy)) {
         return 'react-native';
     }
-    if (typeof window !== 'undefined' &&
-        typeof document !== 'undefined' &&
-        typeof window.localStorage !== 'undefined') {
+    if (w?.localStorage || g?.localStorage) {
         return 'web';
     }
     return 'node';
