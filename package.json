@@ -1,6 +1,6 @@
 {
   "name": "signalforge",
-  "version": "0.1.6-alpha.0",
+  "version": "0.1.6-alpha.1",
   "description": "Fine-grained reactive state management with automatic dependency tracking - Ultra-optimized, zero dependencies",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -133,9 +133,9 @@
     }
   },
   "codegenConfig": {
-    "name": "SignalForgeSpec",
+    "name": "NativeSignalForge",
     "type": "modules",
-    "jsSrcsDir": "src/native",
+    "jsSrcsDir": "src",
     "android": {
       "javaPackageName": "com.signalforge"
     }
@@ -143,6 +143,7 @@
   "files": [
     "dist",
     "src/native",
+    "react-native.config.js",
     "signalforge.podspec",
     "CMakeLists.txt",
     "README.md",

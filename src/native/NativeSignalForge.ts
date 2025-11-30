@@ -17,6 +17,12 @@
 
 import { TurboModule, TurboModuleRegistry } from 'react-native';
 
+// Ensure React Native codegen sees a direct TurboModuleRegistry usage.
+// This must remain a literal call inside a function body (no indirection).
+export function __ensureTurboModuleLoaded__(): void {
+  TurboModuleRegistry.get<Spec>('NativeSignalForge');
+}
+
 /**
  * TurboModule Interface Specification
  * 

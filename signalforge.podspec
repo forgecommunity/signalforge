@@ -26,4 +26,24 @@ Pod::Spec.new do |s|
 
   s.dependency 'React-Core'
   s.dependency 'React-jsi'
+
+  if respond_to?(:install_modules_dependencies)
+    install_modules_dependencies(s)
+  end
+
+  if ENV['RCT_NEW_ARCH_ENABLED'] == '1'
+    s.pod_target_xcconfig = s.pod_target_xcconfig.merge({
+      'HEADER_SEARCH_PATHS' => '$(PODS_ROOT)/Headers/Public/** $(PODS_ROOT)/Headers/Private/React-Codegen'
+    })
+
+    s.compiler_flags = (s.compiler_flags || '') + ' -DRCT_NEW_ARCH_ENABLED=1'
+
+    s.dependency 'React-Codegen'
+    s.dependency 'React-callinvoker'
+    s.dependency 'React-runtimeexecutor'
+    s.dependency 'ReactCommon/turbomodule/core'
+    s.dependency 'RCT-Folly'
+    s.dependency 'RCTRequired'
+    s.dependency 'RCTTypeSafety'
+  end
 end

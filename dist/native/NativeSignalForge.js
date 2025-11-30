@@ -1,4 +1,7 @@
 import { TurboModuleRegistry } from 'react-native';
+export function __ensureTurboModuleLoaded__() {
+    TurboModuleRegistry.get('NativeSignalForge');
+}
 const turboModuleProxy = TurboModuleRegistry.get('NativeSignalForge') ??
     TurboModuleRegistry.get('SignalForge');
 export function getNativeModule() {
