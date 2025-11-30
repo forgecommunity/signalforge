@@ -1,6 +1,4 @@
-export interface TurboModule {
-    getConstants?: () => {};
-}
+import { TurboModule } from 'react-native';
 export interface Spec extends TurboModule {
     createSignal(initialValue: any): string;
     getSignal(signalId: string): any;
