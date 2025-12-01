@@ -62,10 +62,45 @@ export default function TodoAppDemo() {
 
   return (
     <DemoLayout
-      title="Todo App"
+      title="✅ Todo App - Complete CRUD Example"
       description="Complete CRUD todo list application with filters"
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* What You'll Learn */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-blue-900 dark:text-blue-100">
+            📚 What You'll Learn
+          </h3>
+          <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Build a complete CRUD application (Create, Read, Update, Delete)</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Implement filtering with computed signals (all/active/completed)</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Calculate statistics automatically as data changes</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Manage complex list state with reactive signals</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Interactive Demo Title */}
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            🎮 Try It: Your Todo List
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Add todos, mark them complete, filter them - watch stats update automatically!
+          </p>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg text-center">
@@ -176,25 +211,73 @@ export default function TodoAppDemo() {
         {/* Code Example */}
         <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-{`import { useSignal, useComputed } from 'signalforge/react';
+{`import { useSignal, createComputed, useSignalValue } from 'signalforge/react';
+import { useState } from 'react';
 
-const todos = useSignal<Todo[]>([]);
-const filter = useSignal<'all' | 'active' | 'completed'>('all');
+const [todos, setTodos] = useSignal<Todo[]>([]);
+const [filter, setFilter] = useSignal<'all' | 'active' | 'completed'>('all');
 
 // Computed filtered list
-const filteredTodos = useComputed(() => {
-  switch (filter.value) {
-    case 'active': return todos.value.filter(t => !t.completed);
-    case 'completed': return todos.value.filter(t => t.completed);
-    default: return todos.value;
+const [filteredTodos] = useState(() => createComputed(() => {
+  switch (filter) {
+    case 'active': return todos.filter(t => !t.completed);
+    case 'completed': return todos.filter(t => t.completed);
+    default: return todos;
   }
-});
+}));
 
 // Add todo
 const addTodo = (text: string) => {
-  todos.value = [...todos.value, { id: Date.now(), text, completed: false }];
+  setTodos([...todos, { id: Date.now(), text, completed: false }]);
 };`}
           </pre>
+        </div>
+
+        {/* Best Practices */}
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-yellow-900 dark:text-yellow-100">
+            💡 Best Practices
+          </h3>
+          <div className="space-y-3 text-gray-700 dark:text-gray-300">
+            <div className="flex gap-3">
+              <span className="text-2xl">✅</span>
+              <div>
+                <strong>Use unique IDs</strong>
+                <p className="text-sm">Date.now() or UUID for reliable item tracking.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-2xl">🎯</span>
+              <div>
+                <strong>Computed filters</strong>
+                <p className="text-sm">Filter lists with computed signals for efficiency.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-2xl">📊</span>
+              <div>
+                <strong>Auto-compute stats</strong>
+                <p className="text-sm">Let SignalForge calculate totals and counts.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Next Steps */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3">🎓 Next Steps</h3>
+          <p className="mb-4">Master todo apps? Try these:</p>
+          <div className="flex flex-wrap gap-3">
+            <a href="/demos/persistent" className="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition">
+              Persistent Todos →
+            </a>
+            <a href="/demos/timetravel" className="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition">
+              Todo with Undo/Redo →
+            </a>
+            <a href="/demos/cart" className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
+              Shopping Cart →
+            </a>
+          </div>
         </div>
       </div>
     </DemoLayout>

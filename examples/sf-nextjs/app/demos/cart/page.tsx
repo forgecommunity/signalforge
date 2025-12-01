@@ -76,10 +76,45 @@ export default function ShoppingCartDemo() {
 
   return (
     <DemoLayout
-      title="Shopping Cart"
-      description="Real-world e-commerce example with reactive cart management"
+      title="🛒 Shopping Cart - Real E-Commerce Example"
+      description="Build a complete shopping cart with add/remove, quantities, and auto-calculating totals!"
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* What You'll Learn */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-blue-900 dark:text-blue-100">
+            📚 What You'll Learn
+          </h3>
+          <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Build a real e-commerce shopping cart from scratch</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Manage cart items with add/remove/update operations</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Auto-calculate totals with computed signals</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Handle quantities, pricing, and cart state management</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Interactive Demo Title */}
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            🎮 Try It: Add Products to Cart
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Click products to add them, adjust quantities - watch totals update automatically!
+          </p>
+        </div>
+
         {/* Cart Summary */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg text-center">
@@ -188,27 +223,148 @@ export default function ShoppingCartDemo() {
           </div>
         )}
 
-        {/* Code Example */}
-        <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
-          <pre className="text-green-400 text-sm">
-{`import { useSignal, useComputed } from 'signalforge/react';
+        {/* How It Works */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-750 border border-purple-200 dark:border-purple-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-4 text-purple-900 dark:text-purple-100">
+            🚀 How It Works
+          </h3>
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border-l-4 border-blue-500">
+              <div className="font-bold text-blue-600 dark:text-blue-400 mb-2">Cart State</div>
+              <code className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded block">
+                const cart = createSignal&lt;CartItem[]&gt;([]);
+              </code>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                Single signal holds all cart items
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border-l-4 border-green-500">
+              <div className="font-bold text-green-600 dark:text-green-400 mb-2">Auto-Computed Totals</div>
+              <code className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded block">
+                const totalPrice = createComputed(() =&gt; <br/>
+                &nbsp;&nbsp;cart.get().reduce((sum, item) =&gt; <br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;sum + item.price * item.quantity, 0)<br/>
+                );
+              </code>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                Totals recalculate automatically when cart changes
+              </p>
+            </div>
+          </div>
+        </div>
 
-const cart = useSignal<CartItem[]>([]);
+        {/* Complete Code Example */}
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">
+            💻 Complete Code Example
+          </h3>
+          <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
+            <pre className="text-green-400 text-sm">
+{`import { createSignal, createComputed } from 'signalforge/core';
+import { useSignalValue } from 'signalforge/react';
+import { useState } from 'react';
 
-// Computed values auto-update
-const totalItems = useComputed(() => 
-  cart.value.reduce((sum, item) => sum + item.quantity, 0)
-);
+function ShoppingCart() {
+  const [cart] = useState(() => createSignal<CartItem[]>([]));
+  
+  // Computed totals - auto-update!
+  const [totalItems] = useState(() => createComputed(() => 
+    cart.get().reduce((sum, item) => sum + item.quantity, 0)
+  ));
+  
+  const [totalPrice] = useState(() => createComputed(() => 
+    cart.get().reduce((sum, item) => 
+      sum + item.price * item.quantity, 0
+    )
+  ));
+  
+  const totalItemsValue = useSignalValue(totalItems);
+  const totalPriceValue = useSignalValue(totalPrice);
+  
+  // Add item to cart
+  const addToCart = (product) => {
+    const existing = cart.get().find(i => i.id === product.id);
+    if (existing) {
+      // Increment quantity
+      cart.set(cart.get().map(item =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      // Add new item
+      cart.set([...cart.get(), { ...product, quantity: 1 }]);
+    }
+  };
+  
+  // Update quantity
+  const updateQuantity = (id, delta) => {
+    cart.set(cart.get()
+      .map(item => item.id === id
+        ? { ...item, quantity: item.quantity + delta }
+        : item
+      )
+      .filter(item => item.quantity > 0)
+    );
+  };
+  
+  return (
+    <div>
+      <h2>Cart ({totalItemsValue} items)</h2>
+      <h2>Total: ${totalPriceValue}</h2>
+      {/* Cart items */}
+    </div>
+  );
+}`}
+            </pre>
+          </div>
+        </div>
 
-const totalPrice = useComputed(() => 
-  cart.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
-);
+        {/* Best Practices */}
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-yellow-900 dark:text-yellow-100">
+            💡 Best Practices
+          </h3>
+          <div className="space-y-3 text-gray-700 dark:text-gray-300">
+            <div className="flex gap-3">
+              <span className="text-2xl">✅</span>
+              <div>
+                <strong>Use computed for calculations</strong>
+                <p className="text-sm">Let SignalForge handle totals automatically.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-2xl">🛡️</span>
+              <div>
+                <strong>Validate quantities</strong>
+                <p className="text-sm">Filter out items with quantity &lt;= 0.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-2xl">💾</span>
+              <div>
+                <strong>Consider persistence</strong>
+                <p className="text-sm">Save cart to localStorage for better UX.</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-// Add to cart
-const addToCart = (product) => {
-  cart.value = [...cart.value, { ...product, quantity: 1 }];
-};`}
-          </pre>
+        {/* Next Steps */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3">🎓 Next Steps</h3>
+          <p className="mb-4">Master shopping carts? Try these:</p>
+          <div className="flex flex-wrap gap-3">
+            <a href="/demos/persistent" className="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition">
+              Persistent Cart →
+            </a>
+            <a href="/demos/todo" className="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition">
+              Todo App →
+            </a>
+            <a href="/demos/array" className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
+              Array Signals →
+            </a>
+          </div>
         </div>
       </div>
     </DemoLayout>

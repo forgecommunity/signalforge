@@ -9,19 +9,19 @@ export default function PersistentSignalDemo() {
   const [name, setName] = useState('');
   const [theme, setTheme] = useState('light');
   const [mounted, setMounted] = useState(false);
-  const countSignalRef = useState<any>(null);
-  const nameSignalRef = useState<any>(null);
-  const themeSignalRef = useState<any>(null);
+  const [countSignal, setCountSignal] = useState<any>(null);
+  const [nameSignal, setNameSignal] = useState<any>(null);
+  const [themeSignal, setThemeSignal] = useState<any>(null);
 
   useEffect(() => {
     // Create signals only on client side
-    const countSignal = createPersistentSignal('demo-count', 0);
-    const nameSignal = createPersistentSignal('demo-name', 'Guest');
-    const themeSignal = createPersistentSignal('demo-theme', 'light');
+    const cSignal = createPersistentSignal('demo-count', 0);
+    const nSignal = createPersistentSignal('demo-name', 'Guest');
+    const tSignal = createPersistentSignal('demo-theme', 'light');
     
-    countSignalRef[0] = countSignal;
-    nameSignalRef[0] = nameSignal;
-    themeSignalRef[0] = themeSignal;
+    setCountSignal(cSignal);
+    setNameSignal(nSignal);
+    setThemeSignal(tSignal);
 
     // Subscribe to changes
     const unsubCount = countSignal.subscribe((val: number) => setCount(val));
@@ -44,7 +44,7 @@ export default function PersistentSignalDemo() {
   if (!mounted) {
     return (
       <DemoLayout
-        title="Persistent Signal"
+        title="💾 Persistent Signals - Auto-Save to Storage"
         description="Signals that automatically save to and restore from localStorage"
       >
         <div className="text-center p-8">Loading...</div>
@@ -54,10 +54,35 @@ export default function PersistentSignalDemo() {
 
   return (
     <DemoLayout
-      title="Persistent Signal"
+      title="💾 Persistent Signals - Auto-Save to Storage"
       description="Signals that automatically save to and restore from localStorage"
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* What You'll Learn */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-blue-900 dark:text-blue-100">
+            📚 What You'll Learn
+          </h3>
+          <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Create signals that auto-save to localStorage</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Automatically restore state on page reload</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Build user preferences and settings systems</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Handle complex data types (objects, arrays, etc.)</span>
+            </li>
+          </ul>
+        </div>
+
         {/* Info Banner */}
         <div className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
           <p className="text-blue-900 dark:text-blue-100 text-sm">
@@ -76,19 +101,19 @@ export default function PersistentSignalDemo() {
           </div>
           <div className="flex gap-2 justify-center">
             <button
-              onClick={() => countSignalRef[0]?.set(countSignalRef[0]?.get() - 1)}
+              onClick={() => countSignal?.set(countSignal?.get() - 1)}
               className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
             >
               -1
             </button>
             <button
-              onClick={() => countSignalRef[0]?.set(0)}
+              onClick={() => countSignal?.set(0)}
               className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
             >
               Reset
             </button>
             <button
-              onClick={() => countSignalRef[0]?.set(countSignalRef[0]?.get() + 1)}
+              onClick={() => countSignal?.set(countSignal?.get() + 1)}
               className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
             >
               +1
@@ -110,7 +135,7 @@ export default function PersistentSignalDemo() {
           <input
             type="text"
             value={name}
-            onChange={(e) => nameSignalRef[0]?.set(e.target.value)}
+            onChange={(e) => nameSignal?.set(e.target.value)}
             placeholder="Enter your name"
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-gray-600 dark:text-white"
           />
@@ -131,7 +156,7 @@ export default function PersistentSignalDemo() {
             {['light', 'dark', 'auto'].map((t) => (
               <button
                 key={t}
-                onClick={() => themeSignalRef[0]?.set(t)}
+                onClick={() => themeSignal?.set(t)}
                 className={`px-4 py-2 rounded-lg transition-colors capitalize ${
                   theme === t
                     ? 'bg-purple-500 text-white'
@@ -184,6 +209,93 @@ name.set('Alice');
 // Values automatically save to localStorage
 // and restore on page reload!`}
           </pre>
+        </div>
+
+        {/* Real World Use Cases */}
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-green-900 dark:text-green-100">
+            🌍 Real-World Use Cases
+          </h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div className="bg-white dark:bg-gray-900 rounded p-3">
+              <div className="font-semibold text-blue-600 mb-1">⚙️ User Preferences</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Theme, language, layout preferences
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-900 rounded p-3">
+              <div className="font-semibold text-purple-600 mb-1">🛒 Shopping Cart</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Persist cart items across sessions
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-900 rounded p-3">
+              <div className="font-semibold text-green-600 mb-1">📝 Draft Content</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Auto-save forms, comments, posts
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-900 rounded p-3">
+              <div className="font-semibold text-orange-600 mb-1">👤 Auth Tokens</div>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Remember login state securely
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Best Practices */}
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-yellow-900 dark:text-yellow-100">
+            💡 Best Practices
+          </h3>
+          <div className="space-y-3 text-gray-700 dark:text-gray-300">
+            <div className="flex gap-3">
+              <span className="text-2xl">🔑</span>
+              <div>
+                <strong>Use descriptive keys</strong>
+                <p className="text-sm">Namespace your keys to avoid conflicts (e.g., 'myapp-user-settings').</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-2xl">🛡️</span>
+              <div>
+                <strong>Don't store sensitive data</strong>
+                <p className="text-sm">localStorage is not secure - don't store passwords or sensitive info.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-2xl">📏</span>
+              <div>
+                <strong>Mind the size limit</strong>
+                <p className="text-sm">localStorage has ~5-10MB limit. Use IndexedDB for larger data.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-2xl">✅</span>
+              <div>
+                <strong>Provide default values</strong>
+                <p className="text-sm">Always set sensible defaults for first-time users.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Next Steps */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3">🎓 Next Steps</h3>
+          <p className="mb-4">Master persistent signals? Try these:</p>
+          <div className="flex flex-wrap gap-3">
+            <a href="/demos/cart" className="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition">
+              Persistent Cart →
+            </a>
+            <a href="/demos/form" className="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition">
+              Draft Forms →
+            </a>
+            <a href="/demos/todo" className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
+              Persistent Todos →
+            </a>
+          </div>
         </div>
       </div>
     </DemoLayout>

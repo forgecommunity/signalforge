@@ -24,10 +24,44 @@ export default function EffectsDemo() {
 
   return (
     <DemoLayout
-      title="Effects"
-      description="Run side effects automatically when signals change"
+      title="⚡ Effects - React to Changes"
+      description="Run code automatically when signals change. Built-in cleanup. Simpler than useEffect!"
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* What You'll Learn */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-blue-900 dark:text-blue-100">
+            📚 What You'll Learn
+          </h3>
+          <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Run side effects with <code className="bg-blue-100 dark:bg-blue-900 px-2 py-0.5 rounded">useSignalEffect()</code></span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Auto-track dependencies (no dependency array needed!)</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Clean up resources properly with return functions</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Perfect for logging, API calls, timers, and subscriptions</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Interactive Demo Title */}
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            🎮 Try It: See Effects in Action
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Click the buttons and watch the effect logs appear automatically!
+          </p>
+        </div>
         {/* Counter */}
         <div className="text-center p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <div className="text-5xl font-bold text-blue-600 dark:text-blue-400 mb-4">
@@ -81,23 +115,210 @@ export default function EffectsDemo() {
           </div>
         </div>
 
-        {/* Code Example */}
-        <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
-          <pre className="text-green-400 text-sm">
+        {/* How It Works */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-750 border border-purple-200 dark:border-purple-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-4 text-purple-900 dark:text-purple-100">
+            🚀 How It Works (3 Simple Steps)
+          </h3>
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border-l-4 border-blue-500">
+              <div className="font-bold text-blue-600 dark:text-blue-400 mb-2">Step 1: Create your signals</div>
+              <code className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded block">
+                const [count, setCount] = useSignal(0);
+              </code>
+            </div>
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border-l-4 border-green-500">
+              <div className="font-bold text-green-600 dark:text-green-400 mb-2">Step 2: Create an effect that uses the signal</div>
+              <code className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded block">
+                useSignalEffect(() =&gt; &#123;<br/>
+                &nbsp;&nbsp;console.log('Count is:', count);<br/>
+                &#125;);
+              </code>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                💡 It auto-tracks that it depends on count - no array needed!
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border-l-4 border-purple-500">
+              <div className="font-bold text-purple-600 dark:text-purple-400 mb-2">Step 3: Change the signal - effect runs automatically!</div>
+              <code className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded block">
+                setCount(5);  // Effect runs! ✨
+              </code>
+            </div>
+          </div>
+        </div>
+
+        {/* Complete Code Example */}
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">
+            💻 Complete Code Example
+          </h3>
+          <div className="p-4 bg-gray-900 rounded-lg overflow-x-auto">
+            <pre className="text-green-400 text-sm">
 {`import { useSignal, useSignalEffect } from 'signalforge/react';
 
-const count = useSignal(0);
-
-// Effect runs automatically when count changes
-useSignalEffect(() => {
-  console.log('Count changed to:', count.value);
+function TimerComponent() {
+  const [seconds, setSeconds] = useSignal(0);
   
-  // Optional cleanup function
-  return () => {
-    console.log('Cleaning up...');
-  };
-});`}
-          </pre>
+  // Effect runs when seconds changes
+  useSignalEffect(() => {
+    console.log(\`Timer at: \${seconds} seconds\`);
+    
+    // Optional: Return cleanup function
+    return () => {
+      console.log(\`Cleaning up timer at \${seconds}\`);
+    };
+  });
+  
+  // Another effect - can have multiple!
+  useSignalEffect(() => {
+    if (seconds >= 10) {
+      alert('Timer reached 10 seconds!');
+    }
+  });
+  
+  return (
+    <div>
+      <h2>{seconds} seconds</h2>
+      <button onClick={() => setSeconds(seconds + 1)}>
+        Add Second
+      </button>
+    </div>
+  );
+}
+
+// ✨ No dependency array needed!
+// ✨ Auto-tracks what you use
+// ✨ Cleanup runs before next effect`}
+            </pre>
+          </div>
+        </div>
+
+        {/* Why This Matters */}
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-yellow-900 dark:text-yellow-100">
+            💡 Why SignalForge Effects Are Better
+          </h3>
+          <div className="grid md:grid-cols-2 gap-4 text-gray-700 dark:text-gray-300">
+            <div>
+              <div className="font-semibold text-red-600 dark:text-red-400 mb-2">❌ Traditional useEffect:</div>
+              <ul className="space-y-1 text-sm">
+                <li>• Must manually list dependencies</li>
+                <li>• Easy to forget a dependency</li>
+                <li>• Stale closures are common bugs</li>
+                <li>• Runs on every render initially</li>
+                <li>• Verbose and error-prone</li>
+              </ul>
+            </div>
+            <div>
+              <div className="font-semibold text-green-600 dark:text-green-400 mb-2">✅ SignalForge useSignalEffect:</div>
+              <ul className="space-y-1 text-sm">
+                <li>• Auto-tracks dependencies</li>
+                <li>• Impossible to miss dependencies</li>
+                <li>• No stale closure issues</li>
+                <li>• Only runs when signals change</li>
+                <li>• Clean, simple syntax</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Real World Use Cases */}
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-green-900 dark:text-green-100">
+            🌍 Real-World Use Cases
+          </h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div className="bg-white dark:bg-gray-900 rounded p-3">
+              <div className="font-semibold text-blue-600 mb-1">📡 API Calls</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                Fetch data when user ID changes
+              </div>
+              <code className="text-xs block mt-2">
+                useSignalEffect(() =&gt; &#123;<br/>
+                &nbsp;&nbsp;fetchUser(userId);<br/>
+                &#125;);
+              </code>
+            </div>
+            <div className="bg-white dark:bg-gray-900 rounded p-3">
+              <div className="font-semibold text-purple-600 mb-1">📊 Analytics Tracking</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                Log page views or events
+              </div>
+              <code className="text-xs block mt-2">
+                useSignalEffect(() =&gt; &#123;<br/>
+                &nbsp;&nbsp;analytics.track(page);<br/>
+                &#125;);
+              </code>
+            </div>
+            <div className="bg-white dark:bg-gray-900 rounded p-3">
+              <div className="font-semibold text-green-600 mb-1">⏰ Timers & Intervals</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                Set up timers with auto-cleanup
+              </div>
+              <code className="text-xs block mt-2">
+                useSignalEffect(() =&gt; &#123;<br/>
+                &nbsp;&nbsp;const id = setInterval(fn, 1000);<br/>
+                &nbsp;&nbsp;return () =&gt; clearInterval(id);<br/>
+                &#125;);
+              </code>
+            </div>
+            <div className="bg-white dark:bg-gray-900 rounded p-3">
+              <div className="font-semibold text-orange-600 mb-1">💾 LocalStorage Sync</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                Save state to localStorage
+              </div>
+              <code className="text-xs block mt-2">
+                useSignalEffect(() =&gt; &#123;<br/>
+                &nbsp;&nbsp;localStorage.setItem('user', JSON.stringify(user));<br/>
+                &#125;);
+              </code>
+            </div>
+          </div>
+        </div>
+
+        {/* Cleanup Explained */}
+        <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-indigo-900 dark:text-indigo-100">
+            🧹 Understanding Cleanup Functions
+          </h3>
+          <p className="text-gray-700 dark:text-gray-300 mb-4">
+            When your effect returns a function, it gets called before the next effect runs or when the component unmounts.
+          </p>
+          <div className="bg-white dark:bg-gray-900 rounded-lg p-4">
+            <code className="text-sm">
+              useSignalEffect(() =&gt; &#123;<br/>
+              &nbsp;&nbsp;// 1. Set up resources<br/>
+              &nbsp;&nbsp;const subscription = api.subscribe(userId);<br/>
+              &nbsp;&nbsp;const timer = setInterval(() =&gt; &#123;...&#125;, 1000);<br/>
+              <br/>
+              &nbsp;&nbsp;// 2. Return cleanup function<br/>
+              &nbsp;&nbsp;return () =&gt; &#123;<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;subscription.unsubscribe(); // Clean up!<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;clearInterval(timer); // Prevent memory leaks!<br/>
+              &nbsp;&nbsp;&#125;;<br/>
+              &#125;);
+            </code>
+          </div>
+          <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+            💡 <strong>Pro tip:</strong> Always clean up subscriptions, timers, and listeners to prevent memory leaks!
+          </div>
+        </div>
+
+        {/* Next Steps */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3">🎓 Next Steps</h3>
+          <p className="mb-4">Master effects? Try these advanced demos:</p>
+          <div className="flex flex-wrap gap-3">
+            <a href="/demos/subscribe" className="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition">
+              Subscribe →
+            </a>
+            <a href="/demos/persistent" className="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition">
+              Persistent Signals →
+            </a>
+            <a href="/demos/form" className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
+              Form Validation →
+            </a>
+          </div>
         </div>
       </div>
     </DemoLayout>

@@ -15,6 +15,25 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "SignalForge",
   description: "SignalForge Next.js Demo - The easiest and fastest state management library",
+  openGraph: {
+    title: "SignalForge",
+    description: "Fine-Grained Reactive State Management for Modern JavaScript",
+    images: [
+      {
+        url: "https://raw.githubusercontent.com/forgecommunity/signalforge/refs/heads/master/docs/assets/signalforge.png",
+        width: 1200,
+        height: 630,
+        alt: "SignalForge Logo",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SignalForge",
+    description: "Fine-Grained Reactive State Management for Modern JavaScript",
+    images: ["https://raw.githubusercontent.com/forgecommunity/signalforge/refs/heads/master/docs/assets/signalforge.png"],
+  },
 };
 
 export default function RootLayout({

@@ -65,10 +65,45 @@ export default function BigDataDemo() {
 
   return (
     <DemoLayout
-      title="Big Data Performance"
+      title="📊 Big Data - Performance with 10,000+ Items"
       description="Test SignalForge performance with thousands of signals"
     >
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* What You'll Learn */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-blue-900 dark:text-blue-100">
+            📚 What You'll Learn
+          </h3>
+          <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Handle 10,000+ signals with excellent performance</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Measure update and render performance</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Optimize bulk operations with batching</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-green-500 font-bold">✓</span>
+              <span>Understand SignalForge's performance characteristics</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Interactive Demo Title */}
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            🎮 Try It: Stress Test Performance
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Create thousands of signals and watch update times stay fast!
+          </p>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="p-4 bg-blue-50 dark:bg-blue-900 rounded-lg text-center">
@@ -196,6 +231,60 @@ batch(() => {
   });
 }); // Only triggers one re-render!`}
           </pre>
+        </div>
+
+        {/* Best Practices */}
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3 text-yellow-900 dark:text-yellow-100">
+            💡 Performance Best Practices
+          </h3>
+          <div className="space-y-3 text-gray-700 dark:text-gray-300">
+            <div className="flex gap-3">
+              <span className="text-2xl">⚡</span>
+              <div>
+                <strong>Use batch() for bulk updates</strong>
+                <p className="text-sm">Group multiple signal updates to trigger only one re-render.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-2xl">🎯</span>
+              <div>
+                <strong>Virtual scrolling for large lists</strong>
+                <p className="text-sm">Only render visible items, not all 10,000 at once.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-2xl">🧮</span>
+              <div>
+                <strong>Computed signals are memoized</strong>
+                <p className="text-sm">They only recalculate when dependencies change.</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <span className="text-2xl">📊</span>
+              <div>
+                <strong>Profile with DevTools</strong>
+                <p className="text-sm">Use React DevTools Profiler to measure performance.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Next Steps */}
+        <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg p-6">
+          <h3 className="text-xl font-semibold mb-3">🎓 Next Steps</h3>
+          <p className="mb-4">Master performance? Try these optimization demos:</p>
+          <div className="flex flex-wrap gap-3">
+            <a href="/demos/batch" className="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition">
+              Batch Updates →
+            </a>
+            <a href="/demos/untrack" className="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition">
+              Untrack Optimization →
+            </a>
+            <a href="/demos/devtools" className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-green-50 transition">
+              DevTools →
+            </a>
+          </div>
         </div>
       </div>
     </DemoLayout>
