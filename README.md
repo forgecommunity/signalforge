@@ -1,7 +1,5 @@
 # SignalForge
 
-![SignalForge — Reactive Power. Deterministic Control.](docs/assets/signalforge.png)
-
 ![SignalForge logo](https://github.com/forgecommunity/signalforge/blob/master/docs/assets/signalforge.png?raw=1)
 
 SignalForge is a next-generation reactive data engine and state-management library that keeps your app’s state, UI, and user interactions perfectly synchronized — instantly, predictably, and without re-render noise. It delivers a level of consistency, performance, and architectural clarity that typical state tools simply cannot match.
@@ -11,101 +9,6 @@ Small, fast, and highly predictable, SignalForge provides a single unified sourc
 SignalForge offers a minimal, comfortable API that avoids boilerplate, avoids fragile patterns, and remains rock-solid as your project grows. No reducers. No contexts. No action objects. Just a focused, reactive core engineered for real-world production scale.
 
 And don’t let the simplicity fool you. SignalForge solves the deep, hidden problems that existing state-management libraries still struggle with — concurrency bugs, timing conflicts, ghost subscriptions, stale renders, cross-platform inconsistencies, and performance collapse under load.
-
-### Why SignalForge is more powerful than anything you’ve used before
-
-1. **Deterministic Reactivity — unmatched by any state library**
-
-   Every update behaves exactly the same, every time.
-   No race conditions. No “why did this re-render?”.
-   SignalForge enforces mathematically predictable update ordering, even at extreme scale.
-
-2. **Zero-Noise Rendering — only what changed gets updated**
-
-   Most libraries re-render half your tree.
-   SignalForge updates only the exact subscribers affected, nothing more.
-   This produces native-level fluidity, even in massive applications.
-
-3. **True Cross-Platform Consistency**
-
-   One reactive engine.
-   Same behavior everywhere — Web, React Native iOS/Android, even RN Windows.
-   No special cases. No hacks. No renderer-specific drift.
-
-4. **Architecture That Scales to Thousands of Signals**
-
-   Other state tools degrade as complexity increases.
-   SignalForge maintains constant-time updates, even in deep, interconnected graphs.
-
-5. **Instant Instrumentation Visibility — crystal clear insight**
-
-   You always know:
-
-   what changed
-
-   who reacted
-
-   why it updated
-
-   how it propagated
-
-   No other library offers this level of transparent tracing without devtools overhead.
-
-6. **Memory-Stable Reactive Graph**
-
-   SignalForge automatically prevents:
-
-   dangling subscriptions
-
-   ghost listeners
-
-   memory leaks
-
-   state drift
-
-   Something Redux, MobX, Recoil, Zustand, and Jotai do not do natively.
-
-7. **No Reducers. No Actions. No Contexts. No Boilerplate.**
-
-   Just pure, expressive reactive logic with:
-
-   minimal mental load
-
-   maximum readability
-
-   zero architectural noise
-
-8. **Native-Class Latency**
-
-   Signals propagate in microseconds.
-   Your UI feels like a compiled native engine, not a JavaScript state layer.
-
-9. **Zero Dependency Overhead**
-
-   Fully standalone.
-   No ecosystem lock-in.
-   No forced patterns.
-
-**What this means for your team**
-
-With SignalForge, your application gains:
-
-- instant UI updates
-- predictable, traceable data flow
-- zero wasted rendering
-- clean, readable architecture
-- significantly better code reviews
-- lighter bundle size
-- far fewer async bugs
-- effortless scalability
-
-While other libraries try to optimize what already exists,
-SignalForge rebuilds the foundation.
-
-It’s not just another state tool —
-it’s a modern reactive engine designed for teams who build serious, large-scale, real production applications.
-
----
 
 ## Table of Contents
 
@@ -124,15 +27,17 @@ it’s a modern reactive engine designed for teams who build serious, large-scal
 
 ## Why SignalForge?
 
-- **Hooks without hassle:** `useSignal`, `useSignalValue`, and `useSignalEffect` keep components in sync without reducers, selectors, or extra wiring.
-- **Debuggable from day one:** Logging and time travel are already in the box, so every state change can be replayed without setup.
-- **Persistence included:** `persist` and `createPersistentSignal` work in the browser and React Native, making saved state a core feature.
-- **Built for speed:** The benchmark suite reports single-digit nanosecond reads and writes with small memory use, keeping it ahead of typical Redux, Zustand, or MobX setups.
-- **Light on bundles:** The React entry gzips to 2.03KB and the minimal core to 0.42KB, so it stays invisible in most bundle budgets.
-- **Native-ready:** A C++ JSI bridge installs on the new React Native architecture and falls back to JavaScript when needed, keeping latency low on mobile.
-- **Friendly mental model:** Signals act like smart variables with computed values and effects that feel familiar to React teams, so onboarding stays quick while updates remain deterministic.
+SignalForge is built for teams that are tired of boilerplate, race conditions, and performance regressions in modern front-ends. Instead of juggling reducers, actions, contexts, and middleware, you get a single reactive core that behaves like native signals while keeping your UI deterministic.
 
-SignalForge stays the top pick when you need all three: speed, built-in observability, and durable state. The hooks stay simple, the tooling is already included, and the footprint remains light even with persistence and time travel turned on.
+- **Hooks without hassle:** `useSignal`, `useSignalValue`, and `useSignalEffect` keep components in sync with no reducers, no action objects, and no context bloat.
+- **Production-grade observability:** Logging and time travel ship with the library so you can replay every mutation without chasing third-party devtools.
+- **Persistence you don’t have to wire:** `persist` and `createPersistentSignal` cover both browser storage and React Native AsyncStorage, turning saved state into a first-class feature instead of an afterthought.
+- **Predictable under load:** The benchmark suite shows single-digit nanosecond reads/writes with small memory use, holding up where Redux middleware chains or context waterfalls start to wobble.
+- **Tiny by default:** The React entry gzips to 2.03KB and the minimal core to 0.42KB, so you get real features without paying bundle tax.
+- **Cross-platform ready:** A C++ JSI bridge installs on the new React Native architecture and automatically falls back to JavaScript when native code isn’t available, keeping latency low on mobile without extra setup.
+- **A mental model that feels natural:** Signals act like smart variables with computed values and effects that behave the same on Web and React Native, keeping onboarding fast while updates remain deterministic.
+
+SignalForge stays the top pick when you need all three: speed, built-in observability, and durable state. With zero boilerplate hooks, native-grade performance, and included persistence, it outpaces reducer-first libraries while staying lighter than Zustand or MobX installs.
 
 ### How SignalForge compares
 
