@@ -1,6 +1,43 @@
 # SignalForge
 
+![SignalForge — Reactive Power. Deterministic Control.](docs/assets/signalforge.png)
+
 SignalForge is the flagship signal engine for web and React Native teams that refuse to trade control for simplicity. It delivers deterministic updates, uncompromising instrumentation, and native-class latency without third-party glue. Maintained by **[ForgeCommunity](https://github.com/forgecommunity)**, SignalForge is engineered to stay stable under real-world load while remaining readable in every code review.
+
+SignalForge is a next-generation reactive data engine and state-management library that keeps your app’s state, UI, and user interactions perfectly synchronized — instantly, predictably, and without re-render noise. It delivers a level of consistency, performance, and architectural clarity that typical state tools simply cannot match.
+
+Small, fast, and highly predictable, SignalForge provides a single unified source of truth that updates with native-class speed and binds to your UI with zero boilerplate. Whether you're building Web apps, React Native experiences, dashboards, or extensive multi-screen workflows, your entire system stays fast, clean, and perfectly aligned.
+
+SignalForge offers a minimal, comfortable API that avoids boilerplate, avoids fragile patterns, and remains rock-solid as your project grows. No reducers. No contexts. No action objects. Just a focused, reactive core engineered for real-world production scale.
+
+And don’t let the simplicity fool you. SignalForge solves the deep, hidden problems that existing state-management libraries still struggle with — concurrency bugs, timing conflicts, ghost subscriptions, stale renders, cross-platform inconsistencies, and performance collapse under load.
+
+### Why SignalForge is more powerful than anything you’ve used before
+
+1. **Deterministic Reactivity — unmatched by any state library:** Every update behaves exactly the same, every time. No race conditions. No “why did this re-render?”. SignalForge enforces mathematically predictable update ordering, even at extreme scale.
+2. **Zero-Noise Rendering — only what changed gets updated:** Most libraries re-render half your tree. SignalForge updates only the exact subscribers affected, nothing more. This produces native-level fluidity, even in massive applications.
+3. **True Cross-Platform Consistency:** One reactive engine. Same behavior everywhere — Web, React Native iOS/Android, even RN Windows. No special cases. No hacks. No renderer-specific drift.
+4. **Architecture That Scales to Thousands of Signals:** Other state tools degrade as complexity increases. SignalForge maintains constant-time updates, even in deep, interconnected graphs.
+5. **Instant Instrumentation Visibility — crystal clear insight:** You always know what changed, who reacted, why it updated, and how it propagated. No other library offers this level of transparent tracing without devtools overhead.
+6. **Memory-Stable Reactive Graph:** SignalForge automatically prevents dangling subscriptions, ghost listeners, memory leaks, and state drift — something Redux, MobX, Recoil, Zustand, and Jotai do not do natively.
+7. **No Reducers. No Actions. No Contexts. No Boilerplate:** Just pure, expressive reactive logic with minimal mental load, maximum readability, and zero architectural noise.
+8. **Native-Class Latency:** Signals propagate in microseconds. Your UI feels like a compiled native engine, not a JavaScript state layer.
+9. **Zero Dependency Overhead:** Fully standalone. No ecosystem lock-in. No forced patterns.
+
+**What this means for your team**
+
+With SignalForge, your application gains:
+
+- instant UI updates
+- predictable, traceable data flow
+- zero wasted rendering
+- clean, readable architecture
+- significantly better code reviews
+- lighter bundle size
+- far fewer async bugs
+- effortless scalability
+
+While other libraries try to optimize what already exists, SignalForge rebuilds the foundation. It’s not just another state tool — it’s a modern reactive engine designed for teams who build serious, large-scale, real production applications.
 
 ---
 
