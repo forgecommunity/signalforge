@@ -5,7 +5,7 @@
 **The Ultimate Interactive Guide to SignalForge**
 
 [![React Native](https://img.shields.io/badge/React%20Native-0.82-blue.svg)](https://reactnative.dev/)
-[![SignalForge](https://img.shields.io/badge/SignalForge-1.0.0-purple.svg)](https://github.com/forgecommunity/signalforge)
+[![SignalForge](https://img.shields.io/badge/SignalForge-1.0.1-purple.svg)](https://github.com/forgecommunity/signalforge)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](../../LICENSE)
 
 [Features](#-features) • [Quick Start](#-quick-start) • [Demos](#-demo-screens) • [Documentation](#-documentation)
