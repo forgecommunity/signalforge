@@ -37,6 +37,9 @@ import TimeTravelScreen from './screens/TimeTravelScreen';
 import DevToolsScreen from './screens/DevToolsScreen';
 import BigDataScreen from './screens/BigDataScreen';
 import ClassComponentScreen from './screens/ClassComponentScreen';
+import CrossScreenProfileScreen from './screens/CrossScreenProfileScreen';
+import CrossScreenStoreScreen from './screens/CrossScreenStoreScreen';
+import CrossScreenCartScreen from './screens/CrossScreenCartScreen';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -66,10 +69,13 @@ function AppContent() {
     { id: 'todo', title: '10. Todo App', component: TodoAppScreen },
     { id: 'array', title: '11. Array Signal', component: ArraySignalScreen },
     { id: 'persist', title: '12. Persistent Signal', component: PersistentSignalScreen },
-    { id: 'timetravel', title: '13. Time Travel ⏱️', component: TimeTravelScreen },
-    { id: 'devtools', title: '14. DevTools 🛠️', component: DevToolsScreen },
-    { id: 'class', title: '15. Class Components', component: ClassComponentScreen },
-    { id: 'bigdata', title: '16. Big Data 📊', component: BigDataScreen },
+    { id: 'cross-profile', title: '13. Cross-Screen: Profile', component: CrossScreenProfileScreen },
+    { id: 'cross-store', title: '14. Cross-Screen: Store', component: CrossScreenStoreScreen },
+    { id: 'cross-cart', title: '15. Cross-Screen: Cart', component: CrossScreenCartScreen },
+    { id: 'timetravel', title: '16. Time Travel', component: TimeTravelScreen },
+    { id: 'devtools', title: '17. DevTools', component: DevToolsScreen },
+    { id: 'class', title: '18. Class Components', component: ClassComponentScreen },
+    { id: 'bigdata', title: '19. Big Data', component: BigDataScreen },
   ];
 
   const CurrentScreenComponent = screens.find(s => s.id === currentScreen)?.component;
@@ -78,7 +84,7 @@ function AppContent() {
     return (
       <View style={[styles.container, { paddingTop: safeAreaInsets.top }]}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>⚡ SignalForge Demo</Text>
+          <Text style={styles.headerTitle}>SignalForge Demo</Text>
           <Text style={styles.headerSubtitle}>Choose a demo to explore</Text>
         </View>
         <ScrollView style={styles.menuScroll}>
