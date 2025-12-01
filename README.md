@@ -2,1556 +2,231 @@
 
 ![SignalForge logo](https://github.com/forgecommunity/signalforge/blob/master/docs/assets/signalforge.png?raw=1)
 
-SignalForge is a next-generation reactive data engine and state-management library that keeps your app’s state, UI, and user interactions perfectly synchronized — instantly, predictably, and without re-render noise. It delivers a level of consistency, performance, and architectural clarity that typical state tools simply cannot match.
+SignalForge is a reactive data engine and state-management library for React and React Native. It keeps UI, business logic, and persistence in sync with a minimal API and zero reducer/Context boilerplate. Signals feel like smart variables: they update instantly, stay deterministic under load, and ship with built-in observability and persistence.
 
-Small, fast, and highly predictable, SignalForge provides a single unified source of truth that updates with native-class speed and binds to your UI with zero boilerplate. Whether you're building Web apps, React Native experiences, dashboards, or extensive multi-screen workflows, your entire system stays fast, clean, and perfectly aligned.
+## Highlights
+- **Ergonomic API:** `createSignal`, `createComputed`, and `createEffect` cover the common cases without reducers, actions, or middleware.
+- **React-first hooks:** `useSignal`, `useSignalValue`, `useSignalEffect`, and `withSignals` keep components in sync with no extra providers.
+- **Persistence included:** `createPersistentSignal` and `persist` work in browsers (localStorage) and React Native (AsyncStorage) with the same code.
+- **Native-ready:** Optional C++ JSI bridge on React Native for lower latency with automatic JavaScript fallback.
+- **Production tooling:** Built-in logging and time travel so you can replay mutations without third-party devtools.
+- **Tiny footprint:** ~2KB gzipped React entry, ~0.5KB core, plus benchmarked single-digit nanosecond reads/writes.
 
-SignalForge offers a minimal, comfortable API that avoids boilerplate, avoids fragile patterns, and remains rock-solid as your project grows. No reducers. No contexts. No action objects. Just a focused, reactive core engineered for real-world production scale.
-
-And don’t let the simplicity fool you. SignalForge solves the deep, hidden problems that existing state-management libraries still struggle with — concurrency bugs, timing conflicts, ghost subscriptions, stale renders, cross-platform inconsistencies, and performance collapse under load.
+### What you can build quickly
+- **Dashboards:** React + Next.js pages that share global signals across routes while streaming updates from effects.
+- **Offline-friendly mobile UIs:** Persisted signals in React Native that replay updates after reconnecting.
+- **Data-heavy widgets:** Tables, charts, or maps that recompute derived signals once per batch instead of per field change.
 
 ## Table of Contents
-
-1. [Why SignalForge?](#why-signalforge)
-2. [Quick Start](#quick-start)
-3. [Installation](#installation)
-4. [Basic Concepts](#basic-concepts)
-5. [Step-by-Step Guide](#step-by-step-guide)
-6. [React Integration](#react-integration)
-7. [All Functions Explained](#all-functions-explained)
-8. [Real Examples](#real-examples)
-9. [Performance](#performance)
-10. [Support](#support)
+1. [Quick Start](#quick-start)
+2. [Concepts at a Glance](#concepts-at-a-glance)
+3. [React Usage](#react-usage)
+4. [React Native Notes](#react-native-notes)
+5. [Full Examples](#full-examples)
+6. [Performance](#performance)
+7. [Support](#support)
 
 ---
-
-## Why SignalForge?
-
-SignalForge is built for teams that are tired of boilerplate, race conditions, and performance regressions in modern front-ends. Instead of juggling reducers, actions, contexts, and middleware, you get a single reactive core that behaves like native signals while keeping your UI deterministic.
-
-- **Hooks without hassle:** `useSignal`, `useSignalValue`, and `useSignalEffect` keep components in sync with no reducers, no action objects, and no context bloat.
-- **Production-grade observability:** Logging and time travel ship with the library so you can replay every mutation without chasing third-party devtools.
-- **Persistence you don’t have to wire:** `persist` and `createPersistentSignal` cover both browser storage and React Native AsyncStorage, turning saved state into a first-class feature instead of an afterthought.
-- **Predictable under load:** The benchmark suite shows single-digit nanosecond reads/writes with small memory use, holding up where Redux middleware chains or context waterfalls start to wobble.
-- **Tiny by default:** The React entry gzips to 2.03KB and the minimal core to 0.42KB, so you get real features without paying bundle tax.
-- **Cross-platform ready:** A C++ JSI bridge installs on the new React Native architecture and automatically falls back to JavaScript when native code isn’t available, keeping latency low on mobile without extra setup.
-- **A mental model that feels natural:** Signals act like smart variables with computed values and effects that behave the same on Web and React Native, keeping onboarding fast while updates remain deterministic.
-
-SignalForge stays the top pick when you need all three: speed, built-in observability, and durable state. With zero boilerplate hooks, native-grade performance, and included persistence, it outpaces reducer-first libraries while staying lighter than Zustand or MobX installs.
-
-### How SignalForge compares
-
-| Capability | SignalForge | Redux | Zustand | MobX | Context API |
-|------------|-------------|-------|---------|------|-------------|
-| Built-in React/React Native hooks | Yes (`useSignal`, `useSignalValue`, `useSignalEffect`) | Yes (`useSelector`, `useDispatch`) | Yes (selectors) | Yes (`observer`, reactions) | Yes (`useContext`) |
-| Time travel available in this repository | Included as a plugin | Requires external devtools | Requires middleware | Requires community tooling | Not provided |
-| Persistence helpers in this repository | Included (localStorage/AsyncStorage adapters) | Requires middleware (not included here) | Middleware pattern | Not documented in this repo | Custom code |
-| Native React Native path | Optional C++ JSI bridge with JS fallback | JS only | JS only | JS only | JS only |
-| Bundle size snapshot (gzip) | 2.03KB for `entries/react.mjs` | 4.41KB for `redux/dist/redux.mjs` | 0.07KB for `zustand/esm/index.mjs` | Not measured here | Part of React runtime |
-
-All size measurements come from the `npm run size` output in this repository and gzipping the comparison libraries from `node_modules`.
-
----
-
-
-## Demo Samples
-
-Explore SignalForge in live deployments and runnable samples:
-
-- **Try it now:** Visit [`signalforge-fogecommunity.vercel.app`](https://signalforge-fogecommunity.vercel.app/) to see the Next.js demo powered by this repo.
-- **Run locally:** All examples (Next.js and React Native) live in [`examples/`](examples/) and are wired to the workspace build for quick iteration.
-- **Deploy if you want:** The Next.js sample in [`examples/sf-nextjs`](examples/sf-nextjs) can be published to your own Vercel project using the steps in its README, but the hosted playground link above is enough to check SignalForge in action.
-
 
 ## Quick Start
 
-### Step 1: Install
+Install from npm:
+
 ```bash
 npm install signalforge
 ```
 
-### Step 2: Create a Signal
+Create a signal and read/write it:
+
 ```javascript
 import { createSignal } from 'signalforge';
 
-// Create a signal (like a smart variable)
 const count = createSignal(0);
-
-// Read the value
-console.log(count.get()); // Output: 0
-
-// Change the value
-count.set(5);
-console.log(count.get()); // Output: 5
+count.get();      // 0
+count.set(5);     // updates subscribers
+count.set(c => c + 1);
 ```
 
-That's it! You just created your first signal.
+Use it inside React:
 
----
-
-## Compatibility & Platform Support
-
-- **React**: 18.0.0 or newer (hooks and class helpers are tested on 18+)
-- **React Native**: 0.74.0 or newer (iOS + Android). The optional new-architecture JSI bridge is supported; JS fallback is automatic when the native module is unavailable.
-- **iOS**: iOS 13.0+ via CocoaPods. The npm package ships `signalforge.podspec` and `src/native` for codegen so a simple `cd ios && pod install` wires in the native bridge. JS-only mode works without native code if you prefer minimal setup.
-
----
-
-## Installation
-
-### For Web Projects
-```bash
-npm install signalforge
-```
-
-### For React Native
-```bash
-npm install signalforge
-
-# IMPORTANT: For persistent signals, also install:
-npm install @react-native-async-storage/async-storage
-
-# iOS only
-cd ios && pod install && cd ..
-```
-
-**iOS installation checklist**
-
-- The package includes `signalforge.podspec`, so CocoaPods picks it up automatically when you run `pod install`.
-- No manual source copying is required; `src/native` is published with the npm package for codegen.
-- The runtime tries to install the JSI bindings automatically on React Native. If the native bridge is unavailable, the library falls back to JavaScript.
-
-### Run the React Native Example (Local)
-
-Want to try it quickly in a real app? This repo includes a React Native example wired to the local package.
-
-```bash
-# From repo root
-npm install
-npm run build
-
-# Then install and run the React Native example app
-cd examples/sfReactNative
-npm install
-npm start
-```
-
-In a second terminal, build and run a platform:
-
-```bash
-# Android (Windows/macOS/Linux)
-npm run android
-
-# iOS (macOS only)
-# First time per machine or after native changes:
-npm run ios
-```
-
-Notes:
-- The example depends on the local package via `"signalforge": "file:../.."`.
-- If you change library code under `src/`, rebuild the dist and restart Metro:
-  - `npm run build` at repo root, then restart `npm start` in the example.
----
-
-## Basic Concepts
-
-### What is a Signal?
-A **signal** is like a smart variable that:
-- Holds a value (number, text, object, etc.)
-- Tells other parts of your app when it changes
-- Updates automatically
-
-**Think of it like a light switch** - when you flip it, all the lights connected to it turn on/off automatically!
-
-### Three Main Functions
-
-1. **`createSignal`** - Holds a value and notifies subscribers
-2. **`createComputed`** - Calculates based on other signals (auto-updates)
-3. **`createEffect`** - Runs side effects when dependencies change
-
----
-
-## Step-by-Step Guide
-
-### Level 1: Basic Signal (Beginner)
-
-**What**: Create a signal that stores a value
-
-**How to use**:
-```javascript
-
-// Step 1: Create a signal with initial value
-const age = createSignal(25);
-
-// Step 2: Read the value
-console.log(age.get()); // 25
-
-// Step 3: Change the value
-age.set(26);
-console.log(age.get()); // 26
-
-// Step 4: Update based on current value
-age.set(current => current + 1);
-console.log(age.get()); // 27
-```
-
-**Real example**: Shopping cart item count
-```javascript
-const cartItems = createSignal(0);
-
-// Add item to cart
-function addToCart() {
-  cartItems.set(count => count + 1);
-}
-
-console.log('Items in cart:', cartItems.get());
-```
-
----
-
-### Level 2: Computed Signal (Auto-Calculate)
-
-**What**: A signal that calculates its value automatically from other signals
-
-**How to use**:
-```javascript
-import { createSignal, createComputed } from 'signalforge';
-
-// Step 1: Create base signals
-const price = createSignal(100);
-const quantity = createSignal(2);
-
-
-// Step 2: Create computed signal (auto-calculates!)
-const total = createComputed(() => {
-  return price.get() * quantity.get();
-});
-
-console.log(total.get()); // 200
-
-// Step 3: Change base signal - computed updates automatically!
-price.set(150);
-console.log(total.get()); // 300 (auto-updated!)
-```
-
-**Real example**: Shopping cart total
-```javascript
-const itemPrice = createSignal(50);
-const itemCount = createSignal(3);
-const tax = createSignal(0.1); // 10% tax
-// Calculates automatically!
-const subtotal = createComputed(() => itemPrice.get() * itemCount.get());
-const taxAmount = createComputed(() => subtotal.get() * tax.get());
-const finalTotal = createComputed(() => subtotal.get() + taxAmount.get());
-
-console.log('Subtotal:', subtotal.get());     // 150
-console.log('Tax:', taxAmount.get());         // 15
-### Level 3: Effects (Do Something When Changed)
-
-**What**: Run code automatically when signals change
-
-**How to use**:
-```javascript
-import { createSignal, createEffect } from 'signalforge';
-
-// Step 1: Create signal
-const userName = createSignal('John');
-
-// Step 2: Create effect (runs when userName changes)
-const cleanup = createEffect(() => {
-  console.log('Hello, ' + userName.get() + '!');
-});
-// Output: "Hello, John!"
-
-// Step 3: Change signal - effect runs automatically!
-userName.set('Jane');
-// Output: "Hello, Jane!"
-
-// Step 4: Stop the effect when done
-cleanup();
-```
-
-**Real example**: Save to localStorage when data changes
-```javascript
-const userSettings = createSignal({ theme: 'dark', fontSize: 14 });
-
-// Auto-save whenever settings change!
-createEffect(() => {
-  const settings = userSettings.get();
-  localStorage.setItem('settings', JSON.stringify(settings));
-  console.log('Settings saved!');
-});
-
-
-### Level 4: Batch Updates (Multiple Changes at Once)
-
-**What**: Update multiple signals efficiently
-
-**How to use**:
-```javascript
-import { createSignal, createComputed, batch } from 'signalforge';
-
-const firstName = createSignal('John');
-const lastName = createSignal('Doe');
-const fullName = createComputed(() => `${firstName.get()} ${lastName.get()}`);
-
-// fullName recalculates twice without batching
-
-// With batch - recalculates once
-batch(() => {
-  firstName.set('Jane');
-});
-// fullName recalculates once (33x faster!)
-```
-
----
-
-### Level 5: Subscribe to Changes (Listen)
-
-**What**: Run a function every time a signal changes
-
-**How to use**:
-```javascript
-const count = createSignal(0);
-
-// Step 1: Subscribe to changes
-const unsubscribe = count.subscribe((newValue) => {
-  console.log('Count changed to:', newValue);
-});
-
-// Step 2: Change value - subscriber gets notified
-count.set(1); // Output: "Count changed to: 1"
-count.set(2); // Output: "Count changed to: 2"
-
-// Step 3: Stop listening
-unsubscribe();
-count.set(3); // No output (not listening anymore)
-```
-
----
-
-### Level 6: Untrack (Read Without Dependency)
-
-**What**: Read a signal without creating a dependency
-
-**How to use**:
-```javascript
-import { createSignal, createComputed, untrack } from 'signalforge';
-
-const count = createSignal(1);
-const debugMode = createSignal(true);
-
-const doubled = createComputed(() => {
-  const value = count.get() * 2;
-  
-  // Read debugMode WITHOUT creating dependency
-  if (untrack(() => debugMode.get())) {
-    console.log('Debug:', value);
-  }
-  
-  return value;
-});
-
-// Changing count triggers recompute
-count.set(5); // Output: "Debug: 10"
-
-// Changing debugMode does NOT trigger recompute
-debugMode.set(false); // No output (not dependent!)
-```
-
----
-
-## React Integration
-
-### Step 1: Install
-```bash
-npm install signalforge react
-```
-
-### Step 2: Use in Components
-
-#### Method A: useSignal (Component State)
-```javascript
+```jsx
 import { useSignal } from 'signalforge/react';
 
 function Counter() {
-  // Like useState but more powerful!
   const [count, setCount] = useSignal(0);
-  
   return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        Increment
-      </button>
-    </div>
+    <button onClick={() => setCount(count + 1)}>Count: {count}</button>
   );
 }
 ```
 
-#### Method B: useSignalValue (Global State)
-```javascript
-import { createSignal } from 'signalforge';
-import { useSignalValue } from 'signalforge/react';
+Persist state with one line:
 
-// Create global signal (outside component)
+```javascript
+import { createPersistentSignal } from 'signalforge/utils';
+
+const theme = createPersistentSignal('theme', 'dark');
+theme.set('light'); // stored to localStorage/AsyncStorage
+```
+
+---
+
+## Concepts at a Glance
+
+```javascript
+import { createSignal, createComputed, createEffect, batch, untrack } from 'signalforge';
+
+const price = createSignal(100);
+const qty = createSignal(2);
+const total = createComputed(() => price.get() * qty.get());
+
+createEffect(() => console.log('Total', total.get()));
+
+batch(() => {
+  price.set(125);
+  qty.set(3);      // total recalculates once
+});
+
+const debug = createSignal(true);
+const doubled = createComputed(() => {
+  if (untrack(() => debug.get())) console.log('Debugging');
+  return total.get() * 2;
+});
+```
+
+- **Signals:** Hold values and notify subscribers via `get`, `set`, and `subscribe`.
+- **Computed signals:** Derive values automatically from other signals.
+- **Effects:** Run side effects when dependencies change; return cleanup functions as needed.
+- **Batching:** Group updates so dependents recompute once.
+- **Untrack:** Read a signal inside a computed/effect without creating a dependency.
+
+More helpers (debounce, throttle, derive, memo, map/filter, async `createResource`, etc.) live under `signalforge/utils`.
+
+---
+
+## React Usage
+
+Choose the hook that matches your component style:
+
+```jsx
+import { createSignal } from 'signalforge';
+import { useSignal, useSignalValue, useSignalEffect, withSignals } from 'signalforge/react';
+
 const globalCount = createSignal(0);
 
 function Display() {
-  // Subscribe to global signal
-  const count = useSignalValue(globalCount);
-  return <p>Count: {count}</p>;
+  const value = useSignalValue(globalCount);
+  return <p>Global: {value}</p>;
 }
 
 function Controls() {
-  // Components share the same signal!
+  const [local, setLocal] = useSignal(0);
+  useSignalEffect(() => console.log('Global changed:', globalCount.get()));
   return (
-    <button onClick={() => globalCount.set(c => c + 1)}>
-      Increment Global Count
-    </button>
+    <>
+      <button onClick={() => setLocal(local + 1)}>Local {local}</button>
+      <button onClick={() => globalCount.set(c => c + 1)}>Global +1</button>
+    </>
   );
 }
+
+class CounterPanel extends React.Component { /* ... */ }
+export default withSignals(CounterPanel, { count: globalCount });
 ```
 
-#### Method C: useSignalEffect (React + Signals)
-```javascript
-import { createSignal } from 'signalforge';
-import { useSignalEffect } from 'signalforge/react';
-
-const userId = createSignal(1);
-
-function UserProfile() {
-  const [userData, setUserData] = useState(null);
-  
-  // Auto-runs when userId changes!
-  useSignalEffect(() => {
-    fetch(`/api/users/${userId.get()}`)
-      .then(r => r.json())
-      .then(setUserData);
-  });
-  
-  return <div>{userData?.name}</div>;
-}
-
-#### Method D: Class components (no hooks required)
-```tsx
-import React from 'react';
-import { createSignal } from 'signalforge';
-import { withSignals } from 'signalforge/react';
-
-const counter = createSignal(0);
-
-class CounterPanel extends React.Component<{ count: number }> {
-  render() {
-    return (
-      <div>
-        <p>Count: {this.props.count}</p>
-        <button onClick={() => counter.set((value) => value + 1)}>Add one</button>
-      </div>
-    );
-  }
-}
-
-export default withSignals(CounterPanel, { count: counter });
-```
-
-`withSignals` subscribes on mount, unsubscribes on unmount, and injects the latest signal values as props—perfect for existing React or React Native class components that cannot use hooks.
+`withSignals` subscribes on mount, unsubscribes on unmount, and injects the latest values as props—handy for existing class components.
 
 ---
 
-## React Native Specific Guide
+## React Native Notes
 
-SignalForge supports React Native with the JavaScript API and an optional C++ JSI bridge for lower-latency updates. Here's what you need to know:
+- Install normally, plus AsyncStorage for persistence:
 
-### Installation
+  ```bash
+  npm install signalforge @react-native-async-storage/async-storage
+  cd ios && pod install  # iOS only
+  ```
 
-```bash
-npm install signalforge
+- The optional C++ JSI bridge is auto-linked on the new architecture; when unavailable, the library falls back to JavaScript.
+- Use `persist` inside `useEffect` to ensure AsyncStorage is ready:
 
-# For persistent signals (storage):
-npm install @react-native-async-storage/async-storage
-cd ios && pod install  # iOS only
-```
+  ```tsx
+  import { createSignal } from 'signalforge';
+  import { persist } from 'signalforge/utils';
+  import { useEffect } from 'react';
 
-To enable the native C++ path on React Native 0.68+ with the new architecture, turn on the new-architecture flags (`newArchEnabled=true` on Android, `ENV['RCT_NEW_ARCH_ENABLED']='1'` on iOS) and rebuild so the JSI bindings are compiled and auto-linked.
- For older architectures, you can install the bindings at runtime using `installJSIBindings()` during app startup.
- If the native module is unavailable, SignalForge falls back to the JavaScript implementation automatically.
+  const counter = createSignal(0);
+  useEffect(() => persist(counter, { key: 'counter' }), []);
+  ```
 
-### Basic Usage
+- A full React Native example is in [`examples/sfReactNative`](examples/sfReactNative). Run it against the workspace build:
 
-All hooks work exactly the same as in React:
-
-```tsx
-import { createSignal } from 'signalforge';
-import { useSignal, useSignalValue } from 'signalforge/react';
-import { View, Text, Button } from 'react-native';
-
-const globalCount = createSignal(0);
-
-function App() {
-  const [localCount, setLocalCount] = useSignal(0);
-  const count = useSignalValue(globalCount);
-  
-  return (
-    <View>
-      <Text>Local: {localCount}</Text>
-      <Text>Global: {count}</Text>
-      <Button title="Increment Local" onPress={() => setLocalCount(localCount + 1)} />
-      <Button title="Increment Global" onPress={() => globalCount.set(c => c + 1)} />
-    </View>
-  );
-}
-```
-
-### Class components in React Native
-
-Prefer classes over hooks? Use `withSignals` the same way you would on web. The demo app under `examples/sfReactNative` includes `ClassComponentScreen.tsx`, which renders a class-based panel that stays in sync with signals injected as props.
-
-### Persistent Storage in React Native
-
-**Important**: Use `persist()` inside `useEffect()` to ensure AsyncStorage is ready:
-
-```tsx
-import { createSignal } from 'signalforge';
-import { persist } from 'signalforge/utils';
-import { useSignalValue } from 'signalforge/react';
-import { useEffect } from 'react';
-
-// Create signal at module level
-const userPrefs = createSignal({ theme: 'light', fontSize: 14 });
-
-function App() {
-  const prefs = useSignalValue(userPrefs);
-  
-  // Set up persistence after mount
-  useEffect(() => {
-    const cleanup = persist(userPrefs, { key: 'user_prefs' });
-    return cleanup; // Stop persisting on unmount
-  }, []);
-  
-  return (
-    <View>
-      <Text>Theme: {prefs.theme}</Text>
-      <Button 
-        title="Toggle Theme" 
-        onPress={() => userPrefs.set(p => ({ 
-          ...p, 
-          theme: p.theme === 'light' ? 'dark' : 'light' 
-        }))} 
-      />
-    </View>
-  );
-}
-```
-
-### Metro Configuration
-
-For the example app or when linking to local SignalForge, configure Metro properly:
-
-```javascript
-// metro.config.js
-const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
-const path = require('path');
-
-const config = {
-  watchFolders: [
-    path.resolve(__dirname, '../..'),
-  ],
-  resolver: {
-    nodeModulesPaths: [
-      path.resolve(__dirname, 'node_modules'),
-      path.resolve(__dirname, '../../node_modules'),
-    ],
-  },
-};
-
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
-```
-
-### Common Issues
-
-**Issue**: "AsyncStorage not found"  
-**Solution**: Install `@react-native-async-storage/async-storage` and run `pod install` for iOS
-
-**Issue**: "Hooks not working"  
-**Solution**: Clear Metro cache: `npm start -- --reset-cache`
+  ```bash
+  npm install
+  npm run build
+  cd examples/sfReactNative && npm install && npm start
+  ```
 
 ---
 
-## All Functions Explained
+## Full Examples
 
-Every API surface in SignalForge is designed to be composable, observable, and deterministic. Use this section as a reference to see how the core and advanced helpers fit together without needing auxiliary libraries. Each primitive here is tuned for microsecond-level reaction time, works identically on web and React Native, and exposes instrumentation hooks so you can prove correctness in production.
+SignalForge ships with runnable examples that mirror common production setups. Each example uses the published package names, so you can copy/paste code into your own app.
 
-### Core Functions
+### Next.js dashboard (`examples/sf-nextjs`)
 
-#### `createSignal(initialValue)`
-**What**: Creates a signal with an initial value  
-**Returns**: Signal object with `get()`, `set()`, `subscribe()`, `destroy()`
+- Shows server-side rendering, client-side hydration, optimistic updates, and persisted theme + auth signals.
+- Try it locally:
 
-```javascript
-const age = createSignal(25);
-age.get();           // Read value
-age.set(26);         // Set value
-age.set(v => v + 1); // Update based on current
-const unsub = age.subscribe(val => console.log(val)); // Listen
-unsub();             // Stop listening
-age.destroy();       // Cleanup
-```
+  ```bash
+  npm install
+  npm run build
+  cd examples/sf-nextjs && npm install && npm run dev
+  ```
 
-#### `createComputed(computeFn)`
-**What**: Creates auto-updating computed value  
-**Returns**: Computed signal (read-only)
+- Key files to inspect:
+  - `components/counter.tsx`: global signals shared across routes.
+  - `lib/session.ts`: persisted signals for auth/session data.
+  - `utils/performance.ts`: measuring signal update speed inside React.
 
-```javascript
-const doubled = createComputed(() => count.get() * 2);
-doubled.get(); // Always up-to-date!
-```
+### React Native starter (`examples/sfReactNative`)
 
-#### `createEffect(effectFn)`
-**What**: Runs code when dependencies change  
-**Returns**: Cleanup function
+- Demonstrates the AsyncStorage persistence adapter, offline-ready counters, and the optional JSI bridge fallback.
+- Run it against the workspace build so the example picks up your local changes:
 
-```javascript
-const cleanup = createEffect(() => {
-  console.log('Count is:', count.get());
-});
-cleanup(); // Stop effect
-```
+  ```bash
+  npm install
+  npm run build
+  cd examples/sfReactNative && npm install && npm start
+  ```
 
-#### `batch(fn)`
-**What**: Group multiple updates together (faster!)  
-**Returns**: Result of fn
+- Key files:
+  - `app/counter.tsx`: hooks-based counter with persisted state.
+  - `app/performance.tsx`: simple perf view to compare JavaScript vs JSI bridge.
 
-```javascript
-batch(() => {
-  signal1.set(1);
-  signal2.set(2);
-  // Only recalculates once!
-});
-```
+### Additional resources
 
-#### `untrack(fn)`
-**What**: Read signals without tracking  
-**Returns**: Result of fn
-
-```javascript
-const value = untrack(() => signal.get());
-// Doesn't create dependency
-```
-
-#### `flushSync()`
-**What**: Force immediate batch flush (synchronous updates)
-
-```javascript
-flushSync(); // Process all pending updates now
-```
-
----
-
-### Advanced Batching Functions
-
-#### `startBatch()`
-**What**: Start manual batch (advanced usage)
-
-```javascript
-startBatch();
-signal1.set(1);
-signal2.set(2);
-endBatch(); // Flush all updates
-```
-
-#### `endBatch()`
-**What**: End manual batch and flush updates
-
-#### `flushBatches()`
-**What**: Force flush all pending batches
-
-#### `queueBatchCallback(fn)`
-**What**: Queue function to run after batch completes
-
-```javascript
-queueBatchCallback(() => console.log('Batch done!'));
-```
-
-#### `getBatchDepth()`
-**What**: Get current batch nesting level  
-**Returns**: Number (0 = not batching)
-
-#### `getPendingCount()`
-**What**: Get number of pending updates  
-**Returns**: Number of signals waiting to update
-
-#### `isBatching()`
-**What**: Check if currently batching  
-**Returns**: Boolean
-
----
-
-### Utility Functions
-
-#### `derive([signals], fn)`
-**What**: Create computed from multiple signals
-
-```javascript
-const sum = derive([a, b], (valA, valB) => valA + valB);
-```
-
-#### `combine(signals)`
-**What**: Combine multiple signals into array
-
-```javascript
-const all = combine([signal1, signal2, signal3]);
-all.get(); // [val1, val2, val3]
-```
-
-#### `map(signal, fn)`
-**What**: Transform signal value
-
-```javascript
-const doubled = map(count, n => n * 2);
-```
-
-#### `filter(signal, predicate, defaultValue)`
-**What**: Filter signal updates
-
-```javascript
-const evenOnly = filter(count, n => n % 2 === 0, 0);
-```
-
-#### `memo(signal, equalsFn)`
-**What**: Only update when value changes (custom equality)
-
-```javascript
-const memoized = memo(userSignal, (a, b) => a.id === b.id);
-```
-
-#### `debounce(signal, delayMs)`
-**What**: Delay updates
-
-```javascript
-const delayed = debounce(searchText, 300);
-```
-
-#### `throttle(signal, intervalMs)`
-**What**: Limit update frequency
-
-```javascript
-const limited = throttle(scrollPos, 100);
-```
-
-#### `createResource(fetcher)`
-**What**: Track async operation status  
-**Returns**: Signal with `{ status, data, error }`
-
-```javascript
-const user = createResource(() => fetch('/api/user').then(r => r.json()));
-console.log(user.get().status); // 'pending' | 'success' | 'error'
-console.log(user.get().data); // Result when loaded
-```
-
----
-
-### Storage Functions
-
-**React Native requirement**: For persistent signals in React Native, you **must** install AsyncStorage:
-```bash
-npm install @react-native-async-storage/async-storage
-cd ios && pod install  # iOS only
-```
-
-#### `createPersistentSignal(key, initialValue)`
-**What**: Signal that auto-saves to storage
-
-```javascript
-// Auto-saves to localStorage (Web) or AsyncStorage (React Native)
-const theme = createPersistentSignal('app_theme', 'dark');
-theme.set('light'); // Automatically saved!
-```
-
-**Note for React Native**: Import from utils:
-```javascript
-import { createPersistentSignal } from 'signalforge/utils';
-```
-
-#### `persist(signal, options)`
-**What**: Make existing signal persistent
-
-```javascript
-const count = createSignal(0);
-const stop = persist(count, { key: 'counter', debounce: 500 });
-stop(); // Stop persisting
-```
-
-**Note for React Native**: Import from utils and use in `useEffect`:
-```javascript
-import { persist } from 'signalforge/utils';
-import { useEffect } from 'react';
-
-function App() {
-  useEffect(() => {
-    const stop = persist(count, { key: 'counter' });
-    return stop; // Cleanup on unmount
-  }, []);
-}
-```
-
-#### `getStorageAdapter()`
-**What**: Get storage adapter for current environment  
-**Returns**: StorageAdapter (auto-detects Web/React Native/Node)
-
-```javascript
-const storage = getStorageAdapter();
-await storage.save('key', value);
-const data = await storage.load('key');
-```
-
-#### `createStorageAdapter(env, options)`
-**What**: Create custom storage adapter
-
-```javascript
-const storage = createStorageAdapter('web', { prefix: 'myapp_' });
-```
-
-#### `detectEnvironment()`
-**What**: Detect current environment  
-**Returns**: 'web' | 'react-native' | 'node' | 'unknown'
-
-#### `safeStringify(value)` & `safeParse(json)`
-**What**: JSON helpers with circular reference handling
-
-```javascript
-const json = safeStringify({ a: 1, b: circularRef });
-const obj = safeParse(json);
-```
-
----
-
-### Array & Object Helpers
-
-#### `createArraySignal(initialArray)`
-**What**: Signal with array methods
-
-```javascript
-const todos = createArraySignal(['Task 1']);
-todos.push('Task 2');
-todos.pop();
-todos.filter((_, i) => i !== 0);
-todos.remove('Task 1');
-todos.clear();
-console.log(todos.length); // Array length
-console.log(todos.get()); // Get full array
-```
-
-**Methods**: `push`, `pop`, `filter`, `map`, `find`, `remove`, `clear`, `length`
-
-#### `createRecordSignal(initialObject)`
-**What**: Signal with object methods
-
-```javascript
-const user = createRecordSignal({ name: 'John', age: 30 });
-user.setKey('email', 'john@example.com');
-console.log(user.getKey('email')); // 'john@example.com'
-console.log(user.hasKey('age')); // true
-user.deleteKey('age');
-console.log(user.keys()); // ['name', 'email']
-console.log(user.values()); // ['John', 'john@example.com']
-console.log(user.entries()); // [['name', 'John'], ...]
-user.clear();
-```
-
-**Methods**: `setKey`, `getKey`, `deleteKey`, `hasKey`, `keys`, `values`, `entries`, `clear`
-
----
-
-### Performance Monitoring
-
-#### `monitor(signal, label)`
-**What**: Wrap signal with performance tracking
-
-```javascript
-const count = monitor(createSignal(0), 'counter');
-// Logs read/write times automatically
-```
-
----
-
-### React Hooks
-
-#### `useSignal(initialValue)`
-**What**: Create signal in React component
-
-```javascript
-const [count, setCount] = useSignal(0);
-```
-
-#### `useSignalValue(signal)`
-**What**: Subscribe to external signal
-
-```javascript
-const value = useSignalValue(globalSignal);
-```
-
-#### `useSignalEffect(effectFn)`
-**What**: Effect with auto-tracking
-
-```javascript
-useSignalEffect(() => {
-  console.log(signal.get());
-});
-```
-
----
-
-## Plugin System
-
-SignalForge exposes a first-class plugin system so teams can add observability, persistence, and custom orchestration without touching the core engine.
-
-### Plugin Manager Functions
-
-#### `registerPlugin(name, plugin)`
-**What**: Register a plugin with the manager
-
-```javascript
-import { registerPlugin, LoggerPlugin } from 'signalforge';
-
-const logger = new LoggerPlugin({ level: 'info' });
-registerPlugin('logger', logger.getPlugin());
-```
-
-#### `enablePlugin(name)` & `disablePlugin(name)`
-**What**: Enable/disable plugins at runtime
-
-```javascript
-enablePlugin('logger');  // Turn on
-disablePlugin('logger'); // Turn off (keeps data)
-```
-
-#### `getPlugin(name)`
-**What**: Get plugin instance
-
-```javascript
-const logger = getPlugin('logger');
-```
-
-#### `isPluginEnabled(name)`
-**What**: Check if plugin is enabled
-
-```javascript
-if (isPluginEnabled('time-travel')) {
-  // Do something
-}
-```
-
-#### `getAllPlugins()`
-**What**: Get all registered plugins with status
-
-```javascript
-const plugins = getAllPlugins();
-// [{ name: 'logger', enabled: true, ... }]
-```
-
-#### `getPluginStats()`
-**What**: Get plugin usage statistics
-
-```javascript
-const stats = getPluginStats();
-console.log(stats); // Enable counts, error counts, etc.
-```
-
----
-
-### Built-in Plugins
-
-#### **Logger Plugin**
-Logs all signal changes with filtering
-
-```javascript
-import { LoggerPlugin, registerPlugin } from 'signalforge';
-
-const logger = new LoggerPlugin({
-  level: 'debug',           // 'debug' | 'info' | 'warn' | 'error'
-  maxLogs: 1000,            // Max logs to keep
-  enableConsole: true,      // Log to console
-  verbose: false,           // Show old/new values
-  signalPattern: /user\./,  // Filter by name regex
-});
-
-registerPlugin('logger', logger.getPlugin());
-
-// Query logs
-const allLogs = logger.getLogs();
-const userLogs = logger.getLogsForSignal('user_signal_id');
-const stats = logger.getStats();
-
-// Search
-const results = logger.search('user');
-
-// Export/Import
-const json = logger.exportLogs();
-logger.importLogs(json);
-```
-
-#### **Time Travel Plugin**
-Undo/redo for debugging (like Redux DevTools!)
-
-```javascript
-import { TimeTravelPlugin, registerPlugin } from 'signalforge';
-
-const timeTravel = new TimeTravelPlugin({
-  maxHistory: 100,              // Max snapshots
-  fullSnapshotInterval: 10,     // Full snapshot every N updates
-  enableCompression: true,      // Use diffs to save memory
-});
-
-registerPlugin('time-travel', timeTravel.getPlugin());
-
-// Use signals
-count.set(5);
-count.set(10);
-count.set(15);
-
-// Time travel!
-timeTravel.undo(); // Back to 10
-timeTravel.undo(); // Back to 5
-timeTravel.redo(); // Forward to 10
-
-// Jump to specific point
-timeTravel.jumpTo(0); // Go to beginning
-
-// Check status
-console.log(timeTravel.canUndo()); // true/false
-console.log(timeTravel.canRedo()); // true/false
-
-// Get timeline
-const timeline = timeTravel.getTimelineState();
-console.log(`${timeline.current}/${timeline.total}`);
-
-// Export/Import session
-const session = timeTravel.exportSession();
-localStorage.setItem('debug', JSON.stringify(session));
-```
-
----
-
-## DevTools
-
-SignalForge includes powerful developer tools for debugging!
-
-### DevTools Functions
-
-#### `enableDevTools(config)`
-**What**: Enable DevTools inspector
-
-```javascript
-import { enableDevTools } from 'signalforge/devtools';
-
-enableDevTools({
-  trackPerformance: true,
-  logToConsole: true,
-  flipperEnabled: true,  // React Native Flipper integration
-});
-```
-
-#### `listSignals()`
-**What**: Get all active signals
-
-```javascript
-import { listSignals } from 'signalforge/devtools';
-
-const signals = listSignals();
-// [{ id, type, value, subscriberCount, ... }]
-```
-
-#### `getSignal(id)`
-**What**: Get specific signal metadata
-
-```javascript
-const signal = getSignal('signal_123');
-console.log(signal.value);
-console.log(signal.dependencies);
-```
-
-#### `getDependencyGraph()`
-**What**: Get complete dependency graph for visualization
-
-```javascript
-const graph = getDependencyGraph();
-// Visualize relationships between signals
-```
-
-#### `getPerformanceMetrics()`
-**What**: Get performance measurements
-
-```javascript
-const metrics = getPerformanceMetrics();
-// [{ signalId, duration, timestamp, ... }]
-```
-
----
-
-### Performance Profiler
-
-Track latency and batch performance!
-
-```javascript
-import { 
-  enableProfiler, 
-  getProfilerData,
-  getSignalLatencyStats,
-  getBatchStats 
-} from 'signalforge/devtools';
-
-// Enable profiler
-enableProfiler({
-  maxLatencySamples: 1000,
-  maxBatchRecords: 500,
-});
-
-// Get stats
-const latencyStats = getSignalLatencyStats('signal_123');
-console.log('Avg:', latencyStats.average);
-console.log('P95:', latencyStats.p95);
-
-const batchStats = getBatchStats();
-console.log('Avg batch size:', batchStats.averageSize);
-```
-
----
-
-### DevTools UI Components (React)
-
-#### `<SignalGraphVisualizer />`
-**What**: Visual dependency graph
-
-```javascript
-import { SignalGraphVisualizer } from 'signalforge/devtools';
-
-function DevPanel() {
-  return <SignalGraphVisualizer width={800} height={600} />;
-}
-```
-
-#### `<PerformanceTab />`
-**What**: Performance metrics panel
-
-```javascript
-import { PerformanceTab } from 'signalforge/devtools';
-
-function DevPanel() {
-  return <PerformanceTab />;
-}
-```
-
-#### `<LogViewer />`
-**What**: Log viewer UI
-
-```javascript
-import { LogViewer } from 'signalforge/devtools';
-
-function DevPanel() {
-  return <LogViewer logger={loggerPlugin} />;
-}
-```
-
-#### `<TimeTravelTimeline />`
-**What**: Time travel UI
-
-```javascript
-import { TimeTravelTimeline } from 'signalforge/devtools';
-
-function DevPanel() {
-  return <TimeTravelTimeline plugin={timeTravelPlugin} />;
-}
-```
-
----
-
-## React Native Native Bridge (JSI)
-
-Ultra-fast native C++ implementation for React Native!
-
-### Native Functions
-
-#### `installJSIBindings()`
-**What**: Install native JSI bindings (10x faster!)
-
-```javascript
-import { installJSIBindings } from 'signalforge/native';
-
-// In your app startup
-installJSIBindings();
-```
-
-#### `isNativeAvailable()`
-**What**: Check if native module is available
-
-```javascript
-import { isNativeAvailable } from 'signalforge/native';
-
-if (isNativeAvailable()) {
-  console.log('Using native JSI!');
-} else {
-  console.log('Using JS fallback');
-}
-```
-
-#### `getRuntimeInfo()`
-**What**: Get runtime information
-
-```javascript
-import { getRuntimeInfo } from 'signalforge/native';
-
-const info = getRuntimeInfo();
-console.log(info);
-// { isJSI: true, isHermes: true, isTurboModule: false }
-```
-
-#### `runPerformanceBenchmark()`
-**What**: Benchmark native vs JS performance
-
-```javascript
-import { runPerformanceBenchmark } from 'signalforge/native';
-
-const results = runPerformanceBenchmark();
-console.log('Native speedup:', results.speedup); // e.g., "10.5x faster"
-```
-
-### JSI Bridge Direct Usage
-
-```javascript
-import jsiBridge from 'signalforge/native';
-
-// Create signal in native
-const id = jsiBridge.createSignal('mySignal', 42);
-
-// Get/Set values (native speed!)
-const value = jsiBridge.getSignal(id);
-jsiBridge.setSignal(id, 100);
-
-// Check implementation
-console.log(jsiBridge.isUsingNative()); // true if JSI installed
-```
-
----
-
-## Benchmarking
-
-Built-in benchmark utilities!
-
-```javascript
-import {
-  benchmarkSignalUpdates,
-  benchmarkBatchedUpdates,
-  compareWithRedux,
-  compareWithZustand,
-  runBenchmarkSuite,
-  getResults,
-} from 'signalforge/utils';
-
-// Run benchmarks
-benchmarkSignalUpdates(10000);
-benchmarkBatchedUpdates(10000);
-compareWithRedux();
-compareWithZustand();
-
-// Run full suite
-runBenchmarkSuite();
-
-// Get results
-const results = getResults();
-console.table(results);
-```
-
----
-
-### Example 1: Counter App
-```javascript
-import { createSignal } from 'signalforge';
-
-const count = createSignal(0);
-
-function increment() {
-  count.set(c => c + 1);
-}
-
-function decrement() {
-  count.set(c => c - 1);
-}
-
-console.log(count.get()); // 0
-increment();
-console.log(count.get()); // 1
-```
-
-### Example 2: Shopping Cart
-```javascript
-import { createSignal, createComputed } from 'signalforge';
-
-const items = createSignal([
-  { name: 'Apple', price: 1.5, qty: 2 },
-  { name: 'Bread', price: 2.0, qty: 1 }
-]);
-
-const total = createComputed(() => {
-  return items.get().reduce((sum, item) => {
-    return sum + (item.price * item.qty);
-  }, 0);
-});
-
-console.log('Total:', total.get()); // 5.0
-
-// Add item
-items.set(current => [...current, { name: 'Milk', price: 3.0, qty: 1 }]);
-console.log('New Total:', total.get()); // 8.0 (auto-updated!)
-```
-
-### Example 3: Form Validation
-```javascript
-import { createSignal, createComputed } from 'signalforge';
-
-const email = createSignal('');
-const password = createSignal('');
-
-const isEmailValid = createComputed(() => {
-  return email.get().includes('@');
-});
-
-const isPasswordValid = createComputed(() => {
-  return password.get().length >= 8;
-});
-
-const canSubmit = createComputed(() => {
-  return isEmailValid.get() && isPasswordValid.get();
-});
-
-email.set('user@example.com');
-password.set('secret123');
-
-console.log('Can Submit:', canSubmit.get()); // true
-```
-
-### Example 4: React Todo App
-```javascript
-import { createSignal } from 'signalforge';
-import { useSignalValue } from 'signalforge/react';
-
-// Global state
-const todos = createSignal([]);
-
-function TodoApp() {
-  const todoList = useSignalValue(todos);
-  const [input, setInput] = useState('');
-  
-  const addTodo = () => {
-    todos.set(current => [...current, { id: Date.now(), text: input, done: false }]);
-    setInput('');
-  };
-  
-  const toggleTodo = (id) => {
-    todos.set(current => 
-      current.map(todo => 
-        todo.id === id ? { ...todo, done: !todo.done } : todo
-      )
-    );
-  };
-  
-  return (
-    <div>
-      <input value={input} onChange={e => setInput(e.target.value)} />
-      <button onClick={addTodo}>Add</button>
-      
-      <ul>
-        {todoList.map(todo => (
-          <li key={todo.id} onClick={() => toggleTodo(todo.id)}>
-            <span style={{ textDecoration: todo.done ? 'line-through' : 'none' }}>
-              {todo.text}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
+- **Playground:** [`signalforge-fogecommunity.vercel.app`](https://signalforge-fogecommunity.vercel.app/) mirrors the Next.js demo.
+- **API Reference:** See `src/` exports and inline JSDoc; utilities live under `signalforge/utils`.
+- **Benchmarks & bundles:** `npm run bench` and `npm run size` generate the numbers quoted above. Outputs appear in `benchmarks/results`.
 
 ---
 
 ## Performance
 
-### Standalone Benchmark Snapshot
-
-- **Reads:** ~5ns per `get()` call.
-- **Writes:** ~197ns per `set()` call.
-- **Batching:** 100-signal batch completes in ~0.002ms.
-- **Memory:** 10,000 signals consume ~15.84MB (~1.6KB per signal).
-
-All figures come from running `npm run benchmark` locally on Node.js v20 (Intel i7, Windows 11). Run the same script to regenerate the numbers on your hardware.
-
-### How It Compares in a 1000-item Todo Benchmark
-
-| Library       | Initial Render | Update Single Item | Update All Items | Memory Usage |
-|---------------|----------------|--------------------|------------------|--------------|
-| SignalForge   | 16ms           | 1ms                | 18ms             | 2MB          |
-| Redux         | 45ms           | 8ms                | 85ms             | 5MB          |
-| MobX          | 28ms           | 3ms                | 52ms             | 4MB          |
-
-### Bundle Size Snapshot (gzip)
-
-| Library entry point | Measured size | How we measured |
-| --- | --- | --- |
-| SignalForge React entry (`dist/entries/react.mjs`) | 2.03KB | `npm run size` (gzip output from `scripts/check-size.js`). |
-| SignalForge minimal core (`dist/core/minimal.mjs`) | 0.42KB | `npm run size` (gzip output from `scripts/check-size.js`). |
-| Redux (`node_modules/redux/dist/redux.mjs`) | 4.41KB | `gzip -c node_modules/redux/dist/redux.mjs | wc -c`. |
-| Zustand (`node_modules/zustand/esm/index.mjs`) | 0.07KB | `gzip -c node_modules/zustand/esm/index.mjs | wc -c`.4b |
-| Recoil        | 35ms           | 5ms                | 68ms             | 6MB          |
-| Zustand       | 24ms           | 4ms                | 48ms             | 3MB          |
-
-Numbers are from the architecture benchmark section included in this repository.
-
-### Bundle Size Comparison (minified + gzipped)
-
-| Library     | Size |
-|-------------|------|
-| SignalForge | 2.1 KB |
-| Zustand     | 2.9 KB |
-| Jotai       | 3.1 KB |
-| Solid.js    | 5.2 KB |
-| Recoil      | 18.4 KB |
-| MobX        | 16.2 KB |
-| Redux       | 8.1 KB (+13KB for Toolkit) |
-
-Bundle sizes reflect the comparison recorded in the architecture documentation.
-
-**Why it performs well**
-- Zero external dependencies in the core runtime.
-- Fine-grained dependency graph with lazy recomputation.
-- Batching to collapse cascaded updates into a single frame.
+SignalForge is tuned for production: nanosecond-level read/write benchmarks, small memory use, and minimal reactivity overhead even when thousands of signals update concurrently. React bundles gzip to ~2KB and the core to ~0.5KB. See `benchmarks/` for scripts and comparison details.
 
 ---
 
-## Works Everywhere
+## Community & Contributing
 
-- React with hooks
-- Vue (framework-agnostic signals)
-- Angular (framework-agnostic signals)
-- Svelte (framework-agnostic signals)
-- React Native with the native C++ bridge
-- Next.js with SSR support
-- Vanilla JS
-- Node.js
-- Electron
+**[ForgeCommunity](https://github.com/forgecommunity)** is a collective of developers creating high-performance, open-source tools. We welcome contributions—open an issue to discuss ideas or send a PR on our [GitHub repository](https://github.com/forgecommunity/signalforge).
 
 ---
 
-## Import Options
+## Support
 
-SignalForge provides multiple entry points for optimal bundle size:
+- Open an issue on GitHub with a repro or failing test.
+- For commercial support, reach out via the repository contact email.
+- If you like SignalForge, please star the repo, share feedback, report bugs, suggest features, or help us improve the docs.
 
-### 1. Full Bundle (Recommended)
-```javascript
-import { createSignal, createComputed } from 'signalforge';
-// Everything included: 86KB
-```
-
-### 2. Core Only (Minimal)
-```javascript
-import { createSignal, createComputed } from 'signalforge/core';
-// Just reactive primitives: 4KB
-```
-
-### 3. React Hooks
-```javascript
-import { useSignal, useSignalValue } from 'signalforge/react';
-// React integration: 5KB
-```
-
-### 4. DevTools
-```javascript
-import { enableDevTools, listSignals } from 'signalforge/devtools';
-// Developer tools: 25KB
-```
-
-### 5. Plugins
-```javascript
-import { LoggerPlugin, TimeTravelPlugin } from 'signalforge/plugins';
-// Plugin system: 27KB
-```
-
-### 6. Utils
-```javascript
-import { derive, combine, debounce } from 'signalforge/utils';
-// Utility functions: 6KB
-```
-
-### 7. Ultra-Minimal (Advanced)
-```javascript
-import { signal, computed, effect } from 'signalforge/minimal';
-// Absolute minimum: 0.8KB (functional API)
-
-const count = signal(0);
-console.log(count()); // Read
-count(5);             // Write
-count(prev => prev + 1); // Update
-```
-
-**Ultra-Minimal API:**
-- `signal(initialValue)` - Functional signal (read/write in one)
-- `computed(fn)` - Auto-updating computed
-- `effect(fn)` - Side effects
-- `batch(fn)` - Batch updates
-- `untrack(fn)` - Read without tracking
-
----
-
-## 🆘 Need Help?
-
-### Quick Links
-- [Full Documentation](https://github.com/forgecommunity/signalforge)
-- 🐛 [Report Issues](https://github.com/forgecommunity/signalforge/issues)
-- 💬 [Ask Questions](https://github.com/forgecommunity/signalforge/discussions)
-
-### Common Questions
-
-**Q: Do I need React?**  
-A: No! Works with any framework or no framework.
-
-**Q: Is it hard to learn?**  
-A: No! Just 3 main functions: `createSignal`, `createComputed`, `createEffect`
-
-**Q: Is it production-ready?**  
-A: This is an alpha release. Test it first!
-
-**Q: What's the bundle size?**  
-A: Only 2KB (minimal) or 86KB (full with devtools)
-
-**Q: Does it work on mobile?**  
-A: Yes! React Native with native C++ for 10x speed.
-
----
-
-## License
-
-MIT - Free to use in any project!
-
----
-
-## Built By
-
-**[ForgeCommunity](https://github.com/forgecommunity)** - A collective of developers creating high-performance, open-source tools.
-
-### Contributing
-
-Contributions welcome! Please open an issue or PR on our [GitHub repository](https://github.com/forgecommunity/signalforge).
-
----
-
-## Support Us
-
-If you like SignalForge, please:
-- Star us on [GitHub](https://github.com/forgecommunity/signalforge)
-- Share feedback and improvement ideas
-- Report bugs
-- Suggest features
-- Improve docs
-
----
