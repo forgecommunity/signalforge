@@ -159,13 +159,153 @@ export default withSignals(CounterPanel, { count: globalCount });
   useEffect(() => persist(counter, { key: 'counter' }), []);
   ```
 
-- A full React Native example is in [`examples/sfReactNative`](examples/sfReactNative). Run it against the workspace build:
+  - A full React Native example is in [`examples/sfReactNative`](examples/sfReactNative) and the snippets below are taken directly from that app.
+  - Run it against the workspace build so you are using your local SignalForge changes:
 
   ```bash
   npm install
   npm run build
   cd examples/sfReactNative && npm install && npm start
   ```
+
+### Copy/paste examples from the React Native demo
+
+All of these are lifted directly from the working [`examples/sfReactNative`](examples/sfReactNative) screens so you can copy them
+as-is.
+
+**Basic signal** ([`screens/BasicSignalScreen.tsx`](examples/sfReactNative/screens/BasicSignalScreen.tsx))
+
+```tsx
+import { Text, TouchableOpacity, View } from 'react-native';
+import { createSignal } from 'signalforge';
+import { useSignalValue } from 'signalforge/react';
+
+const age = createSignal(25);
+
+export default function BasicSignalScreen() {
+  const currentAge = useSignalValue(age);
+
+  return (
+    <View>
+      <Text>Current Age: {currentAge}</Text>
+      <TouchableOpacity onPress={() => age.set(age.get() + 1)}><Text>Increment</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => age.set(age.get() - 1)}><Text>Decrement</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => age.set(25)}><Text>Reset</Text></TouchableOpacity>
+    </View>
+  );
+}
+```
+
+**Computed totals** ([`screens/ComputedSignalScreen.tsx`](examples/sfReactNative/screens/ComputedSignalScreen.tsx))
+
+```tsx
+import { Text, TouchableOpacity, View } from 'react-native';
+import { createComputed, createSignal } from 'signalforge';
+import { useSignalValue } from 'signalforge/react';
+
+const price = createSignal(100);
+const quantity = createSignal(2);
+const total = createComputed(() => price.get() * quantity.get());
+
+export default function ComputedSignalScreen() {
+  const currentPrice = useSignalValue(price);
+  const currentQuantity = useSignalValue(quantity);
+  const currentTotal = useSignalValue(total);
+
+  return (
+    <View>
+      <Text>Total: ${currentTotal}</Text>
+      <TouchableOpacity onPress={() => price.set(Math.max(0, currentPrice - 10))}><Text>-10</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => price.set(currentPrice + 10)}><Text>+10</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => quantity.set(Math.max(1, currentQuantity - 1))}><Text>-1 Qty</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => quantity.set(currentQuantity + 1)}><Text>+1 Qty</Text></TouchableOpacity>
+    </View>
+  );
+}
+```
+
+**Auto-tracked effects** ([`screens/EffectsScreen.tsx`](examples/sfReactNative/screens/EffectsScreen.tsx))
+
+```tsx
+import { useEffect, useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { createEffect, createSignal } from 'signalforge';
+import { useSignalValue } from 'signalforge/react';
+
+const userName = createSignal('John');
+const messageCount = createSignal(0);
+
+export default function EffectsScreen() {
+  const currentUserName = useSignalValue(userName);
+  const currentMessageCount = useSignalValue(messageCount);
+  const [logs, setLogs] = useState<string[]>([]);
+
+  useEffect(() => {
+    const cleanupName = createEffect(() => {
+      const name = userName.get();
+      setLogs(prev => [...prev, `👋 Hello, ${name}!`]);
+    });
+
+    const cleanupCount = createEffect(() => {
+      const count = messageCount.get();
+      setLogs(prev => [...prev, `📬 You have ${count} message${count !== 1 ? 's' : ''}`]);
+    });
+
+    return () => { cleanupName(); cleanupCount(); };
+  }, []);
+
+  return (
+    <View>
+      <TouchableOpacity onPress={() => userName.set('Jane')}><Text>Change name</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => messageCount.set(messageCount.get() + 1)}><Text>Add message</Text></TouchableOpacity>
+      {logs.map((log, i) => <Text key={i}>{log}</Text>)}
+      <Text>Current: {currentUserName} / {currentMessageCount}</Text>
+    </View>
+  );
+}
+```
+
+**Persisted settings** ([`screens/PersistentSignalScreen.tsx`](examples/sfReactNative/screens/PersistentSignalScreen.tsx))
+
+```tsx
+import { useEffect, useState } from 'react';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { createSignal } from 'signalforge';
+import { persist } from 'signalforge/utils';
+import { useSignalValue } from 'signalforge/react';
+
+const username = createSignal('Guest');
+const theme = createSignal('light');
+const counter = createSignal(0);
+let persistInitialized = false;
+
+export default function PersistentSignalScreen() {
+  useEffect(() => {
+    if (!persistInitialized) {
+      persistInitialized = true;
+      persist(username, { key: 'demo_username' });
+      persist(theme, { key: 'demo_theme' });
+      persist(counter, { key: 'demo_counter' });
+    }
+  }, []);
+
+  const currentUsername = useSignalValue(username);
+  const currentTheme = useSignalValue(theme);
+  const currentCounter = useSignalValue(counter);
+  const [nameInput, setNameInput] = useState('');
+
+  return (
+    <View>
+      <Text>Current: {currentUsername} ({currentTheme})</Text>
+      <TextInput value={nameInput} onChangeText={setNameInput} placeholder="Enter username" />
+      <TouchableOpacity onPress={() => theme.set(theme.get() === 'light' ? 'dark' : 'light')}><Text>Toggle Theme</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => counter.set(counter.get() + 1)}><Text>Increment</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => username.set(nameInput || 'Guest')}><Text>Save Username</Text></TouchableOpacity>
+      <TouchableOpacity onPress={() => { username.set('Guest'); theme.set('light'); counter.set(0); }}><Text>Reset All</Text></TouchableOpacity>
+    </View>
+  );
+}
+```
 
 ---
 
@@ -201,8 +341,11 @@ SignalForge ships with runnable examples that mirror common production setups. E
   ```
 
 - Key files:
-  - `app/counter.tsx`: hooks-based counter with persisted state.
-  - `app/performance.tsx`: simple perf view to compare JavaScript vs JSI bridge.
+  - `App.tsx`: screen switcher that mounts every demo in the app.
+  - `screens/BasicSignalScreen.tsx`: create/read/update a signal with React bindings.
+  - `screens/ComputedSignalScreen.tsx`: derived totals that recalc automatically.
+  - `screens/EffectsScreen.tsx`: `createEffect` subscriptions with cleanup.
+  - `screens/PersistentSignalScreen.tsx`: AsyncStorage-backed signals for offline-ready state.
 
 ### Additional resources
 
