@@ -249,7 +249,7 @@ MIT - See [LICENSE](../../LICENSE) for details
 
 <div align="center">
 
-**Built with ❤️ by the ForgeCommunity**
+**Built by ForgeCommunity**
 
 ⭐ Star us on [GitHub](https://github.com/forgecommunity/signalforge) if this helped you!
 

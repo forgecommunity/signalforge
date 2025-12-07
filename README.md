@@ -287,7 +287,7 @@ MIT © [ForgeCommunity](https://github.com/forgecommunity)
 
 [![GitHub stars](https://img.shields.io/github/stars/forgecommunity/signalforge?style=social)](https://github.com/forgecommunity/signalforge)
 
-**Built with ❤️ by [ForgeCommunity](https://github.com/forgecommunity)**
+**Built by [ForgeCommunity](https://github.com/forgecommunity)**
 
 [🌐 Website](https://signalforge-fogecommunity.vercel.app/) • [📦 npm](https://www.npmjs.com/package/signalforge) • [💻 GitHub](https://github.com/forgecommunity/signalforge) • [📖 Docs](./docs/getting-started.md)
 
