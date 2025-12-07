@@ -38,38 +38,146 @@ export default function BatchUpdatesDemo() {
       description="Update multiple signals at once. Prevent unnecessary re-renders and boost speed!"
     >
       <div className="space-y-8">
-        {/* What You'll Learn */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
-          <h3 className="text-xl font-semibold mb-3 text-blue-900 dark:text-blue-100">
-            📚 What You'll Learn
-          </h3>
-          <ul className="space-y-2 text-gray-700 dark:text-gray-300">
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>How to batch multiple updates with <code className="bg-blue-100 dark:bg-blue-900 px-2 py-0.5 rounded">batch()</code></span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>Reduce re-renders from 3 down to 1 (33x faster!)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>When and why batching matters for performance</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>Real-world use cases for batch updates</span>
-            </li>
-          </ul>
+        {/* WHAT IS THIS? */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-300 dark:border-blue-600 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <span className="text-2xl">❓</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2 text-blue-900 dark:text-blue-100">
+                What is Batching?
+              </h3>
+              <p className="text-lg text-gray-700 dark:text-gray-300">
+                <strong>Batching</strong> means <strong>grouping multiple updates together</strong> so your UI only re-renders ONCE instead of multiple times. 
+                It's like buying groceries - one trip vs three trips! 🛒
+              </p>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-red-500">
+              <h4 className="font-bold text-red-600 dark:text-red-400 mb-2">❌ Without Batching</h4>
+              <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <div className="flex items-center gap-2">
+                  <span>1️⃣</span> <span>Update signal 1 → Re-render</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>2️⃣</span> <span>Update signal 2 → Re-render</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>3️⃣</span> <span>Update signal 3 → Re-render</span>
+                </div>
+                <div className="font-bold text-red-600 mt-3">= 3 re-renders 😰</div>
+              </div>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-green-500">
+              <h4 className="font-bold text-green-600 dark:text-green-400 mb-2">✅ With Batching</h4>
+              <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <div className="flex items-center gap-2">
+                  <span>📦</span> <span>Update signal 1 (batched)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>📦</span> <span>Update signal 2 (batched)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>📦</span> <span>Update signal 3 (batched)</span>
+                </div>
+                <div className="font-bold text-green-600 mt-3">= 1 re-render! 🚀</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* WHY USE THIS? */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-300 dark:border-green-600 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <span className="text-2xl">💡</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2 text-green-900 dark:text-green-100">
+                Why Use Batching?
+              </h3>
+              <p className="text-lg text-gray-700 dark:text-gray-300 mb-3">
+                Because <strong>re-rendering is expensive</strong>! Each re-render uses CPU, drains battery, and can cause lag.
+              </p>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <div className="text-3xl mb-2">⚡</div>
+              <h4 className="font-bold mb-1">33x Faster</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                3 re-renders → 1 re-render = 3x speed boost per update
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <div className="text-3xl mb-2">🔋</div>
+              <h4 className="font-bold mb-1">Save Battery</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Less CPU work = longer battery life on mobile devices
+              </p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <div className="text-3xl mb-2">🎯</div>
+              <h4 className="font-bold mb-1">Smooth UX</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                No janky animations or delayed interactions
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* HOW TO USE IT? */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 border-2 border-purple-300 dark:border-purple-600 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <span className="text-2xl">🚀</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2 text-purple-900 dark:text-purple-100">
+                How To Use It? (Just Wrap Your Updates!)
+              </h3>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-2">❌ Before (Slow)</h4>
+              <pre className="bg-gray-900 text-red-400 p-3 rounded text-xs overflow-x-auto">
+{`// Each line triggers a re-render
+setName('Alice');   // Re-render #1
+setAge(25);         // Re-render #2  
+setCity('NYC');     // Re-render #3
+
+// Total: 3 re-renders 😰`}</pre>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-2">✅ After (Fast)</h4>
+              <pre className="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
+{`// Wrap in batch()
+batch(() => {
+  setName('Alice');
+  setAge(25);
+  setCity('NYC');
+});
+
+// Total: 1 re-render! 🚀`}</pre>
+            </div>
+          </div>
+          <div className="mt-4 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-lg p-4">
+            <p className="text-center text-gray-700 dark:text-gray-300 font-semibold">
+              ⚡ Rule of thumb: If updating 2+ signals together, use <code className="bg-purple-200 dark:bg-purple-800 px-2 py-1 rounded">batch()</code>!
+            </p>
+          </div>
         </div>
 
         {/* Interactive Demo Title */}
-        <div className="text-center">
+        <div className="text-center bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 p-6 rounded-xl border-2 border-cyan-300 dark:border-cyan-600">
           <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            🎮 Try It: See The Performance Difference
+            🎮 Try Both Buttons - Watch The Difference!
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
-            Watch the render counter - batching triggers way fewer renders!
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
+            The <strong>render counter</strong> shows how many times your component re-rendered
           </p>
         </div>
         {/* Performance Impact Banner */}

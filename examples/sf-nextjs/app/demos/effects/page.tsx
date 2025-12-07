@@ -28,38 +28,159 @@ export default function EffectsDemo() {
       description="Run code automatically when signals change. Built-in cleanup. Simpler than useEffect!"
     >
       <div className="space-y-8">
-        {/* What You'll Learn */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
-          <h3 className="text-xl font-semibold mb-3 text-blue-900 dark:text-blue-100">
-            📚 What You'll Learn
-          </h3>
-          <ul className="space-y-2 text-gray-700 dark:text-gray-300">
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>Run side effects with <code className="bg-blue-100 dark:bg-blue-900 px-2 py-0.5 rounded">useSignalEffect()</code></span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>Auto-track dependencies (no dependency array needed!)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>Clean up resources properly with return functions</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>Perfect for logging, API calls, timers, and subscriptions</span>
-            </li>
-          </ul>
+        {/* WHAT IS THIS? */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-300 dark:border-blue-600 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <span className="text-2xl">❓</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2 text-blue-900 dark:text-blue-100">
+                What Are Effects?
+              </h3>
+              <p className="text-lg text-gray-700 dark:text-gray-300">
+                <strong>Effects</strong> are <strong>actions that happen automatically</strong> when a signal changes. 
+                Like setting up a "watcher" that says <em>"whenever this changes, do that!"</em>
+              </p>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-blue-500">
+            <p className="text-gray-700 dark:text-gray-300">
+              💡 <strong>Real-life example:</strong> Like a motion sensor light! When it detects movement (signal changes), 
+              it automatically turns on the light (effect runs). No manual switch needed!
+            </p>
+          </div>
+        </div>
+
+        {/* WHY USE THIS? */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-300 dark:border-green-600 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <span className="text-2xl">💡</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2 text-green-900 dark:text-green-100">
+                Why Use Effects?
+              </h3>
+              <p className="text-lg text-gray-700 dark:text-gray-300 mb-3">
+                Because you need to do things WHEN state changes: save to server, log analytics, start timers, etc.
+              </p>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-red-500">
+              <h4 className="font-bold text-red-600 dark:text-red-400 mb-2">❌ React useEffect Problems</h4>
+              <pre className="bg-gray-900 text-red-400 p-3 rounded text-xs overflow-x-auto mb-2">
+{`useEffect(() => {
+  // What dependencies?? 🤔
+  console.log(count, name);
+}, [count, name]); // Easy to forget!
+//  ↑ Manual tracking = BUGS
+
+// Forgot to add 'name' to array?
+// Effect won't run when name changes!`}</pre>
+              <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
+                <li>• Manual dependency arrays</li>
+                <li>• Easy to forget dependencies</li>
+                <li>• Linter warnings everywhere</li>
+              </ul>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-green-500">
+              <h4 className="font-bold text-green-600 dark:text-green-400 mb-2">✅ SignalForge Effects</h4>
+              <pre className="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto mb-2">
+{`useSignalEffect(() => {
+  // Auto-tracks EVERYTHING! ✨
+  console.log(count, name);
+}); // No dependency array!
+
+// Automatically knows count and name
+// are dependencies. No manual work!`}</pre>
+              <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
+                <li>• Auto-tracks all signals used</li>
+                <li>• Impossible to forget deps</li>
+                <li>• No linter warnings!</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* HOW TO USE IT? */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 border-2 border-purple-300 dark:border-purple-600 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <span className="text-2xl">🚀</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2 text-purple-900 dark:text-purple-100">
+                How To Use It? (Pattern + Real Examples!)
+              </h3>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-purple-500">
+              <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-2">📝 Basic Pattern</h4>
+              <pre className="bg-gray-900 text-green-400 p-3 rounded text-sm overflow-x-auto">
+{`useSignalEffect(() => {
+  // Code here runs when ANY signal used inside changes
+  console.log('Count changed to:', count);
+  
+  // Optional cleanup (runs before next effect)
+  return () => {
+    console.log('Cleaning up!');
+  };
+});`}</pre>
+            </div>
+            <div className="grid md:grid-cols-2 gap-3">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border-l-4 border-cyan-500">
+                <h4 className="font-bold text-sm mb-2">💾 Example: Auto-save</h4>
+                <pre className="bg-gray-900 text-cyan-400 p-2 rounded text-xs overflow-x-auto">
+{`useSignalEffect(() => {
+  localStorage.setItem(
+    'draft', 
+    draftText
+  );
+});`}</pre>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border-l-4 border-orange-500">
+                <h4 className="font-bold text-sm mb-2">📊 Example: Analytics</h4>
+                <pre className="bg-gray-900 text-orange-400 p-2 rounded text-xs overflow-x-auto">
+{`useSignalEffect(() => {
+  analytics.track(
+    'page_view',
+    { page: currentPage }
+  );
+});`}</pre>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border-l-4 border-pink-500">
+                <h4 className="font-bold text-sm mb-2">⏰ Example: Timer</h4>
+                <pre className="bg-gray-900 text-pink-400 p-2 rounded text-xs overflow-x-auto">
+{`useSignalEffect(() => {
+  const id = setInterval(
+    () => tick(), 1000
+  );
+  return () => clearInterval(id);
+});`}</pre>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border-l-4 border-green-500">
+                <h4 className="font-bold text-sm mb-2">🌐 Example: API Call</h4>
+                <pre className="bg-gray-900 text-green-400 p-2 rounded text-xs overflow-x-auto">
+{`useSignalEffect(() => {
+  fetch(\`/api/\${userId}\`)
+    .then(r => r.json())
+    .then(setUserData);
+});`}</pre>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Interactive Demo Title */}
-        <div className="text-center">
+        <div className="text-center bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 p-6 rounded-xl border-2 border-cyan-300 dark:border-cyan-600">
           <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            🎮 Try It: See Effects in Action
+            🎮 Watch Effects Run Automatically!
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
-            Click the buttons and watch the effect logs appear automatically!
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
+            Every time you change the counter, the effect logs it automatically ⬇️
           </p>
         </div>
         {/* Counter */}

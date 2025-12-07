@@ -2,56 +2,57 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import Head from 'next/head';
 
 export default function Home() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
-  const [flash, setFlash] = useState(false);
-  const [lightningBolts, setLightningBolts] = useState<Array<{id: number; left: string; top: string; height: string}>>([]);
-
-  const triggerLightning = () => {
-    setFlash(true);
-    const boltCount = Math.floor(Math.random() * 2) + 1; // 1-2 bolts
-    const newBolts = Array.from({ length: boltCount }, (_, i) => ({
-      id: Date.now() + i,
-      left: `${Math.random() * 80 + 10}%`,
-      top: `${Math.random() * 20}%`,
-      height: `${Math.random() * 100 + 80}px`,
-    }));
-    setLightningBolts(newBolts);
-    
-    setTimeout(() => {
-      setFlash(false);
-      setLightningBolts([]);
-    }, 600);
-  };
 
   useEffect(() => {
     setIsVisible(true);
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    // Initial lightning after 3s so users see it
-    const firstFlash = setTimeout(() => {
-      triggerLightning();
-    }, 3000);
-    // Trigger cloud lightning randomly every 10-18s
-    const timer = setInterval(() => {
-      triggerLightning();
-    }, 10000 + Math.random() * 8000);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      clearTimeout(firstFlash);
-      clearInterval(timer);
-    };
   }, []);
   const demos = [
+    // ===== NEW: FEATURED COMPARISONS =====
+    { 
+      id: 'comparison', 
+      name: 'SignalForge vs Redux/Zustand', 
+      description: 'Side-by-side comparison showing 90% less code with the same shopping cart functionality.', 
+      icon: '🔥', 
+      difficulty: 'Featured',
+      learn: 'Compare SignalForge with traditional state management',
+      featured: true
+    },
+    { 
+      id: 'collaboration', 
+      name: 'Fine-Grained Reactivity', 
+      description: 'See how only edited cells re-render, while Redux/Context would re-render the entire grid.', 
+      icon: '👥', 
+      difficulty: 'Featured',
+      learn: 'Real-time collaboration with minimal re-renders',
+      featured: true
+    },
+    { 
+      id: 'chains', 
+      name: 'Advanced Computed Chains', 
+      description: 'Complex nested calculations with visual dependency tree and automatic updates.', 
+      icon: '🔗', 
+      difficulty: 'Featured',
+      learn: 'Automatic dependency tracking vs manual selectors',
+      featured: true
+    },
+    { 
+      id: 'benchmark', 
+      name: 'Live Performance Benchmark', 
+      description: 'Real-time comparison showing render counts and performance differences.', 
+      icon: '⚡', 
+      difficulty: 'Featured',
+      learn: 'Measure the performance difference',
+      featured: true
+    },
+    // ===== BEGINNER DEMOS =====
     { 
       id: 'basic', 
       name: 'Basic Signal', 
-      description: 'Learn in 30 seconds! Create reactive state with just one hook. Perfect for beginners.', 
+      description: 'Create reactive state with just one hook. Quick start for beginners.', 
       icon: '🎯', 
       difficulty: 'Beginner',
       learn: 'How to use useSignal() to create and update state'
@@ -59,7 +60,7 @@ export default function Home() {
     { 
       id: 'computed', 
       name: 'Computed Signal', 
-      description: 'Auto-calculating values that update when dependencies change. No manual tracking needed.', 
+      description: 'Auto-calculating values that update when dependencies change.', 
       icon: '🧮', 
       difficulty: 'Beginner',
       learn: 'Derive values automatically from other signals'
@@ -67,7 +68,7 @@ export default function Home() {
     { 
       id: 'effects', 
       name: 'Effects', 
-      description: 'Run side effects when signals change. Built-in cleanup. Simpler than useEffect.', 
+      description: 'Run side effects when signals change with built-in cleanup.', 
       icon: '⚡', 
       difficulty: 'Beginner',
       learn: 'React to signal changes with automatic cleanup'
@@ -75,15 +76,16 @@ export default function Home() {
     { 
       id: 'hooks', 
       name: 'React Hooks', 
-      description: 'useSignal, useSignalValue, useSignalEffect - React integration made simple.', 
+      description: 'Complete React integration with useSignal, useSignalValue, and useSignalEffect.', 
       icon: '⚛️', 
       difficulty: 'Beginner',
       learn: 'All the React hooks you need for SignalForge'
     },
+    // ===== INTERMEDIATE DEMOS =====
     { 
       id: 'batch', 
       name: 'Batch Updates', 
-      description: 'Update multiple signals at once. 33x faster than sequential updates.', 
+      description: 'Update multiple signals efficiently with batched updates for better performance.', 
       icon: '🚀', 
       difficulty: 'Intermediate',
       learn: 'Optimize performance with batched updates'
@@ -91,7 +93,7 @@ export default function Home() {
     { 
       id: 'subscribe', 
       name: 'Subscribe', 
-      description: 'Listen to signal changes outside React. Perfect for logging or analytics.', 
+      description: 'Listen to signal changes outside React for logging or analytics.', 
       icon: '👂', 
       difficulty: 'Intermediate',
       learn: 'Monitor signal changes with subscriptions'
@@ -99,7 +101,7 @@ export default function Home() {
     { 
       id: 'cart', 
       name: 'Shopping Cart', 
-      description: 'Real e-commerce cart with add/remove items, quantities, and total calculation.', 
+      description: 'E-commerce cart with add/remove items, quantities, and automatic total calculation.', 
       icon: '🛒', 
       difficulty: 'Intermediate',
       learn: 'Build a complete shopping cart feature'
@@ -107,7 +109,7 @@ export default function Home() {
     { 
       id: 'form', 
       name: 'Form Validation', 
-      description: 'Dynamic form with real-time validation, error messages, and submission handling.', 
+      description: 'Dynamic form with real-time validation and error messages.', 
       icon: '📝', 
       difficulty: 'Intermediate',
       learn: 'Create forms with live validation'
@@ -115,7 +117,7 @@ export default function Home() {
     { 
       id: 'todo', 
       name: 'Todo App', 
-      description: 'Full CRUD app with add, edit, delete, and filter. Classic example done right.', 
+      description: 'Full CRUD application with add, edit, delete, and filter functionality.', 
       icon: '✅', 
       difficulty: 'Intermediate',
       learn: 'Build a complete CRUD application'
@@ -123,15 +125,16 @@ export default function Home() {
     { 
       id: 'array', 
       name: 'Array Signal', 
-      description: 'Work with arrays efficiently. Push, filter, map - all optimized for signals.', 
+      description: 'Work with arrays using push, filter, and map optimized for signals.', 
       icon: '📋', 
       difficulty: 'Intermediate',
       learn: 'Handle arrays with signal-optimized methods'
     },
+    // ===== ADVANCED DEMOS =====
     { 
       id: 'untrack', 
       name: 'Untrack', 
-      description: 'Read signals without creating dependencies. Advanced control over reactivity.', 
+      description: 'Read signals without creating dependencies for advanced control.', 
       icon: '🔓', 
       difficulty: 'Advanced',
       learn: 'Fine-tune reactivity with untrack()'
@@ -139,7 +142,7 @@ export default function Home() {
     { 
       id: 'persistent', 
       name: 'Persistent Signal', 
-      description: 'Auto-save to localStorage. One line of code for data persistence.', 
+      description: 'Auto-save to localStorage with simple one-line configuration.', 
       icon: '💾', 
       difficulty: 'Advanced',
       learn: 'Persist state across page reloads'
@@ -147,7 +150,7 @@ export default function Home() {
     { 
       id: 'bigdata', 
       name: 'Big Data', 
-      description: 'Handle 10,000+ items smoothly. See how SignalForge scales.', 
+      description: 'Handle 10,000+ items efficiently to see how SignalForge scales.', 
       icon: '📊', 
       difficulty: 'Advanced',
       learn: 'Test performance with large datasets'
@@ -155,7 +158,7 @@ export default function Home() {
     { 
       id: 'devtools', 
       name: 'DevTools', 
-      description: 'Inspect signals in real-time. Debug like a pro with time-travel.', 
+      description: 'Inspect signals in real-time with debugging tools and time-travel.', 
       icon: '🛠️', 
       difficulty: 'Advanced',
       learn: 'Debug with signal inspector and profiler'
@@ -163,7 +166,7 @@ export default function Home() {
     { 
       id: 'timetravel', 
       name: 'Time Travel', 
-      description: 'Undo/Redo built-in. Travel back in time through state changes.', 
+      description: 'Built-in undo/redo functionality for state changes.', 
       icon: '⏱️', 
       difficulty: 'Advanced',
       learn: 'Implement undo/redo functionality'
@@ -180,306 +183,361 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{
-      background: 'linear-gradient(180deg, #080b12 0%, #0a0d14 60%, #090c12 100%)',
-    }}>
-      {/* Cloud layer at top - stays in background */}
-      <div className="cloud-layer">
-        <div className="cloud cloud-1"></div>
-        <div className="cloud cloud-2"></div>
-        <div className="cloud cloud-3"></div>
-        
-        {/* Lightning bolts from clouds */}
-        {lightningBolts.map((bolt) => (
-          <div
-            key={bolt.id}
-            className="lightning-bolt"
-            style={{
-              left: bolt.left,
-              top: bolt.top,
-              height: bolt.height,
-            }}
-          />
-        ))}
+    <div 
+      className="min-h-screen relative overflow-hidden"
+      style={{
+        background: '#020617', // Fallback solid color for Safari
+        backgroundImage: 'linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%)',
+        WebkitBackgroundSize: 'cover',
+        backgroundSize: 'cover',
+        minHeight: '100vh',
+        width: '100%',
+      }}
+    >
+      {/* Animated background grid */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(71, 85, 105) 1px, transparent 0)',
+          backgroundSize: '40px 40px',
+          WebkitBackgroundSize: '40px 40px',
+        }} />
       </div>
 
-      {/* Subtle flash overlay when lightning strikes */}
-      {flash && (
-        <div 
-          className="pointer-events-none fixed inset-0 z-20"
-          style={{
-            background: 'radial-gradient(ellipse at 50% 20%, rgba(160, 200, 255, 0.15) 0%, transparent 60%)',
-            animation: 'flashPulse 0.6s ease-out',
-          }}
-        />
-      )}
-
-      {/* Interactive cursor glow - subtle */}
-      <div 
-        className="fixed w-96 h-96 rounded-full pointer-events-none z-0 transition-opacity duration-300"
-        style={{
-          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
-          left: mousePosition.x - 192,
-          top: mousePosition.y - 192,
-        }}
-      />
+      {/* Subtle background orb */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl opacity-50" />
 
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-8 md:py-16 relative z-10">
-        <div className={`text-center mb-12 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-          {/* Logo in an elegant card */}
-          <div className="relative inline-block mb-8 max-w-2xl mx-auto">
-            <div className="relative p-6 md:p-8 rounded-2xl bg-[#0f1629]/60 border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.4)]">
-              {/* subtle gradient stroke */}
-              <div
-                className="pointer-events-none absolute inset-0 rounded-2xl"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(99,102,241,0.25), rgba(14,165,233,0.25))',
-                  WebkitMaskImage: 'radial-gradient(80% 80% at 50% 50%, black 60%, transparent 100%)',
-                  maskImage: 'radial-gradient(80% 80% at 50% 50%, black 60%, transparent 100%)',
-                  opacity: 0.25,
-                }}
-              />
-              {/* signal waves */}
-              <div className="ring-wave"></div>
-              <div className="ring-wave delay-1"></div>
+      <div className="container mx-auto px-4 py-12 md:py-20 relative z-10">
+        <div className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          {/* Logo with glassmorphism */}
+          <div className="relative inline-block mb-8">
+            <div className="relative p-8 md:p-10 rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl hover:border-blue-500/50 transition-all duration-300">
               <img
                 src="https://raw.githubusercontent.com/forgecommunity/signalforge/refs/heads/master/docs/assets/signalforge.png"
                 alt="SignalForge logo"
-                className="relative w-full max-w-[200px] md:max-w-[240px] lg:max-w-[280px] mx-auto object-contain"
+                className="w-full max-w-[220px] md:max-w-[280px] lg:max-w-[320px] mx-auto object-contain"
                 loading="eager"
               />
             </div>
           </div>
 
-          {/* Tagline only */}
-          <p className="text-xl md:text-2xl lg:text-3xl text-gray-200 mb-6 font-semibold animate-fade-in-up max-w-4xl mx-auto" style={{ animationDelay: '0.2s' }}>
-            Fine-Grained Reactive State Management for Modern JavaScript
+          {/* Hero title with gradient */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Fine-Grained Reactive
+            </span>
+            <br />
+            <span className="text-white">
+              State Management
+            </span>
+          </h1>
+
+          <p className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-6 max-w-3xl mx-auto animate-fade-in-up font-light" style={{ animationDelay: '0.3s' }}>
+            Build <span className="text-blue-400 font-semibold">lightning-fast</span> apps with <span className="text-purple-400 font-semibold">zero boilerplate</span>
           </p>
-          <p className="text-base md:text-lg text-gray-400 mb-8 max-w-3xl mx-auto animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.4s' }}>
-            A simple, fast, and powerful state management library for React and React Native. 
-            Your UI automatically updates when data changes. No complexity, no boilerplate, just signals.
+          
+          <p className="text-base md:text-lg text-gray-400 mb-10 max-w-2xl mx-auto animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.4s' }}>
+            The modern state management library for React & React Native. 
+            <span className="text-blue-400"> 33x faster</span>, 
+            <span className="text-purple-400"> 90% less code</span>, 
+            <span className="text-pink-400"> infinitely simpler</span>.
           </p>
           
           {/* CTA Buttons */}
-          <div className="flex justify-center gap-4 flex-wrap mb-12 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+          <div className="flex justify-center gap-4 flex-wrap mb-12">
             <a
               href="https://www.npmjs.com/package/signalforge"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg overflow-hidden text-lg font-semibold shadow-lg hover:shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105"
+              className="px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <span className="relative z-10 flex items-center gap-2">
-                <span className="group-hover:rotate-12 transition-transform">📦</span>
-                Get Started
+              <span className="flex items-center gap-2">
+                <span>🚀</span>
+                <span>Get Started Now</span>
               </span>
             </a>
             <a
               href="https://github.com/forgecommunity/signalforge"
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative px-8 py-3 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-lg overflow-hidden text-lg font-semibold shadow-lg hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 border border-gray-700"
+              className="px-10 py-4 backdrop-blur-xl bg-white/5 text-white rounded-xl text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 border border-white/10 hover:border-purple-500/50"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-900 to-gray-800 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <span className="relative z-10 flex items-center gap-2">
-                <span className="group-hover:rotate-12 transition-transform">⭐</span>
-                Star on GitHub
+              <span className="flex items-center gap-2">
+                <span>⭐</span>
+                <span>Star on GitHub</span>
               </span>
             </a>
           </div>
 
-          {/* Quick Stats */}
-          <div className="flex justify-center gap-8 flex-wrap text-sm text-gray-400 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-            <div className="flex items-center gap-2 hover:text-blue-400 transition-colors cursor-default group">
-              <span className="text-2xl group-hover:scale-110 transition-transform">🪶</span>
-              <span>2KB gzipped</span>
-            </div>
-            <div className="flex items-center gap-2 hover:text-purple-400 transition-colors cursor-default group">
-              <span className="text-2xl group-hover:scale-110 transition-transform">⚡</span>
-              <span>33x faster</span>
-            </div>
-            <div className="flex items-center gap-2 hover:text-pink-400 transition-colors cursor-default group">
-              <span className="text-2xl group-hover:scale-110 transition-transform">📦</span>
-              <span>Zero deps</span>
-            </div>
-            <div className="flex items-center gap-2 hover:text-indigo-400 transition-colors cursor-default group">
-              <span className="text-2xl group-hover:scale-110 transition-transform">🎯</span>
-              <span>TypeScript</span>
+          {/* Quick Stats with cards */}
+          <div className="flex justify-center gap-4 flex-wrap max-w-4xl mx-auto">
+            {[
+              { icon: '🪶', label: '2KB Gzipped', color: 'blue' },
+              { icon: '⚡', label: '33x Faster', color: 'purple' },
+              { icon: '📦', label: 'Zero Deps', color: 'pink' },
+              { icon: '🎯', label: 'TypeScript', color: 'indigo' },
+            ].map((stat, i) => (
+              <div key={i} className="backdrop-blur-xl bg-white/5 rounded-xl px-6 py-3 border border-white/10">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{stat.icon}</span>
+                  <span className={`font-semibold text-${stat.color}-400`}>{stat.label}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Start - Moved Higher */}
+        <div className="max-w-4xl mx-auto mb-16">
+          <div className="backdrop-blur-xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-6">
+              <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                Quick Start
+              </span>
+            </h2>
+            <div className="space-y-5">
+              <div className="backdrop-blur-xl bg-black/20 rounded-xl p-5 border border-green-500/20">
+                <div className="text-sm text-green-400 mb-2 font-bold flex items-center gap-2">
+                  <span className="text-xl">1️⃣</span> Install
+                </div>
+                <code className="text-white text-lg font-mono">npm install signalforge</code>
+              </div>
+              <div className="backdrop-blur-xl bg-black/20 rounded-xl p-5 border border-blue-500/20">
+                <div className="text-sm text-blue-400 mb-3 font-bold flex items-center gap-2">
+                  <span className="text-xl">2️⃣</span> Use in React
+                </div>
+                <pre className="text-sm overflow-x-auto">
+                  <code className="text-gray-200">
+<span className="text-purple-400">import</span> {'{'} <span className="text-blue-300">useSignal</span> {'}'} <span className="text-purple-400">from</span> <span className="text-green-400">'signalforge/react'</span>;
+{'\n\n'}
+<span className="text-purple-400">function</span> <span className="text-yellow-300">Counter</span>() {'{'}
+{'\n  '}
+<span className="text-purple-400">const</span> [count, setCount] = <span className="text-yellow-300">useSignal</span>(<span className="text-orange-400">0</span>);
+{'\n  '}
+<span className="text-purple-400">return</span> {'<'}<span className="text-green-300">button</span> <span className="text-blue-300">onClick</span>={'{'}() {'=>'} setCount(count + <span className="text-orange-400">1</span>){'}'}{'>'}
+{'\n    '}Clicked {'{'}count{'}'} times
+{'\n  '}{'</'}<span className="text-green-300">button</span>{'>'};
+{'\n}'}
+                  </code>
+                </pre>
+              </div>
+              <div className="backdrop-blur-xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl p-5 border border-green-500/30">
+                <div className="text-center">
+                  <span className="text-3xl mb-2 block">🎉</span>
+                  <p className="text-green-300 font-semibold">That's it! No providers, no context, just works!</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* What is SignalForge Section */}
-        <div className="max-w-5xl mx-auto mb-20">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-              What is SignalForge?
+        {/* Interactive Demos Section - MOVED UP */}
+        <div className="mb-24">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Learn By Doing
+              </span>
             </h2>
-            <div className="prose dark:prose-invert max-w-none">
-              <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
-                SignalForge is a <strong>reactive state management library</strong> that makes building interactive UIs incredibly simple. 
-                Think of signals as "smart variables" that automatically notify your UI when they change.
-              </p>
-              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg mb-4">
-                <pre className="text-sm overflow-x-auto">
-                  <code className="text-gray-800 dark:text-gray-200">
-{`// Create a signal (smart variable)
-const count = createSignal(0);
+            <p className="text-xl text-gray-300 mb-3">
+              15 interactive demos that make you a SignalForge expert
+            </p>
+            <div className="inline-flex items-center gap-2 backdrop-blur-xl bg-orange-500/10 px-6 py-3 rounded-full border border-orange-500/30">
+              <span className="text-orange-400 font-semibold">Start with Featured Comparisons</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {demos.map((demo, index) => (
+              <Link
+                key={demo.id}
+                href={`/demos/${demo.id}`}
+                className={`group block relative overflow-hidden backdrop-blur-xl rounded-2xl shadow-lg transition-all duration-300 hover:-translate-y-1 ${
+                  demo.featured 
+                    ? 'bg-gradient-to-br from-orange-600/20 via-red-600/20 to-pink-600/20 border-2 border-orange-400/50 hover:border-orange-300' 
+                    : 'bg-white/5 border border-white/10 hover:border-blue-400/50'
+                }`}
+              >
+                <div className="relative p-6">
+                  {/* Badges row */}
+                  <div className="flex justify-between items-start mb-4">
+                    {/* Featured badge */}
+                    {demo.featured && (
+                      <div className="text-xs px-3 py-1.5 rounded-full font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white border border-orange-300/50">
+                        FEATURED
+                      </div>
+                    )}
+                    
+                    {/* Difficulty badge */}
+                    <div className={`text-xs px-3 py-1.5 rounded-full font-semibold backdrop-blur-sm ${demo.featured ? 'ml-auto' : ''} ${
+                      demo.difficulty === 'Featured' ? 'bg-orange-500/30 text-orange-200 border border-orange-400/50' :
+                      demo.difficulty === 'Beginner' ? 'bg-green-500/30 text-green-200 border border-green-400/50' :
+                      demo.difficulty === 'Intermediate' ? 'bg-blue-500/30 text-blue-200 border border-blue-400/50' :
+                      'bg-purple-500/30 text-purple-200 border border-purple-400/50'
+                    }`}>
+                      {demo.difficulty}
+                    </div>
+                  </div>
+                  
+                  {/* Icon */}
+                  <div className="text-5xl mb-4 transition-transform duration-300 group-hover:scale-110">
+                    {demo.icon}
+                  </div>
+                  
+                  {/* Title */}
+                  <h2 className="text-xl font-bold text-white mb-3 transition-colors">
+                    {demo.name}
+                  </h2>
+                  
+                  {/* Description */}
+                  <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                    {demo.description}
+                  </p>
+                  
+                  {/* Learn badge */}
+                  {demo.learn && (
+                    <div className="bg-blue-500/10 rounded-lg px-3 py-2 mb-4 border border-blue-500/20">
+                      <p className="text-xs text-blue-300/90 leading-relaxed">
+                        {demo.learn}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* CTA Arrow */}
+                  <div className="flex items-center gap-2 text-blue-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <span className="text-sm">Explore Demo</span>
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </div>
 
-// Computed values auto-update
-const doubled = createComputed(() => count.get() * 2);
+                {/* Corner glow */}
+                <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-0 group-hover:opacity-50 transition-opacity duration-500 ${
+                  demo.featured ? 'bg-orange-500' : 'bg-blue-500'
+                }`}></div>
+              </Link>
+            ))}
+          </div>
+        </div>
 
-// Effects run when dependencies change
-createEffect(() => {
-  console.log('Count is now:', count.get());
-});
+        {/* Code Example Showcase */}
+        <div className="max-w-6xl mx-auto mb-20">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                See The Difference
+              </span>
+            </h2>
+            <p className="text-xl text-gray-400">
+              Compare traditional React to SignalForge
+            </p>
+          </div>
 
-count.set(5);  // UI updates automatically! ✨`}
-                  </code>
-                </pre>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Code Block */}
+            <div className="backdrop-blur-xl bg-slate-900/80 rounded-2xl p-6 border border-blue-500/20 shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 hover:scale-[1.02]">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <span className="ml-2 text-gray-400 text-sm font-mono">app.tsx</span>
               </div>
-              <p className="text-lg text-gray-700 dark:text-gray-300">
-                Unlike Redux or Context API, SignalForge requires <strong>no providers, no actions, no reducers</strong>. 
-                Just create signals and watch your app come alive.
-              </p>
+              <pre className="text-sm md:text-base overflow-x-auto">
+                <code className="text-gray-200">
+<span className="text-purple-400">import</span> <span className="text-blue-400">{'{'} createSignal {'}'}</span> <span className="text-purple-400">from</span> <span className="text-green-400">'signalforge'</span>;
+{'\n\n'}
+<span className="text-gray-500">// Create a signal</span>
+{'\n'}
+<span className="text-purple-400">const</span> <span className="text-blue-300">count</span> = <span className="text-yellow-400">createSignal</span>(<span className="text-orange-400">0</span>);
+{'\n\n'}
+<span className="text-gray-500">// Auto-updating computed value</span>
+{'\n'}
+<span className="text-purple-400">const</span> <span className="text-blue-300">doubled</span> = <span className="text-yellow-400">createComputed</span>(<span className="text-gray-400">()</span> {'=>'} 
+{'\n  '}count.<span className="text-yellow-400">get</span>() * <span className="text-orange-400">2</span>
+{'\n'});
+{'\n\n'}
+<span className="text-gray-500">// Update = UI updates automatically! ✨</span>
+{'\n'}
+count.<span className="text-yellow-400">set</span>(<span className="text-orange-400">5</span>);
+                </code>
+              </pre>
+            </div>
+
+            {/* Feature Cards */}
+            <div className="space-y-4">
+              <div className="backdrop-blur-xl bg-blue-500/10 rounded-xl p-6 border border-blue-500/20 hover:border-blue-500/50 transition-all duration-300 hover:scale-[1.02] group">
+                <div className="flex items-start gap-4">
+                  <div className="text-4xl group-hover:scale-110 transition-transform">⚡</div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Lightning Fast</h3>
+                    <p className="text-gray-400">Fine-grained reactivity means only what changed re-renders. 33x faster than useState + useEffect.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="backdrop-blur-xl bg-purple-500/10 rounded-xl p-6 border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.02] group">
+                <div className="flex items-start gap-4">
+                  <div className="text-4xl group-hover:scale-110 transition-transform">🎯</div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Zero Boilerplate</h3>
+                    <p className="text-gray-400">No providers, no actions, no reducers, no selectors. Just signals. Compare 200 lines of Redux to 20 lines of SignalForge.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="backdrop-blur-xl bg-pink-500/10 rounded-xl p-6 border border-pink-500/20 hover:border-pink-500/50 transition-all duration-300 hover:scale-[1.02] group">
+                <div className="flex items-start gap-4">
+                  <div className="text-4xl group-hover:scale-110 transition-transform">🪶</div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Tiny Bundle</h3>
+                    <p className="text-gray-400">Just 2KB gzipped. Zero dependencies. Tree-shakeable. Your users will thank you.</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Features Grid */}
         <div className="mb-20">
-          <h2 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">
-            Why Choose SignalForge?
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Everything You Need
+              </span>
+            </h2>
+            <p className="text-xl text-gray-400">
+              Professional features that developers love
+            </p>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-shadow"
-              >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Interactive Demos Section */}
-        <div className="mb-20">
-          <h2 className="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            📚 Learn by Doing - Interactive Demos
-          </h2>
-          <p className="text-center text-gray-400 mb-4 text-lg">
-            15 hands-on examples that teach you SignalForge from beginner to advanced
-          </p>
-          <p className="text-center text-blue-400 mb-12 text-sm">
-            💡 Start with "Basic Signal" - learn the fundamentals in 30 seconds!
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-            {demos.map((demo, index) => (
-              <Link
-                key={demo.id}
-                href={`/demos/${demo.id}`}
-                className="group block p-6 bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 transition-all hover:scale-105 border border-gray-700/50 hover:border-blue-500/50 relative overflow-hidden animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.05}s` }}
+                className="group relative backdrop-blur-xl bg-white/5 rounded-2xl p-8 border border-white/10 hover:border-white/30 transition-all duration-500 hover:scale-105 hover:-translate-y-2 overflow-hidden"
               >
                 {/* Gradient overlay on hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-300 rounded-xl"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-blue-500/10 group-hover:via-purple-500/10 group-hover:to-pink-500/10 transition-all duration-500"></div>
                 
-                {/* Difficulty badge */}
-                <div className={`absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium backdrop-blur-sm ${
-                  demo.difficulty === 'Beginner' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
-                  demo.difficulty === 'Intermediate' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
-                  'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                }`}>
-                  {demo.difficulty}
+                <div className="relative z-10">
+                  <div className="text-5xl mb-5 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 inline-block">{feature.icon}</div>
+                  <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-400 group-hover:text-gray-300 transition-colors leading-relaxed">
+                    {feature.description}
+                  </p>
                 </div>
                 
-                {/* Icon with animation */}
-                <div className="relative text-5xl mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                  {demo.icon}
-                </div>
-                
-                {/* Content */}
-                <h2 className="relative text-xl font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">
-                  {demo.name}
-                </h2>
-                <p className="relative text-gray-400 text-sm mb-3 group-hover:text-gray-300 transition-colors">
-                  {demo.description}
-                </p>
-                
-                {/* What you'll learn */}
-                {demo.learn && (
-                  <div className="relative text-xs text-blue-300/70 mb-3 italic">
-                    📖 {demo.learn}
-                  </div>
-                )}
-                
-                {/* Arrow indicator */}
-                <div className="relative mt-4 flex items-center text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-sm font-medium">Try it now</span>
-                  <svg className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </Link>
+                {/* Corner accent */}
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
+              </div>
             ))}
           </div>
         </div>
 
-        {/* About Forge Community Section */}
-        <div className="max-w-5xl mx-auto mb-20">
-          <div className="bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900 rounded-2xl shadow-xl p-8 border border-purple-200 dark:border-purple-700">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-              About Forge Community
-            </h2>
-            <div className="prose dark:prose-invert max-w-none">
-              <p className="text-lg text-gray-700 dark:text-gray-300 mb-4 text-center">
-                <strong>Forge Community</strong> is an open-source collective dedicated to building high-quality, 
-                developer-friendly tools for the modern JavaScript ecosystem.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                <div className="text-center">
-                  <div className="text-4xl mb-3">🔨</div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Crafted with Care</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Every tool is meticulously designed, tested, and optimized for real-world use.
-                  </p>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl mb-3">🌟</div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Open Source</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    100% free and open. MIT licensed. Community-driven development.
-                  </p>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl mb-3">🚀</div>
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Production Ready</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Battle-tested in production apps. Comprehensive docs and support.
-                  </p>
-                </div>
-              </div>
-              <div className="text-center mt-8">
-                <a
-                  href="https://github.com/forgecommunity"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors font-semibold"
-                >
-                  🔗 Visit Forge Community on GitHub
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+
 
         {/* Quick Start Code Example */}
         <div className="max-w-5xl mx-auto mb-20">
@@ -1015,55 +1073,52 @@ theme.set('dark');  // Effect runs automatically!`}
         </div>
 
         {/* Footer */}
-        <div className="text-center text-gray-600 dark:text-gray-400 pt-8 border-t border-gray-300 dark:border-gray-700">
-          <p className="mb-4 text-lg">
-            Built with ❤️ by{' '}
-            <a
-              href="https://github.com/forgecommunity"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 dark:text-blue-400 hover:underline font-semibold"
-            >
-              Forge Community
-            </a>
-          </p>
-          <div className="flex justify-center gap-6 mb-4">
-            <a
-              href="https://www.npmjs.com/package/signalforge"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              📦 npm
-            </a>
-            <a
-              href="https://github.com/forgecommunity/signalforge"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              🐙 GitHub
-            </a>
-            <a
-              href="https://github.com/forgecommunity/signalforge/blob/master/docs/getting-started.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              📚 Docs
-            </a>
-            <a
-              href="https://github.com/forgecommunity/signalforge/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              💬 Support
-            </a>
+        <div className="mt-32 pt-12 border-t border-white/10">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <div className="backdrop-blur-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-2xl p-8 border border-purple-500/20">
+              <h3 className="text-2xl font-bold text-white mb-3">
+                Built by <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Forge Community</span>
+              </h3>
+              <p className="text-gray-300 mb-6">
+                An open-source collective crafting high-quality tools for modern JavaScript
+              </p>
+              <div className="flex justify-center gap-3 flex-wrap">
+                <a
+                  href="https://github.com/forgecommunity"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-2 backdrop-blur-xl bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all border border-white/20 hover:scale-105 font-semibold"
+                >
+                  🔗 Forge Community
+                </a>
+                <a
+                  href="https://www.npmjs.com/package/signalforge"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-2 backdrop-blur-xl bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all border border-white/20 hover:scale-105 font-semibold"
+                >
+                  📦 npm
+                </a>
+                <a
+                  href="https://github.com/forgecommunity/signalforge"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-2 backdrop-blur-xl bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all border border-white/20 hover:scale-105 font-semibold"
+                >
+                  ⭐ GitHub
+                </a>
+              </div>
+            </div>
           </div>
-          <p className="text-sm">
-            MIT Licensed • TypeScript • 2KB gzipped • Zero Dependencies
-          </p>
+          
+          <div className="text-center text-gray-400 text-sm pb-8">
+            <p className="mb-2">
+              MIT Licensed • 100% Open Source • Made with ❤️ for developers
+            </p>
+            <p className="text-gray-500">
+              2KB gzipped • Zero Dependencies • TypeScript • Production Ready
+            </p>
+          </div>
         </div>
       </div>
     </div>

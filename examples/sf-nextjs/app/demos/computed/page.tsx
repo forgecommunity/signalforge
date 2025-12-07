@@ -24,38 +24,140 @@ export default function ComputedSignalDemo() {
       description="Values that auto-update when their dependencies change. No manual tracking needed!"
     >
       <div className="space-y-8">
-        {/* What You'll Learn */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
-          <h3 className="text-xl font-semibold mb-3 text-blue-900 dark:text-blue-100">
-            📚 What You'll Learn
-          </h3>
-          <ul className="space-y-2 text-gray-700 dark:text-gray-300">
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>Create computed values with <code className="bg-blue-100 dark:bg-blue-900 px-2 py-0.5 rounded">createComputed()</code></span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>Automatically track dependencies (no manual setup!)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>Build complex calculations from simple signals</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-500 font-bold">✓</span>
-              <span>Avoid recalculating unless dependencies actually change</span>
-            </li>
-          </ul>
+        {/* WHAT IS THIS? */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-300 dark:border-blue-600 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <span className="text-2xl">❓</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2 text-blue-900 dark:text-blue-100">
+                What is a Computed Signal?
+              </h3>
+              <p className="text-lg text-gray-700 dark:text-gray-300">
+                A <strong>computed signal</strong> is a <strong>value that automatically calculates itself</strong> based on other signals. 
+                When the inputs change, it recalculates instantly!
+              </p>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-blue-500">
+            <p className="text-gray-700 dark:text-gray-300">
+              💡 <strong>Real-life example:</strong> Like a spreadsheet formula! When you change A1 or B1, 
+              the formula <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">=A1+B1</code> automatically updates. 
+              That's exactly what computed signals do!
+            </p>
+          </div>
+        </div>
+
+        {/* WHY USE THIS? */}
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-300 dark:border-green-600 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <span className="text-2xl">💡</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2 text-green-900 dark:text-green-100">
+                Why Use Computed Signals?
+              </h3>
+              <p className="text-lg text-gray-700 dark:text-gray-300 mb-3">
+                Because manual calculations are <strong>error-prone and annoying</strong>!
+              </p>
+            </div>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-red-500">
+              <h4 className="font-bold text-red-600 dark:text-red-400 mb-2">❌ Without Computed Signals</h4>
+              <pre className="bg-gray-900 text-red-400 p-3 rounded text-xs overflow-x-auto mb-2">
+{`const [width, setWidth] = useState(10);
+const [height, setHeight] = useState(5);
+const [area, setArea] = useState(50);
+
+// Update width
+setWidth(20);
+setArea(width * height); // FORGOT TO UPDATE!
+
+// Update height  
+setHeight(10);
+setArea(width * height); // Manual sync again!
+
+// 😱 Easy to forget, causes bugs!`}</pre>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-green-500">
+              <h4 className="font-bold text-green-600 dark:text-green-400 mb-2">✅ With Computed Signals</h4>
+              <pre className="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto mb-2">
+{`const [width, setWidth] = useSignal(10);
+const [height, setHeight] = useSignal(5);
+const area = createComputed(() => 
+  width * height
+);
+
+// Update width
+setWidth(20); // area auto-updates! ✨
+
+// Update height
+setHeight(10); // area auto-updates! ✨
+
+// 🎉 Always in sync, zero effort!`}</pre>
+            </div>
+          </div>
+        </div>
+
+        {/* HOW TO USE IT? */}
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 border-2 border-purple-300 dark:border-purple-600 rounded-xl p-6 shadow-lg">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <span className="text-2xl">🚀</span>
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold mb-2 text-purple-900 dark:text-purple-100">
+                How To Use It? (Super Simple Pattern!)
+              </h3>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-purple-500">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">1</div>
+                <h4 className="font-bold text-gray-900 dark:text-gray-100">Create your input signals</h4>
+              </div>
+              <pre className="bg-gray-900 text-green-400 p-3 rounded mt-2 text-sm overflow-x-auto">
+{`const [width, setWidth] = useSignal(10);
+const [height, setHeight] = useSignal(5);`}</pre>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-purple-500">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">2</div>
+                <h4 className="font-bold text-gray-900 dark:text-gray-100">Create computed signal with a formula</h4>
+              </div>
+              <pre className="bg-gray-900 text-green-400 p-3 rounded mt-2 text-sm overflow-x-auto">
+{`const area = createComputed(() => width * height);
+//                          ↑
+//                    Your calculation here!`}</pre>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-purple-500">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">3</div>
+                <h4 className="font-bold text-gray-900 dark:text-gray-100">Use it - it auto-updates forever!</h4>
+              </div>
+              <pre className="bg-gray-900 text-green-400 p-3 rounded mt-2 text-sm overflow-x-auto">
+{`const areaValue = useSignalValue(area);
+<div>Area: {areaValue}</div>  // Always correct! ✨`}</pre>
+            </div>
+          </div>
+          <div className="mt-4 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-lg p-4">
+            <p className="text-center text-gray-700 dark:text-gray-300 font-semibold">
+              🧮 Try changing the rectangle size below to see it in action! ⬇️
+            </p>
+          </div>
         </div>
 
         {/* Interactive Demo Title */}
-        <div className="text-center">
+        <div className="text-center bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/30 dark:to-blue-900/30 p-6 rounded-xl border-2 border-cyan-300 dark:border-cyan-600">
           <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            🎨 Try It: Rectangle Calculator
+            🎨 Interactive Rectangle Calculator
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
-            Change width or height - watch all calculated values update automatically!
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
+            Move the sliders - watch <strong>ALL 3 calculations update automatically</strong> without ANY extra code!
           </p>
         </div>
         {/* Visual Rectangle */}

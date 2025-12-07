@@ -23,15 +23,15 @@ export default function PersistentSignalDemo() {
     setNameSignal(nSignal);
     setThemeSignal(tSignal);
 
-    // Subscribe to changes
-    const unsubCount = countSignal.subscribe((val: number) => setCount(val));
-    const unsubName = nameSignal.subscribe((val: string) => setName(val));
-    const unsubTheme = themeSignal.subscribe((val: string) => setTheme(val));
+    // Subscribe to changes using the local variables (not state)
+    const unsubCount = cSignal.subscribe((val: number) => setCount(val));
+    const unsubName = nSignal.subscribe((val: string) => setName(val));
+    const unsubTheme = tSignal.subscribe((val: string) => setTheme(val));
 
-    // Initial values
-    setCount(countSignal.get());
-    setName(nameSignal.get());
-    setTheme(themeSignal.get());
+    // Initial values using the local variables
+    setCount(cSignal.get());
+    setName(nSignal.get());
+    setTheme(tSignal.get());
     setMounted(true);
 
     return () => {
