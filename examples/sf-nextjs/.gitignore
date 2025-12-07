@@ -1,15 +1,41 @@
-# ========================================
-# EXCLUDE ENTIRE PROJECT FROM GITHUB
-# Only the live demo site is available
-# ========================================
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Ignore all files and folders
-*
-*/
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
-# EXCEPT these files (keep in repo)
-!.gitignore
-!README.md
+# testing
+/coverage
 
-# Note: The live demo is available at:
-# https://signalforge-fogecommunity.vercel.app/
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
