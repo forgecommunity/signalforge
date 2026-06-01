@@ -70,7 +70,7 @@ function DevToolsScreen() {
     monitor.log('init', 'DevTools', 'Started', undefined);
     
     const unsubscribe = monitor.subscribe((event) => {
-      setEvents(prev => [...prev].slice(-20));
+      setEvents(prev => [...prev, event].slice(-20));
       
       setStats(prev => ({
         reads: event.type === 'read' ? prev.reads + 1 : prev.reads,
@@ -225,10 +225,10 @@ function DevToolsScreen() {
           </TouchableOpacity>
         </View>
         <View style={styles.logContainer}>
-          {monitor.getEvents().length === 0 ? (
+          {events.length === 0 ? (
             <Text style={styles.logEmpty}>No events logged yet</Text>
           ) : (
-            monitor.getEvents().slice(-15).reverse().map((event, index) => (
+            events.slice(-15).reverse().map((event, index) => (
               <View key={index} style={styles.logEvent}>
                 <Text style={styles.logTime}>
                   {new Date(event.timestamp).toLocaleTimeString()}

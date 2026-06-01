@@ -5,12 +5,27 @@ const latencySamples = new Map();
 const batchRecords = [];
 const activeLatencyMeasurements = new Map();
 const activeBatchMeasurements = new Map();
+const profilerEventListeners = new Set();
 let config = {
     maxSamplesPerSignal: 100,
     maxBatchRecords: 50,
     autoComputeStats: false,
     emitEvents: true,
 };
+export function onProfilerEvent(listener) {
+    profilerEventListeners.add(listener);
+    return () => {
+        profilerEventListeners.delete(listener);
+    };
+}
+function emitProfilerEvent(event) {
+    if (!config.emitEvents || profilerEventListeners.size === 0) {
+        return;
+    }
+    for (const listener of Array.from(profilerEventListeners)) {
+        listener(event);
+    }
+}
 export function enableProfiler(options) {
     if (profilerEnabled) {
         console.warn('[Profiler] Already enabled');
@@ -83,8 +98,11 @@ export function endLatencyMeasurement(signalId, type, skipped) {
         samples.shift();
     }
     activeLatencyMeasurements.delete(signalId);
-    if (config.emitEvents) {
-    }
+    emitProfilerEvent({
+        type: 'profiler-latency-sample',
+        payload: sample,
+        timestamp: endTime,
+    });
 }
 export function startBatchMeasurement(depth) {
     if (!profilerEnabled) {
@@ -134,8 +152,11 @@ export function endBatchMeasurement(batchId) {
         batchRecords.shift();
     }
     activeBatchMeasurements.delete(batchId);
-    if (config.emitEvents) {
-    }
+    emitProfilerEvent({
+        type: 'profiler-batch-timing',
+        payload: record,
+        timestamp: endTime,
+    });
 }
 export function getProfilerData() {
     const now = performance.now();

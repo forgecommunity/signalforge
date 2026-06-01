@@ -158,6 +158,18 @@ export interface ProfilerData {
 }
 
 /**
+ * Profiler event emitted when latency or batch timing data is recorded.
+ */
+export type ProfilerEvent =
+  | { type: 'profiler-latency-sample'; payload: LatencySample; timestamp: number }
+  | { type: 'profiler-batch-timing'; payload: BatchTimingRecord; timestamp: number };
+
+/**
+ * Listener for profiler events.
+ */
+export type ProfilerEventListener = (event: ProfilerEvent) => void;
+
+/**
  * Configuration options for profiler
  */
 export interface ProfilerConfig {
@@ -211,6 +223,11 @@ const activeBatchMeasurements = new Map<number, {
 }>();
 
 /**
+ * Subscribers for profiler samples. Kept local to avoid a runtime/profiler import cycle.
+ */
+const profilerEventListeners = new Set<ProfilerEventListener>();
+
+/**
  * Profiler configuration (with defaults)
  */
 let config: ProfilerConfig = {
@@ -219,6 +236,29 @@ let config: ProfilerConfig = {
   autoComputeStats: false,
   emitEvents: true,
 };
+
+/**
+ * Subscribe to profiler events.
+ *
+ * @param listener - Callback invoked for each recorded profiler event
+ * @returns Cleanup function to unsubscribe
+ */
+export function onProfilerEvent(listener: ProfilerEventListener): () => void {
+  profilerEventListeners.add(listener);
+  return () => {
+    profilerEventListeners.delete(listener);
+  };
+}
+
+function emitProfilerEvent(event: ProfilerEvent): void {
+  if (!config.emitEvents || profilerEventListeners.size === 0) {
+    return;
+  }
+
+  for (const listener of Array.from(profilerEventListeners)) {
+    listener(event);
+  }
+}
 
 // ============================================================================
 // Core API - Profiler Control
@@ -396,11 +436,11 @@ export function endLatencyMeasurement(
   // Clean up active measurement
   activeLatencyMeasurements.delete(signalId);
   
-  // Emit event if configured
-  if (config.emitEvents) {
-    // TODO: Emit to DevTools event emitter
-    // eventEmitter.emit('profiler-latency-sample', sample);
-  }
+  emitProfilerEvent({
+    type: 'profiler-latency-sample',
+    payload: sample,
+    timestamp: endTime,
+  });
 }
 
 // ============================================================================
@@ -496,11 +536,11 @@ export function endBatchMeasurement(batchId: number): void {
   // Clean up active measurement
   activeBatchMeasurements.delete(batchId);
   
-  // Emit event if configured
-  if (config.emitEvents) {
-    // TODO: Emit to DevTools event emitter
-    // eventEmitter.emit('profiler-batch-timing', record);
-  }
+  emitProfilerEvent({
+    type: 'profiler-batch-timing',
+    payload: record,
+    timestamp: endTime,
+  });
 }
 
 // ============================================================================

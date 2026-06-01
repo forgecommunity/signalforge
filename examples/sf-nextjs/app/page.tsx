@@ -11,11 +11,29 @@ export default function Home() {
     setIsVisible(true);
   }, []);
   const demos = [
+    {
+      id: 'dashboard',
+      name: 'Operations Dashboard',
+      description: 'Serious app pattern with filters, derived totals, and batched operational updates.',
+      icon: '📈',
+      difficulty: 'Featured',
+      learn: 'Validate SignalForge in dashboard workflows',
+      featured: true
+    },
+    {
+      id: 'plugin',
+      name: 'Plugin Debugging',
+      description: 'Custom plugin lifecycle, audit events, and DevTools plugin diagnostics.',
+      icon: '🧩',
+      difficulty: 'Featured',
+      learn: 'Build and debug production plugins',
+      featured: true
+    },
     // ===== NEW: FEATURED COMPARISONS =====
     { 
       id: 'comparison', 
       name: 'SignalForge vs Redux/Zustand', 
-      description: 'Side-by-side comparison showing 90% less code with the same shopping cart functionality.', 
+      description: 'Side-by-side comparison of the same shopping cart workflow and update model.', 
       icon: '🔥', 
       difficulty: 'Featured',
       learn: 'Compare SignalForge with traditional state management',
@@ -24,7 +42,7 @@ export default function Home() {
     { 
       id: 'collaboration', 
       name: 'Fine-Grained Reactivity', 
-      description: 'See how only edited cells re-render, while Redux/Context would re-render the entire grid.', 
+      description: 'Explore cell-level updates with a collaboration-style grid.', 
       icon: '👥', 
       difficulty: 'Featured',
       learn: 'Real-time collaboration with minimal re-renders',
@@ -41,7 +59,7 @@ export default function Home() {
     },
     { 
       id: 'benchmark', 
-      name: 'Live Performance Benchmark', 
+      name: 'Interactive Performance Benchmark', 
       description: 'Real-time comparison showing render counts and performance differences.', 
       icon: '⚡', 
       difficulty: 'Featured',
@@ -85,7 +103,7 @@ export default function Home() {
     { 
       id: 'batch', 
       name: 'Batch Updates', 
-      description: 'Update multiple signals efficiently with batched updates for better performance.', 
+      description: 'Update multiple signals efficiently while reducing redundant recalculation.', 
       icon: '🚀', 
       difficulty: 'Intermediate',
       learn: 'Optimize performance with batched updates'
@@ -175,8 +193,8 @@ export default function Home() {
 
   const features = [
     { icon: '✅', title: 'Super Easy', description: 'Only 3 core functions to learn. No Redux complexity, no boilerplate.' },
-    { icon: '⚡', title: 'Blazing Fast', description: 'Updates 33x faster with batching. Handles thousands of signals smoothly.' },
-    { icon: '🪶', title: 'Tiny Bundle', description: 'Just 2KB gzipped. Zero dependencies. Tree-shakeable.' },
+    { icon: '⚡', title: 'Fine-grained updates', description: 'Batched writes and targeted subscriptions keep large screens responsive.' },
+    { icon: '🪶', title: 'Small core', description: 'Zero runtime dependencies and entrypoints that are checked by the size budget.' },
     { icon: '🌍', title: 'Works Everywhere', description: 'React, React Native, Next.js, or plain JavaScript. SSR ready.' },
     { icon: '💾', title: 'Persistence Built-in', description: 'Auto-save to localStorage or AsyncStorage with one line of code.' },
     { icon: '🛠️', title: 'DevTools Ready', description: 'Time travel debugging, signal inspection, and performance monitoring.' },
@@ -238,9 +256,9 @@ export default function Home() {
           
           <p className="text-base md:text-lg text-gray-400 mb-10 max-w-2xl mx-auto animate-fade-in-up leading-relaxed" style={{ animationDelay: '0.4s' }}>
             The modern state management library for React & React Native. 
-            <span className="text-blue-400"> 33x faster</span>, 
-            <span className="text-purple-400"> 90% less code</span>, 
-            <span className="text-pink-400"> infinitely simpler</span>.
+            <span className="text-blue-400"> fine-grained updates</span>, 
+            <span className="text-purple-400"> compact APIs</span>, 
+            <span className="text-pink-400"> predictable state flows</span>.
           </p>
           
           {/* CTA Buttons */}
@@ -254,6 +272,15 @@ export default function Home() {
               <span className="flex items-center gap-2">
                 <span>🚀</span>
                 <span>Get Started Now</span>
+              </span>
+            </a>
+            <a
+              href="/docs"
+              className="px-10 py-4 bg-white/10 text-white rounded-xl text-lg font-bold border border-white/20 hover:bg-white/15 transition-all duration-300"
+            >
+              <span className="flex items-center gap-2">
+                <span>📘</span>
+                <span>Read Docs</span>
               </span>
             </a>
             <a
@@ -272,8 +299,8 @@ export default function Home() {
           {/* Quick Stats with cards */}
           <div className="flex justify-center gap-4 flex-wrap max-w-4xl mx-auto">
             {[
-              { icon: '🪶', label: '2KB Gzipped', color: 'blue' },
-              { icon: '⚡', label: '33x Faster', color: 'purple' },
+              { icon: '🪶', label: 'Size-budgeted', color: 'blue' },
+              { icon: '⚡', label: 'Batched Updates', color: 'purple' },
               { icon: '📦', label: 'Zero Deps', color: 'pink' },
               { icon: '🎯', label: 'TypeScript', color: 'indigo' },
             ].map((stat, i) => (
@@ -470,7 +497,7 @@ count.<span className="text-yellow-400">set</span>(<span className="text-orange-
                   <div className="text-4xl group-hover:scale-110 transition-transform">⚡</div>
                   <div>
                     <h3 className="text-xl font-bold text-white mb-2">Lightning Fast</h3>
-                    <p className="text-gray-400">Fine-grained reactivity means only what changed re-renders. 33x faster than useState + useEffect.</p>
+                    <p className="text-gray-400">Fine-grained reactivity means components subscribe to the exact state they read.</p>
                   </div>
                 </div>
               </div>
@@ -490,7 +517,7 @@ count.<span className="text-yellow-400">set</span>(<span className="text-orange-
                   <div className="text-4xl group-hover:scale-110 transition-transform">🪶</div>
                   <div>
                     <h3 className="text-xl font-bold text-white mb-2">Tiny Bundle</h3>
-                    <p className="text-gray-400">Just 2KB gzipped. Zero dependencies. Tree-shakeable. Your users will thank you.</p>
+                    <p className="text-gray-400">Zero runtime dependencies, subpath entrypoints, and a checked size budget.</p>
                   </div>
                 </div>
               </div>
@@ -588,7 +615,7 @@ function Counter() {
             Core Concepts
           </h2>
           <p className="text-center text-gray-600 dark:text-gray-300 mb-12 text-lg">
-            Master these three concepts and you know 90% of SignalForge
+            Master these three concepts and you understand the core SignalForge model
           </p>
           
           <div className="space-y-8">
@@ -752,7 +779,7 @@ theme.set('dark');  // Effect runs automatically!`}
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 <tr>
                   <td className="px-6 py-4 text-gray-700 dark:text-gray-300">Bundle Size</td>
-                  <td className="px-6 py-4 text-center text-green-600 dark:text-green-400 font-semibold">2KB</td>
+                  <td className="px-6 py-4 text-center text-green-600 dark:text-green-400 font-semibold">Size-budgeted</td>
                   <td className="px-6 py-4 text-center text-gray-600 dark:text-gray-400">45KB</td>
                   <td className="px-6 py-4 text-center text-gray-600 dark:text-gray-400">3KB</td>
                   <td className="px-6 py-4 text-center text-gray-600 dark:text-gray-400">0KB (built-in)</td>
@@ -992,7 +1019,7 @@ theme.set('dark');  // Effect runs automatically!`}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-lg p-8 border border-blue-200 dark:border-blue-800 text-center">
               <div className="text-5xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                33x
+                Batched
               </div>
               <div className="text-gray-700 dark:text-gray-300 font-semibold mb-2">
                 Faster Updates
@@ -1116,7 +1143,7 @@ theme.set('dark');  // Effect runs automatically!`}
               MIT Licensed • 100% Open Source • Made with ❤️ for developers
             </p>
             <p className="text-gray-500">
-              2KB gzipped • Zero Dependencies • TypeScript • Production Ready
+              Size-budgeted • Zero Dependencies • TypeScript • Production Ready
             </p>
           </div>
         </div>

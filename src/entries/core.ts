@@ -1,7 +1,7 @@
 /**
  * SignalForge Core Entry Point
  * Only the essential reactive primitives
- * Target: < 2KB gzipped
+ * Current size is enforced by scripts/check-size.js
  */
 
 export {
@@ -14,3 +14,12 @@ export {
   type Signal,
   type ComputedSignal,
 } from '../core/store';
+
+export {
+  createStore,
+  defineStore,
+  shallowEqual,
+  type SignalStore,
+  type StoreUpdater,
+  type StoreSelectorEquality,
+} from '../core/storeApi';

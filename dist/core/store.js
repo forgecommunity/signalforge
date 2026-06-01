@@ -3,6 +3,7 @@ const IS_SCHEDULED_FLAG = 1 << 1;
 const IS_COMPUTING_FLAG = 1 << 2;
 const HAS_LISTENERS_FLAG = 1 << 3;
 const IS_COMPUTED_FLAG = 1 << 4;
+const IS_DESTROYED_FLAG = 1 << 5;
 const POOL_SIZE = 10000;
 const nodePool = new Array(POOL_SIZE);
 let poolIndex = 0;
@@ -23,9 +24,17 @@ function releaseNodeToPool(node) {
         nodePool[poolIndex++] = node;
     }
 }
-import { __registerSignal, __notifyAfterUpdate, __notifySignalDestroy } from './plugins';
+import { __hasActivePlugins, __registerSignal, __notifyBeforeUpdate, __notifyAfterUpdate, __notifySignalDestroy, } from './plugins';
 const pluginSignalIdMap = new WeakMap();
 const signalRegistry = new Map();
+function registerSignalWithPlugins(signal, node, type, initialValue) {
+    if (pluginSignalIdMap.has(signal)) {
+        return;
+    }
+    const metadata = __registerSignal(type, initialValue);
+    pluginSignalIdMap.set(signal, metadata.id);
+    signalRegistry.set(metadata.id, signal);
+}
 export function getSignalById(id) {
     return signalRegistry.get(id);
 }
@@ -47,6 +56,9 @@ function enqueueForBatchUpdate(node) {
     if (nextTail === queueHeadIndex) {
         console.error('[SignalForge] Batch queue overflow → forcing flush');
         flushBatchUpdates();
+        if (((queueTailIndex + 1) % BATCH_QUEUE_SIZE) === queueHeadIndex) {
+            throw new Error('[SignalForge] Batch queue overflow');
+        }
     }
     node.flags |= IS_SCHEDULED_FLAG;
     batchQueue[queueTailIndex] = node;
@@ -67,7 +79,7 @@ function flushBatchUpdates() {
         }
     }
 }
-const contextStack = new Array(100);
+const contextStack = [];
 let contextDepth = 0;
 let currentContext = null;
 function pushContext(node) {
@@ -76,6 +88,7 @@ function pushContext(node) {
 }
 function popContext() {
     currentContext = contextStack[--contextDepth];
+    contextStack.length = contextDepth;
 }
 const signalCache = new WeakMap();
 const computedCache = new WeakMap();
@@ -109,6 +122,9 @@ function createNode(initialValue, computeFn = null) {
     return node;
 }
 function getValue(node, signalWrapper) {
+    if (node.flags & IS_DESTROYED_FLAG) {
+        throw new Error('Cannot read a destroyed signal');
+    }
     if (!currentContext) {
         if ((node.flags & IS_DIRTY_FLAG) && node.computeFn) {
             recomputeNode(node);
@@ -125,6 +141,9 @@ function getValue(node, signalWrapper) {
     return node.value;
 }
 function setValue(node, signal, newValue) {
+    if (node.flags & IS_DESTROYED_FLAG) {
+        throw new Error('Cannot set a destroyed signal');
+    }
     if (node.flags & IS_COMPUTED_FLAG) {
         throw new Error('Cannot set computed signal');
     }
@@ -135,8 +154,22 @@ function setValue(node, signal, newValue) {
         return;
     }
     const oldValue = node.value;
+    let pluginId = pluginSignalIdMap.get(signal);
+    if (!pluginId && __hasActivePlugins()) {
+        registerSignalWithPlugins(signal, node, 'signal', oldValue);
+        pluginId = pluginSignalIdMap.get(signal);
+    }
+    if (pluginId) {
+        const pluginValue = __notifyBeforeUpdate(pluginId, oldValue, newValue, 'set');
+        if (pluginValue === undefined) {
+            return;
+        }
+        newValue = pluginValue;
+    }
+    if (Object.is(newValue, oldValue)) {
+        return;
+    }
     node.value = newValue;
-    const pluginId = pluginSignalIdMap.get(signal);
     if (pluginId) {
         __notifyAfterUpdate(pluginId, oldValue, newValue, 'set');
     }
@@ -171,6 +204,8 @@ function clearDependencies(node) {
     }
 }
 function markDirty(node) {
+    if (node.flags & IS_DESTROYED_FLAG)
+        return;
     if (node.flags & IS_DIRTY_FLAG)
         return;
     node.flags |= IS_DIRTY_FLAG;
@@ -184,21 +219,24 @@ function markDirty(node) {
 function recomputeNode(node) {
     if (!node.computeFn)
         return;
-    if (node.flags & IS_COMPUTING_FLAG)
+    if (node.flags & IS_DESTROYED_FLAG)
         return;
+    if (node.flags & IS_COMPUTING_FLAG) {
+        throw new Error('Circular dependency detected while computing signal');
+    }
     node.flags |= IS_COMPUTING_FLAG;
     clearDependencies(node);
     pushContext(node);
     try {
         const newValue = node.computeFn();
         node.flags &= ~IS_DIRTY_FLAG;
-        node.flags &= ~IS_COMPUTING_FLAG;
         if (!Object.is(newValue, node.value)) {
             node.value = newValue;
             notifySubscribers(node);
         }
     }
     finally {
+        node.flags &= ~IS_COMPUTING_FLAG;
         popContext();
     }
 }
@@ -215,12 +253,18 @@ function notifySubscribers(node) {
     }
 }
 function subscribe(node, listener) {
+    if (node.flags & IS_DESTROYED_FLAG) {
+        throw new Error('Cannot subscribe to a destroyed signal');
+    }
     if (!node.listeners) {
         node.listeners = new Set();
     }
     node.listeners.add(listener);
     node.flags |= HAS_LISTENERS_FLAG;
     return () => {
+        if (!node.listeners) {
+            return;
+        }
         node.listeners.delete(listener);
         if (node.listeners.size === 0) {
             node.flags &= ~HAS_LISTENERS_FLAG;
@@ -228,6 +272,9 @@ function subscribe(node, listener) {
     };
 }
 function destroyNode(node) {
+    if (node.flags & IS_DESTROYED_FLAG) {
+        return;
+    }
     clearDependencies(node);
     if (node.subscribers) {
         node.subscribers.clear();
@@ -235,12 +282,25 @@ function destroyNode(node) {
     if (node.listeners) {
         node.listeners.clear();
     }
-    releaseNodeToPool(node);
+    node.value = undefined;
+    node.subscribers = null;
+    node.listeners = null;
+    node.dependencies = null;
+    node.computeFn = null;
+    node.flags = IS_DESTROYED_FLAG;
 }
 export function createSignal(initialValue) {
     const node = createNode(initialValue, null);
     const signal = {
-        get: () => getValue(node, signal),
+        get: () => {
+            if (node.flags & IS_DESTROYED_FLAG) {
+                throw new Error('Cannot read a destroyed signal');
+            }
+            if (!currentContext) {
+                return node.value;
+            }
+            return getValue(node, signal);
+        },
         set: (value) => setValue(node, signal, value),
         subscribe: (listener) => subscribe(node, listener),
         destroy: () => {
@@ -257,24 +317,26 @@ export function createSignal(initialValue) {
         _addSubscriber: sharedAddSubscriber,
         _removeSubscriber: sharedRemoveSubscriber,
     };
-    const metadata = __registerSignal('signal', initialValue);
-    pluginSignalIdMap.set(signal, metadata.id);
-    signalRegistry.set(metadata.id, signal);
+    if (__hasActivePlugins()) {
+        registerSignalWithPlugins(signal, node, 'signal', initialValue);
+    }
     return signal;
 }
 export function createComputed(computeFn) {
-    let initialValue;
-    const savedContext = currentContext;
-    currentContext = null;
-    try {
-        initialValue = computeFn();
-    }
-    finally {
-        currentContext = savedContext;
-    }
-    const node = createNode(initialValue, computeFn);
+    const node = createNode(undefined, computeFn);
     const signal = {
-        get: () => getValue(node, signal),
+        get: () => {
+            if (node.flags & IS_DESTROYED_FLAG) {
+                throw new Error('Cannot read a destroyed signal');
+            }
+            if (!currentContext) {
+                if (node.flags & IS_DIRTY_FLAG) {
+                    recomputeNode(node);
+                }
+                return node.value;
+            }
+            return getValue(node, signal);
+        },
         set: (() => {
             throw new Error('Cannot set a computed signal');
         }),

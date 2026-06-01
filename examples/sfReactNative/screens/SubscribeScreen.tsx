@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal } from 'signalforge';
+import { createSignal } from 'signalforge/core';
 import { useSignalValue } from 'signalforge/react';
 
 const count = createSignal(0);

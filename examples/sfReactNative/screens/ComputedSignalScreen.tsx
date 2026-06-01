@@ -4,8 +4,8 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { createSignal, createComputed } from 'signalforge';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { createSignal, createComputed } from 'signalforge/core';
 import { useSignalValue } from 'signalforge/react';
 
 // Create base signals

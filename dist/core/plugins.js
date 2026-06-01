@@ -44,6 +44,25 @@ export function unregisterPlugin(pluginNameOrInstance) {
 export function getRegisteredPlugins() {
     return [...registeredPlugins];
 }
+export function __getPluginDebugSnapshot() {
+    return {
+        enabled: pluginsEnabled,
+        signalCount: signalMetadataMap.size,
+        plugins: registeredPlugins.map((plugin) => ({
+            name: plugin.name,
+            version: plugin.version,
+            enabled: pluginsEnabled,
+            hooks: {
+                onSignalCreate: typeof plugin.onSignalCreate === 'function',
+                onBeforeUpdate: typeof plugin.onBeforeUpdate === 'function',
+                onSignalUpdate: typeof plugin.onSignalUpdate === 'function',
+                onSignalDestroy: typeof plugin.onSignalDestroy === 'function',
+                onRegister: typeof plugin.onRegister === 'function',
+                onUnregister: typeof plugin.onUnregister === 'function',
+            },
+        })),
+    };
+}
 export function clearPlugins() {
     const pluginNames = registeredPlugins.map(p => p.name);
     registeredPlugins.forEach(plugin => {
@@ -69,6 +88,9 @@ export function disablePlugins() {
 }
 export function arePluginsEnabled() {
     return pluginsEnabled;
+}
+export function __hasActivePlugins() {
+    return pluginsEnabled && registeredPlugins.length > 0;
 }
 export function __registerSignal(type, initialValue, label) {
     const metadata = {

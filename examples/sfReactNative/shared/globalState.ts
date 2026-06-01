@@ -3,7 +3,7 @@
  * This demonstrates how signals can be used for app-wide state management
  */
 
-import { createSignal, createComputed } from 'signalforge';
+import { createSignal, createComputed } from 'signalforge/core';
 
 // User Profile
 export interface User {

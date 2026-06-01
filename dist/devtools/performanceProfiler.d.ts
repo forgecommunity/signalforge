@@ -48,12 +48,23 @@ export interface ProfilerData {
     totalSamples: number;
     totalSignals: number;
 }
+export type ProfilerEvent = {
+    type: 'profiler-latency-sample';
+    payload: LatencySample;
+    timestamp: number;
+} | {
+    type: 'profiler-batch-timing';
+    payload: BatchTimingRecord;
+    timestamp: number;
+};
+export type ProfilerEventListener = (event: ProfilerEvent) => void;
 export interface ProfilerConfig {
     maxSamplesPerSignal: number;
     maxBatchRecords: number;
     autoComputeStats: boolean;
     emitEvents: boolean;
 }
+export declare function onProfilerEvent(listener: ProfilerEventListener): () => void;
 export declare function enableProfiler(options?: Partial<ProfilerConfig>): void;
 export declare function disableProfiler(): void;
 export declare function isProfilerEnabled(): boolean;

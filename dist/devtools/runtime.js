@@ -1,3 +1,4 @@
+import { __getPluginDebugSnapshot } from '../core/plugins';
 import { startLatencyMeasurement, endLatencyMeasurement, isProfilerEnabled } from './performanceProfiler';
 class DevToolsEventEmitter {
     constructor() {
@@ -305,16 +306,23 @@ export function getActivePlugins() {
     if (!isDevToolsEnabled()) {
         return [];
     }
-    try {
-        const pluginManager = require('../core/pluginManager');
-        if (pluginManager && pluginManager.__getPluginInfoForDevTools) {
-            return pluginManager.__getPluginInfoForDevTools();
-        }
-    }
-    catch (error) {
-        console.debug('[DevTools] Plugin manager not available');
-    }
-    return [];
+    const snapshot = __getPluginDebugSnapshot();
+    return snapshot.plugins.map((plugin) => {
+        const hookValues = Object.values(plugin.hooks);
+        return {
+            name: plugin.name,
+            version: plugin.version,
+            enabled: snapshot.enabled,
+            hookCount: hookValues.filter(Boolean).length,
+            signalCount: snapshot.signalCount,
+            stats: {
+                onSignalCreate: plugin.hooks.onSignalCreate,
+                onBeforeUpdate: plugin.hooks.onBeforeUpdate,
+                onSignalUpdate: plugin.hooks.onSignalUpdate,
+                onSignalDestroy: plugin.hooks.onSignalDestroy,
+            },
+        };
+    });
 }
 export function getSignal(id) {
     if (!isDevToolsEnabled()) {

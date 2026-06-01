@@ -27,22 +27,25 @@ export {
 } from '../devtools/inspector';
 
 export {
-  SignalGraphVisualizer,
-  type SignalGraphVisualizerProps,
-} from '../devtools/SignalGraphVisualizer';
-
-export {
-  PerformanceTab,
-  type PerformanceTabProps,
-} from '../devtools/ui/PerformanceTab';
-
-export {
   enableProfiler,
   disableProfiler,
+  onProfilerEvent,
   getProfilerData,
   getSignalLatencyStats,
   getBatchStats,
   type ProfilerData,
+  type ProfilerEvent,
+  type ProfilerEventListener,
   type SignalLatencyStats,
   type BatchStats,
 } from '../devtools/performanceProfiler';
+
+export {
+  DevToolsPanel,
+  DevToolsProvider,
+} from '../devtools/ui/DevToolsPanel';
+
+export {
+  getActivePlugins,
+  type DevToolsEvent,
+} from '../devtools/runtime';

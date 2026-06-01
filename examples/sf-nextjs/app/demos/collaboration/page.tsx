@@ -1,6 +1,7 @@
 'use client';
 
-import { createSignal, useSignalValue, batch } from 'signalforge/react';
+import { createSignal, batch } from 'signalforge/core';
+import { useSignalValue } from 'signalforge/react';
 import { useState, useEffect, useRef } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 

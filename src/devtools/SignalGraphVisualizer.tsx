@@ -11,7 +11,7 @@
  * @example
  * ```tsx
  * import { SignalGraphVisualizer } from 'signalforge/devtools';
- * import { enableDevTools } from 'signalforge';
+ * import { enableDevTools } from 'signalforge/devtools';
  * 
  * enableDevTools();
  * 

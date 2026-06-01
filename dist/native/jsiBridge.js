@@ -1,3 +1,4 @@
+import { createSignal as createJsSignal } from '../core/store';
 const isNativeAvailable = () => {
     return (typeof global !== 'undefined' &&
         typeof global.__signalForgeCreateSignal === 'function' &&
@@ -21,7 +22,46 @@ const NATIVE_READY = isNativeAvailable();
 let jsStore = null;
 const getJsStore = () => {
     if (!jsStore) {
-        throw new Error('JavaScript fallback store not initialized. Native JSI bindings required.');
+        let nextId = 0;
+        const signals = new Map();
+        jsStore = {
+            createSignal(value) {
+                const id = `js_${++nextId}`;
+                signals.set(id, { signal: createJsSignal(value), version: 0 });
+                return { __id: id };
+            },
+            getSignal(id) {
+                const entry = signals.get(id);
+                if (!entry) {
+                    throw new Error(`Signal "${id}" does not exist`);
+                }
+                return entry.signal.get();
+            },
+            setSignal(id, value) {
+                const entry = signals.get(id);
+                if (!entry) {
+                    throw new Error(`Signal "${id}" does not exist`);
+                }
+                const previous = entry.signal.get();
+                entry.signal.set(value);
+                if (!Object.is(previous, entry.signal.get())) {
+                    entry.version++;
+                }
+            },
+            hasSignal(id) {
+                return signals.has(id);
+            },
+            deleteSignal(id) {
+                const entry = signals.get(id);
+                if (entry) {
+                    entry.signal.destroy();
+                    signals.delete(id);
+                }
+            },
+            getSignalVersion(id) {
+                return signals.get(id)?.version ?? 0;
+            },
+        };
     }
     return jsStore;
 };
@@ -39,7 +79,7 @@ export const getSignal = (signalRef) => {
         return global.__signalForgeGetSignal(signalRef.id);
     }
     const store = getJsStore();
-    throw new Error('JavaScript fallback for getSignal not fully implemented');
+    return store.getSignal(signalRef.id);
 };
 export const setSignal = (signalRef, value) => {
     if (NATIVE_READY) {
@@ -47,25 +87,29 @@ export const setSignal = (signalRef, value) => {
         return;
     }
     const store = getJsStore();
-    throw new Error('JavaScript fallback for setSignal not fully implemented');
+    store.setSignal(signalRef.id, value);
 };
 export const hasSignal = (signalRef) => {
     if (NATIVE_READY) {
         return global.__signalForgeHasSignal(signalRef.id);
     }
-    return false;
+    const store = getJsStore();
+    return store.hasSignal(signalRef.id);
 };
 export const deleteSignal = (signalRef) => {
     if (NATIVE_READY) {
         global.__signalForgeDeleteSignal(signalRef.id);
         return;
     }
+    const store = getJsStore();
+    store.deleteSignal(signalRef.id);
 };
 export const getSignalVersion = (signalRef) => {
     if (NATIVE_READY) {
         return global.__signalForgeGetVersion(signalRef.id);
     }
-    return 0;
+    const store = getJsStore();
+    return store.getSignalVersion(signalRef.id);
 };
 export const batchUpdate = (updates) => {
     if (NATIVE_READY) {

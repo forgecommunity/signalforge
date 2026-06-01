@@ -4,11 +4,12 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'SignalForge - Fine-Grained Reactive State Management',
     short_name: 'SignalForge',
-    description: 'The simplest state management library for React and React Native. Only 2KB, 33x faster updates.',
+    description: 'Fine-grained reactive state management for React, React Native, Next.js, and TypeScript.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#000000',
-    theme_color: '#3b82f6',
+    background_color: '#020617',
+    theme_color: '#10b981',
+    categories: ['developer', 'productivity', 'utilities'],
     icons: [
       {
         src: '/favicon.ico',

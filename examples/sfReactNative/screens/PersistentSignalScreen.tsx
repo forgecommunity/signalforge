@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { createSignal } from 'signalforge';
+import { createSignal } from 'signalforge/core';
 import { persist } from 'signalforge/utils';
 import { useSignalValue } from 'signalforge/react';
 

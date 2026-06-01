@@ -25,9 +25,12 @@ import {
   batch,
   untrack,
   flushSync,
+  resetPerformanceState,
   type Signal,
   type ComputedSignal,
-  
+} from '../src/core/store';
+
+import {
   // Batching utilities
   startBatch,
   endBatch,
@@ -36,7 +39,9 @@ import {
   getBatchDepth,
   getPendingCount,
   isBatching,
-  
+} from '../src/core/batcher';
+
+import {
   // Plugin system
   registerPlugin,
   unregisterPlugin,
@@ -51,12 +56,19 @@ import {
   createValidationPlugin,
   type Plugin,
   type PluginContext,
-  
+} from '../src/core/plugins';
+
+import {
   // React hooks (optional)
   useSignal,
   useSignalValue,
+} from '../src/hooks/useSignal';
+
+import {
   useSignalEffect,
-  
+} from '../src/hooks/useSignalEffect';
+
+import {
   // Utility functions
   derive,
   combine,
@@ -69,7 +81,9 @@ import {
   createArraySignal,
   createRecordSignal,
   monitor,
-  
+} from '../src/utils/index';
+
+import {
   // Storage & Persistence
   getStorageAdapter,
   resetStorageAdapter,
@@ -82,7 +96,9 @@ import {
   type StorageAdapter,
   type StorageOptions,
   type PersistOptions,
-  
+} from '../src/utils/index';
+
+import {
   // DevTools
   enableDevTools,
   disableDevTools,
@@ -95,8 +111,7 @@ import {
   getDependencies,
   getSubscribers,
   getDependencyGraph,
-  
-} from '../src/index';
+} from '../src/devtools/inspector';
 
 // ============================================================================
 // Test Utilities
@@ -374,154 +389,35 @@ test('Computed signal evaluates eagerly on creation', () => {
 
 console.log('\n=== Test 4: Circular Dependency Detection ===\n');
 
-test('Direct circular dependency should be detected', () => {
-  console.log('  Testing: A depends on A (direct self-reference)');
-  
+test('Circular dependencies throw when dirty computed nodes recurse', () => {
+  let self: ComputedSignal<number>;
+  self = createComputed(() => self ? self.get() + 1 : 1);
   try {
-    let circularComputed: ComputedSignal<number>;
-    
-    // This creates a circular reference: computed depends on itself
-    circularComputed = createComputed(() => {
-      // Self-reference creates circular dependency
-      return circularComputed ? circularComputed.get() + 1 : 1;
-    });
-    
-    // Attempting to get value should either:
-    // 1. Throw an error (preferred)
-    // 2. Return a fallback value
-    // 3. Hit max call stack (will be caught)
-    
-    try {
-      const value = circularComputed.get();
-      console.log(`  ⚠ Direct circular dependency did not throw (returned ${value})`);
-      // Not necessarily a failure - some implementations may handle this gracefully
-    } catch (innerError: any) {
-      console.log(`  ✓ Direct circular dependency detected: ${innerError.message.substring(0, 50)}...`);
-    }
-  } catch (outerError: any) {
-    console.log(`  ✓ Direct circular dependency prevented during creation`);
+    self._markDirty?.();
+    assertThrows(() => self.get(), 'Circular dependency');
+  } finally {
+    self.destroy();
+    resetPerformanceState();
   }
-});
 
-test('Indirect circular dependency should be detected', () => {
-  console.log('  Testing: A → B → C → A (circular chain)');
-  
-  try {
-    // Create three signals that will form a cycle
-    let computedA: ComputedSignal<number>;
-    let computedB: ComputedSignal<number>;
-    let computedC: ComputedSignal<number>;
-    
-    // A depends on C (will close the cycle)
-    computedA = createComputed(() => {
-      return computedC ? computedC.get() + 1 : 1;
-    });
-    
-    // B depends on A
-    computedB = createComputed(() => {
-      return computedA.get() + 1;
-    });
-    
-    // C depends on B (completes the cycle: A → C → B → A)
-    computedC = createComputed(() => {
-      return computedB.get() + 1;
-    });
-    
-    try {
-      // This should trigger circular dependency detection
-      const value = computedA.get();
-      console.log(`  ⚠ Indirect circular dependency did not throw (returned ${value})`);
-    } catch (error: any) {
-      const errorMsg = error.message.toLowerCase();
-      if (errorMsg.includes('circular') || 
-          errorMsg.includes('cycle') || 
-          errorMsg.includes('maximum call stack') ||
-          errorMsg.includes('recursion')) {
-        console.log(`  ✓ Indirect circular dependency detected: ${error.message.substring(0, 60)}...`);
-      } else {
-        throw error;
-      }
-    }
-  } catch (error: any) {
-    const errorMsg = error.message.toLowerCase();
-    if (errorMsg.includes('circular') || 
-        errorMsg.includes('cycle') || 
-        errorMsg.includes('maximum call stack') ||
-        errorMsg.includes('recursion')) {
-      console.log(`  ✓ Indirect circular dependency caught: ${error.message.substring(0, 60)}...`);
-    } else {
-      throw error;
-    }
-  }
-});
+  let a: ComputedSignal<number>;
+  let b: ComputedSignal<number>;
+  let c: ComputedSignal<number>;
 
-test('Mutual dependency cycle should be detected', () => {
-  console.log('  Testing: A ⇄ B (mutual dependency)');
-  
-  try {
-    let computedA: ComputedSignal<number>;
-    let computedB: ComputedSignal<number>;
-    
-    // A depends on B
-    computedA = createComputed(() => {
-      return computedB ? computedB.get() + 1 : 1;
-    });
-    
-    // B depends on A (creates mutual dependency)
-    computedB = createComputed(() => {
-      return computedA.get() + 1;
-    });
-    
-    try {
-      computedA.get();
-      console.log(`  ⚠ Mutual dependency did not throw`);
-    } catch (error: any) {
-      const errorMsg = error.message.toLowerCase();
-      if (errorMsg.includes('circular') || 
-          errorMsg.includes('cycle') || 
-          errorMsg.includes('maximum call stack') ||
-          errorMsg.includes('recursion')) {
-        console.log(`  ✓ Mutual dependency detected: ${error.message.substring(0, 60)}...`);
-      } else {
-        throw error;
-      }
-    }
-  } catch (error: any) {
-    console.log(`  ✓ Mutual dependency caught during setup`);
-  }
-});
+  a = createComputed(() => c ? c.get() + 1 : 1);
+  b = createComputed(() => a.get() + 1);
+  c = createComputed(() => b.get() + 1);
 
-test('Deep circular chain should be detected (5+ nodes)', () => {
-  console.log('  Testing: A → B → C → D → E → A (deep cycle)');
-  
   try {
-    let a: ComputedSignal<number>, b: ComputedSignal<number>;
-    let c: ComputedSignal<number>, d: ComputedSignal<number>;
-    let e: ComputedSignal<number>;
-    
-    // Create a deep circular chain
-    a = createComputed(() => e ? e.get() + 1 : 1);
-    b = createComputed(() => a.get() + 1);
-    c = createComputed(() => b.get() + 1);
-    d = createComputed(() => c.get() + 1);
-    e = createComputed(() => d.get() + 1); // Closes the cycle
-    
-    try {
-      a.get();
-      console.log(`  ⚠ Deep circular chain did not throw`);
-    } catch (error: any) {
-      const errorMsg = error.message.toLowerCase();
-      if (errorMsg.includes('circular') || 
-          errorMsg.includes('cycle') || 
-          errorMsg.includes('maximum call stack') ||
-          errorMsg.includes('recursion')) {
-        console.log(`  ✓ Deep circular chain detected: ${error.message.substring(0, 60)}...`);
-      } else {
-        throw error;
-      }
-    }
-  } catch (error: any) {
-    console.log(`  ✓ Deep circular chain caught`);
+    a._markDirty?.();
+    b._markDirty?.();
+    c._markDirty?.();
+    assertThrows(() => a.get(), 'Circular dependency');
+  } finally {
+    a.destroy();
+    b.destroy();
+    c.destroy();
+    resetPerformanceState();
   }
 });
 
@@ -860,6 +756,33 @@ test('Plugin system works end-to-end', () => {
   console.log('  ✓ Plugin system works end-to-end');
 });
 
+test('Plugin before-update hooks can modify and cancel updates', () => {
+  clearPlugins();
+
+  const signal = createSignal(1);
+  registerPlugin({
+    name: 'before-update-test',
+    onBeforeUpdate(context) {
+      if (context.newValue === 10) {
+        return 20;
+      }
+      if (context.newValue === 30) {
+        return undefined;
+      }
+      return context.newValue;
+    },
+  });
+  enablePlugins();
+
+  signal.set(10);
+  assertEquals(signal.get(), 20, 'Plugin should modify update value');
+
+  signal.set(30);
+  assertEquals(signal.get(), 20, 'Plugin should cancel update');
+
+  clearPlugins();
+});
+
 // ============================================================================
 // Test 10: DevTools Validation
 // ============================================================================
@@ -928,8 +851,7 @@ test('Destroying signal cleans up subscriptions', () => {
   
   signal.destroy();
   
-  // After destroy, subscription should not fire
-  signal.set(2);
+  assertThrows(() => signal.set(2), 'destroyed signal');
   flushSync();
   assertEquals(callCount, 1, 'Subscription should not fire after destroy');
 });

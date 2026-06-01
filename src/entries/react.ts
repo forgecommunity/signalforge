@@ -16,10 +16,22 @@ export {
   type ComputedSignal,
 } from '../core/store';
 
+export {
+  createStore,
+  defineStore,
+  shallowEqual,
+  type SignalStore,
+  type StoreUpdater,
+  type StoreSelectorEquality,
+} from '../core/storeApi';
+
 // Export React-specific hooks
 export {
   useSignal,
   useSignalValue,
+  useComputed,
+  useStore,
+  useStoreSelector,
 } from '../hooks/useSignal';
 
 export {

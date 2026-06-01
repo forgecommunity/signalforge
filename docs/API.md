@@ -1,38 +1,48 @@
-# SignalForge API Reference
+# API Reference
 
-Complete API documentation for SignalForge - the fastest reactive state management library.
+## Core
 
-## Table of Contents
+### `createSignal<T>(initialValue: T): Signal<T>`
 
-- [Core API](#core-api)
-  - [createSignal](#createsignal)
-  - [createComputed](#createcomputed)
-  - [createEffect](#createeffect)
-  - [batch](#batch)
-  - [untrack](#untrack)
-- [React Hooks](#react-hooks)
-  - [useSignal](#usesignal)
-  - [useSignalValue](#usesignalvalue)
-  - [useSignalEffect](#usesignaleffect)
-- [Utility Functions](#utility-functions)
-- [DevTools](#devtools)
-- [Plugins](#plugins)
-- [Storage](#storage)
-- [Performance](#performance)
+Creates a mutable signal.
 
-## Core API
-
-### createSignal
-
-Creates a reactive signal that holds a mutable value.
-
-**Signature:**
-```typescript
-function createSignal<T>(initialValue: T): Signal<T>
+```ts
+const count = createSignal(0);
+count.get();
+count.set(1);
+count.set((value) => value + 1);
 ```
 
-**Signal Interface:**
-```typescript
+### `createComputed<T>(computeFn: () => T): ComputedSignal<T>`
+
+Creates a derived read-only signal. Dependencies are tracked automatically when signals are read inside `computeFn`.
+
+```ts
+const count = createSignal(2);
+const doubled = createComputed(() => count.get() * 2);
+```
+
+Circular computed recursion throws a `Circular dependency` error.
+
+### `createEffect(effectFn: () => void): () => void`
+
+Runs an effect immediately and again when tracked dependencies change. Returns a cleanup function that removes the effect from the graph.
+
+### `batch<T>(fn: () => T): T`
+
+Runs multiple updates and flushes dirty computed/effect work once at the end.
+
+### `untrack<T>(fn: () => T): T`
+
+Reads signals without registering dependencies.
+
+### `flushSync(): void`
+
+Forces queued dirty work to run synchronously.
+
+## Signal Interface
+
+```ts
 interface Signal<T> {
   get(): T;
   set(value: T | ((prev: T) => T)): void;
@@ -41,116 +51,119 @@ interface Signal<T> {
 }
 ```
 
-**Examples:** See JSDoc in source code for comprehensive examples.
+After `destroy()`, reads, writes, and new subscriptions throw. Destroyed nodes clear subscribers and retained internal references.
 
-### createComputed
+## React
 
-Creates a computed signal that automatically recomputes when dependencies change.
-
-**Signature:**
-```typescript
-function createComputed<T>(computeFn: () => T): ComputedSignal<T>
+```ts
+import { useSignal, useSignalValue, useSignalEffect } from "signalforge/react";
 ```
 
-**Performance:** <0.01ms per recomputation (100x faster than alternatives)
+### `useSignal<T>(initialValue: T | (() => T))`
 
-### createEffect
+Creates a component-local signal and returns `[value, setValue]`.
 
-Creates an effect that runs automatically when its dependencies change.
+### `useSignalValue<T>(signal: Signal<T>)`
 
-**Signature:**
-```typescript
-function createEffect(effectFn: () => void | (() => void)): () => void
+Subscribes a component to an external signal using `useSyncExternalStore`.
+
+### `useSignalEffect(effectFn, deps?)`
+
+Runs a React lifecycle-managed SignalForge effect.
+
+### `useComputed<T>(computeFn, deps?): T`
+
+Creates a component-local computed signal and subscribes to its value.
+
+### `useStore<T>(store): T`
+
+Subscribes to the whole store state.
+
+### `useStoreSelector<T, R>(store, selector, deps?, equals?): R`
+
+Subscribes to a computed selection from a store. Use this for narrow React re-renders.
+
+## Store API
+
+```ts
+const store = createStore({
+  count: 0,
+  label: "items",
+});
+
+store.set({ count: 1 });
+store.set((state) => ({ ...state, label: "products" }));
+
+const countLabel = store.select((state) => `${state.count} ${state.label}`);
+
+const visibleItems = store.select(
+  (state) => state.items.filter((item) => item.visible),
+  shallowEqual
+);
 ```
 
-**Returns:** Cleanup function to dispose the effect
+### `createStore<T extends object>(initialState: T): SignalStore<T>`
 
-### batch
+Creates an object-shaped store backed by a signal.
 
-Batches multiple signal updates into a single update cycle.
+`store.select(selector, equals?)` creates a computed selection. `equals` defaults to `Object.is`. Pass a custom equality function when the selector returns fresh object or array instances that should not notify subscribers unless their meaningful contents changed.
 
-**Signature:**
-```typescript
-function batch<T>(fn: () => T): T
-```
+### `shallowEqual<T>(previous: T, next: T): boolean`
 
-**Performance:** 100x faster than individual updates for bulk operations
+Compares arrays and plain object values one level deep with `Object.is`. Use it with store selectors when a selector returns a new object or array wrapper around stable values.
 
-### untrack
+### `defineStore<T>(factory: () => T): T`
 
-Runs a function without tracking any signal dependencies.
+Runs a store factory and returns its result. This is a small convention helper for grouping signals, computed values, and actions.
 
-**Signature:**
-```typescript
-function untrack<T>(fn: () => T): T
-```
+## Plugins
 
-## React Hooks
-
-### useSignal
-
-Creates a local reactive signal within a React component.
-
-```typescript
-function useSignal<T>(initialValue: T): [T, (value: T) => void]
-```
-
-### useSignalValue
-
-Subscribes to a signal's value and triggers re-renders on changes.
-
-```typescript
-function useSignalValue<T>(signal: Signal<T>): T
-```
-
-### useSignalEffect
-
-Runs effects with automatic signal dependency tracking.
-
-```typescript
-function useSignalEffect(
-  effectFn: () => void | (() => void),
-  deps?: any[]
-): void
-```
-
-## Performance
-
-### getPerformanceStats
-
-Get built-in performance monitoring statistics.
-
-```typescript
-function getPerformanceStats(): {
-  poolUsage: number;
-  queueLength: number;
-  contextDepth: number;
+```ts
+interface Plugin {
+  name: string;
+  version?: string;
+  onSignalCreate?(metadata, initialValue): void;
+  onBeforeUpdate?(context): unknown | undefined;
+  onSignalUpdate?(context): void;
+  onSignalDestroy?(metadata): void;
+  onRegister?(): void;
+  onUnregister?(): void;
 }
 ```
 
-### resetPerformanceState
+Returning `undefined` from `onBeforeUpdate` cancels the update. Returning any other value replaces the incoming value.
 
-Reset all caches and pools (for testing).
+## DevTools And Profiler
 
-```typescript
-function resetPerformanceState(): void
+Development-only inspection APIs are available from `signalforge/devtools`.
+
+```ts
+import {
+  DevToolsProvider,
+  enableDevTools,
+  enableProfiler,
+  getActivePlugins,
+  onProfilerEvent,
+} from "signalforge/devtools";
+
+enableDevTools();
+enableProfiler();
+
+const stop = onProfilerEvent((event) => {
+  if (event.type === "profiler-latency-sample") {
+    console.log(event.payload.signalId, event.payload.latency);
+  }
+});
+
+stop();
 ```
 
-## Type Definitions
+`DevToolsProvider` mounts the embedded panel in React apps. The panel includes signal inspection, a visual dependency graph, event timeline, render-impact ranking, performance metrics, and plugin hook debugging.
 
-```typescript
-// Signal types
-type Signal<T> = {
-  get(): T;
-  set(value: T | ((prev: T) => T)): void;
-  subscribe(listener: (value: T) => void): () => void;
-  destroy(): void;
-  _node: any; // Internal use only
-}
+`getActivePlugins()` returns the registered plugin debug snapshot used by the panel.
 
-type ComputedSignal<T> = Omit<Signal<T>, 'set'> & {
-  set(value: never): never;
-}
-```
+`onProfilerEvent(listener)` subscribes to profiler latency and batch timing records. It returns an unsubscribe function and does not depend on a browser UI.
 
-For complete API documentation with all examples, see the JSDoc comments in the source code or use your IDE's intellisense.
+## Native Bridge
+
+`src/native/jsiBridge` uses native JSI functions when installed. In JavaScript-only environments it falls back to the core signal store.

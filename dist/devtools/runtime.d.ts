@@ -83,11 +83,13 @@ export declare function getActivePlugins(): Array<{
     name: string;
     version?: string;
     enabled: boolean;
-    registeredAt: string;
+    hookCount: number;
+    signalCount: number;
     stats: {
-        enableCount: number;
-        disableCount: number;
-        errorCount: number;
+        onSignalCreate: boolean;
+        onBeforeUpdate: boolean;
+        onSignalUpdate: boolean;
+        onSignalDestroy: boolean;
     };
 }>;
 export declare function getSignal(id: string): SignalMetadata | undefined;

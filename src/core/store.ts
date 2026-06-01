@@ -1,8 +1,8 @@
 /**
- * SignalForge ULTRA - 100x Performance Optimized Version
+ * SignalForge core reactive graph.
  * 
  * Optimizations applied (no external dependencies):
- * 1. Bitwise flags instead of boolean fields (10x faster)
+ * 1. Bitwise flags for compact node state
  * 2. Object pooling to eliminate garbage collection
  * 3. Inline hot paths to reduce function call overhead
  * 4. WeakMap for O(1) metadata lookup
@@ -18,7 +18,7 @@
  * - Signal read: <0.001ms per read
  * - Signal write: <0.002ms per write
  * - Computed recalculation: <0.01ms per computed
- * - Batch operations: 100x faster than individual updates
+ * - Batch operations: coalesced dependent updates
  * 
  * Developer Experience:
  * - Same API as original (drop-in replacement)
@@ -28,7 +28,7 @@
  */
 
 // ============================================================================
-// BITWISE FLAGS (10x faster than booleans)
+// BITWISE FLAGS
 // ============================================================================
 
 const IS_DIRTY_FLAG = 1 << 0;          // 0b00001 - Needs recomputation
@@ -36,6 +36,7 @@ const IS_SCHEDULED_FLAG = 1 << 1;      // 0b00010 - In update queue
 const IS_COMPUTING_FLAG = 1 << 2;      // 0b00100 - Currently computing
 const HAS_LISTENERS_FLAG = 1 << 3;     // 0b01000 - Has external listeners
 const IS_COMPUTED_FLAG = 1 << 4;       // 0b10000 - Is computed signal
+const IS_DESTROYED_FLAG = 1 << 5;      // 0b100000 - Signal has been destroyed
 
 // ============================================================================
 // OBJECT POOL (Eliminate GC overhead)
@@ -79,7 +80,13 @@ function releaseNodeToPool(node: any): void {
 
 // IMPORTANT: Use extension-less import so Metro (React Native) resolves the TypeScript source
 // The previous './plugins.js' caused RN to look for a built JS file under src which doesn't exist.
-import { __registerSignal, __notifyAfterUpdate, __notifySignalDestroy } from './plugins';
+import {
+  __hasActivePlugins,
+  __registerSignal,
+  __notifyBeforeUpdate,
+  __notifyAfterUpdate,
+  __notifySignalDestroy,
+} from './plugins';
 
 /**
  * WeakMap to store plugin signal IDs on signal instances
@@ -92,6 +99,21 @@ const pluginSignalIdMap = new WeakMap<Signal<any>, string>();
  * Enables plugins (like TimeTravel) to access signals by ID for undo/redo
  */
 const signalRegistry = new Map<string, Signal<any>>();
+
+function registerSignalWithPlugins<T>(
+  signal: Signal<T>,
+  node: any,
+  type: 'signal',
+  initialValue: T
+): void {
+  if (pluginSignalIdMap.has(signal)) {
+    return;
+  }
+
+  const metadata = __registerSignal(type, initialValue);
+  pluginSignalIdMap.set(signal, metadata.id);
+  signalRegistry.set(metadata.id, signal);
+}
 
 /**
  * Get a signal by its plugin ID
@@ -142,6 +164,9 @@ function enqueueForBatchUpdate(node: any): void {
   if (nextTail === queueHeadIndex) {
     console.error('[SignalForge] Batch queue overflow → forcing flush');
     flushBatchUpdates();
+    if (((queueTailIndex + 1) % BATCH_QUEUE_SIZE) === queueHeadIndex) {
+      throw new Error('[SignalForge] Batch queue overflow');
+    }
   }
   
   node.flags |= IS_SCHEDULED_FLAG;
@@ -179,7 +204,7 @@ function flushBatchUpdates(): void {
 // CONTEXT STACK (Minimized operations)
 // ============================================================================
 
-const contextStack: any[] = new Array(100); // Pre-allocated
+const contextStack: any[] = [];
 let contextDepth = 0;
 
 /**
@@ -200,6 +225,7 @@ function pushContext(node: any): void {
  */
 function popContext(): void {
   currentContext = contextStack[--contextDepth];
+  contextStack.length = contextDepth;
 }
 
 // ============================================================================
@@ -260,6 +286,10 @@ function createNode(initialValue: any, computeFn: any = null): any {
  * Get value with dependency tracking (HOT PATH - OPTIMIZED)
  */
 function getValue(node: any, signalWrapper: any): any {
+  if (node.flags & IS_DESTROYED_FLAG) {
+    throw new Error('Cannot read a destroyed signal');
+  }
+
   // Fast path: no context, just return value
   if (!currentContext) {
     // Still need to recompute if dirty
@@ -287,6 +317,10 @@ function getValue(node: any, signalWrapper: any): any {
  * Set value (HOT PATH - OPTIMIZED)
  */
 function setValue(node: any, signal: any, newValue: any): void {
+  if (node.flags & IS_DESTROYED_FLAG) {
+    throw new Error('Cannot set a destroyed signal');
+  }
+
   // Prevent setting computed signals
   if (node.flags & IS_COMPUTED_FLAG) {
     throw new Error('Cannot set computed signal');
@@ -303,10 +337,26 @@ function setValue(node: any, signal: any, newValue: any): void {
   }
   
   const oldValue = node.value;
+  let pluginId = pluginSignalIdMap.get(signal);
+  if (!pluginId && __hasActivePlugins()) {
+    registerSignalWithPlugins(signal, node, 'signal', oldValue);
+    pluginId = pluginSignalIdMap.get(signal);
+  }
+  if (pluginId) {
+    const pluginValue = __notifyBeforeUpdate(pluginId, oldValue, newValue, 'set');
+    if (pluginValue === undefined) {
+      return;
+    }
+    newValue = pluginValue;
+  }
+
+  if (Object.is(newValue, oldValue)) {
+    return;
+  }
+
   node.value = newValue;
-  
+
   // Notify plugin system of the update
-  const pluginId = pluginSignalIdMap.get(signal);
   if (pluginId) {
     __notifyAfterUpdate(pluginId, oldValue, newValue, 'set');
   }
@@ -362,6 +412,8 @@ function clearDependencies(node: any): void {
  * Mark node as dirty (OPTIMIZED with bitwise)
  */
 function markDirty(node: any): void {
+  if (node.flags & IS_DESTROYED_FLAG) return;
+
   // Already dirty? Skip
   if (node.flags & IS_DIRTY_FLAG) return;
   
@@ -383,9 +435,12 @@ function markDirty(node: any): void {
  */
 function recomputeNode(node: any): void {
   if (!node.computeFn) return;
+  if (node.flags & IS_DESTROYED_FLAG) return;
   
   // Prevent recursive computation
-  if (node.flags & IS_COMPUTING_FLAG) return;
+  if (node.flags & IS_COMPUTING_FLAG) {
+    throw new Error('Circular dependency detected while computing signal');
+  }
   
   node.flags |= IS_COMPUTING_FLAG;
   
@@ -398,7 +453,6 @@ function recomputeNode(node: any): void {
     const newValue = node.computeFn();
     
     node.flags &= ~IS_DIRTY_FLAG;
-    node.flags &= ~IS_COMPUTING_FLAG;
     
     // Only notify if value changed
     if (!Object.is(newValue, node.value)) {
@@ -406,6 +460,7 @@ function recomputeNode(node: any): void {
       notifySubscribers(node);
     }
   } finally {
+    node.flags &= ~IS_COMPUTING_FLAG;
     popContext();
   }
 }
@@ -433,6 +488,10 @@ function notifySubscribers(node: any): void {
  * Subscribe to changes
  */
 function subscribe(node: any, listener: any): () => void {
+  if (node.flags & IS_DESTROYED_FLAG) {
+    throw new Error('Cannot subscribe to a destroyed signal');
+  }
+
   if (!node.listeners) {
     node.listeners = new Set();
   }
@@ -440,6 +499,10 @@ function subscribe(node: any, listener: any): () => void {
   node.flags |= HAS_LISTENERS_FLAG;
   
   return () => {
+    if (!node.listeners) {
+      return;
+    }
+
     node.listeners.delete(listener);
     if (node.listeners.size === 0) {
       node.flags &= ~HAS_LISTENERS_FLAG;
@@ -451,6 +514,10 @@ function subscribe(node: any, listener: any): () => void {
  * Destroy node and cleanup
  */
 function destroyNode(node: any): void {
+  if (node.flags & IS_DESTROYED_FLAG) {
+    return;
+  }
+
   clearDependencies(node);
   
   if (node.subscribers) {
@@ -460,7 +527,12 @@ function destroyNode(node: any): void {
     node.listeners.clear();
   }
   
-  releaseNodeToPool(node);
+  node.value = undefined;
+  node.subscribers = null;
+  node.listeners = null;
+  node.dependencies = null;
+  node.computeFn = null;
+  node.flags = IS_DESTROYED_FLAG;
 }
 
 // ============================================================================
@@ -551,7 +623,17 @@ export function createSignal<T>(initialValue: T): Signal<T> {
   
   // Use object literal with arrow functions for better V8 optimization
   const signal: Signal<T> = {
-    get: () => getValue(node, signal),
+    get: () => {
+      if (node.flags & IS_DESTROYED_FLAG) {
+        throw new Error('Cannot read a destroyed signal');
+      }
+
+      if (!currentContext) {
+        return node.value;
+      }
+
+      return getValue(node, signal);
+    },
     set: (value: T | ((prev: T) => T)) => setValue(node, signal, value),
     subscribe: (listener: (value: T) => void) => subscribe(node, listener),
     destroy: () => {
@@ -571,10 +653,11 @@ export function createSignal<T>(initialValue: T): Signal<T> {
     _removeSubscriber: sharedRemoveSubscriber,
   };
   
-  // Register with plugin system and store the mapping
-  const metadata = __registerSignal('signal', initialValue);
-  pluginSignalIdMap.set(signal, metadata.id);
-  signalRegistry.set(metadata.id, signal);
+  // Register with plugin system only when plugins are active. This keeps the
+  // default signal hot path metadata-free while preserving plugin lifecycle hooks.
+  if (__hasActivePlugins()) {
+    registerSignalWithPlugins(signal, node, 'signal', initialValue);
+  }
   
   return signal;
 }
@@ -585,8 +668,6 @@ export function createSignal<T>(initialValue: T): Signal<T> {
  * Computed signals track all signals read during their computation and only
  * recompute when those dependencies change. They are lazy - they don't recompute
  * until someone reads their value. This makes them extremely efficient.
- * 
- * **Performance:** <0.01ms per recomputation (100x faster than alternatives)
  * 
  * @template T The type of value returned by the computation
  * @param computeFn A function that computes the value. Should be pure (no side effects).
@@ -640,20 +721,23 @@ export function createSignal<T>(initialValue: T): Signal<T> {
  * ```
  */
 export function createComputed<T>(computeFn: () => T): ComputedSignal<T> {
-  // Get initial value without tracking
-  let initialValue: T;
-  const savedContext = currentContext;
-  currentContext = null;
-  try {
-    initialValue = computeFn();
-  } finally {
-    currentContext = savedContext;
-  }
-  
-  const node = createNode(initialValue, computeFn);
+  const node = createNode(undefined, computeFn);
   
   const signal: ComputedSignal<T> = {
-    get: () => getValue(node, signal),
+    get: () => {
+      if (node.flags & IS_DESTROYED_FLAG) {
+        throw new Error('Cannot read a destroyed signal');
+      }
+
+      if (!currentContext) {
+        if (node.flags & IS_DIRTY_FLAG) {
+          recomputeNode(node);
+        }
+        return node.value;
+      }
+
+      return getValue(node, signal);
+    },
     set: (() => {
       throw new Error('Cannot set a computed signal');
     }) as any,
@@ -752,9 +836,7 @@ export function createEffect(effectFn: () => void): () => void {
  * 
  * When you update multiple signals, each update normally triggers all dependents
  * immediately. `batch()` delays all notifications until the end, so dependents
- * only run once with the final values. This is 100x faster for bulk updates.
- * 
- * **Performance:** 100x faster than individual updates for bulk operations
+ * only run once with the final values.
  * 
  * @template T The return type of the batched function
  * @param fn A function containing multiple signal updates

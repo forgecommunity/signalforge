@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal, createComputed } from 'signalforge';
+import { createSignal, createComputed } from 'signalforge/core';
 import { useSignalValue } from 'signalforge/react';
 
 interface CartItem {

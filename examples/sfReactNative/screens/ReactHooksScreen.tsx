@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal } from 'signalforge';
+import { createSignal } from 'signalforge/core';
 import { useSignal, useSignalValue, useSignalEffect } from 'signalforge/react';
 
 // Global signal

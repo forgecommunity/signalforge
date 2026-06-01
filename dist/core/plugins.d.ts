@@ -24,10 +24,29 @@ export interface Plugin {
 export declare function registerPlugin(plugin: Plugin): void;
 export declare function unregisterPlugin(pluginNameOrInstance: string | Plugin): boolean;
 export declare function getRegisteredPlugins(): readonly Plugin[];
+export interface PluginDebugInfo {
+    name: string;
+    version?: string;
+    enabled: boolean;
+    hooks: {
+        onSignalCreate: boolean;
+        onBeforeUpdate: boolean;
+        onSignalUpdate: boolean;
+        onSignalDestroy: boolean;
+        onRegister: boolean;
+        onUnregister: boolean;
+    };
+}
+export declare function __getPluginDebugSnapshot(): {
+    enabled: boolean;
+    signalCount: number;
+    plugins: PluginDebugInfo[];
+};
 export declare function clearPlugins(): void;
 export declare function enablePlugins(): void;
 export declare function disablePlugins(): void;
 export declare function arePluginsEnabled(): boolean;
+export declare function __hasActivePlugins(): boolean;
 export declare function __registerSignal<T>(type: 'signal' | 'computed' | 'effect', initialValue: T, label?: string): SignalMetadata;
 export declare function __notifyBeforeUpdate<T>(signalId: string, oldValue: T, newValue: T, source?: 'set' | 'compute' | 'init'): T | undefined;
 export declare function __notifyAfterUpdate<T>(signalId: string, oldValue: T, newValue: T, source?: 'set' | 'compute' | 'init'): void;

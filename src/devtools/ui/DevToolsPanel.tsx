@@ -24,6 +24,7 @@ import {
   getSignal,
   getDependencies,
   getSubscribers,
+  getActivePlugins,
   getPerformanceMetrics,
   clearPerformanceMetrics,
   type SignalMetadata,
@@ -35,7 +36,7 @@ import {
 // Types
 // ============================================================================
 
-type TabType = 'signals' | 'performance' | 'plugins';
+type TabType = 'signals' | 'graph' | 'timeline' | 'impact' | 'performance' | 'plugins';
 
 type PanelPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
@@ -266,6 +267,36 @@ const styles = {
     border: '2px solid transparent',
     transition: 'all 0.15s',
     cursor: 'pointer',
+  }),
+
+  tableRow: {
+    display: 'grid',
+    gridTemplateColumns: 'minmax(120px, 1.2fr) 80px 80px 80px minmax(120px, 1fr)',
+    gap: '8px',
+    alignItems: 'center',
+    padding: '8px 10px',
+    borderBottom: '1px solid #333',
+  },
+
+  timelineItem: (type: string): React.CSSProperties => ({
+    padding: '10px 12px',
+    backgroundColor: '#252526',
+    borderLeft: `3px solid ${type === 'performance-warning' ? '#f44336' : type === 'signal-updated' ? '#4fc3f7' : '#81c784'}`,
+    borderRadius: '4px',
+    borderTop: '1px solid #3e3e3e',
+    borderRight: '1px solid #3e3e3e',
+    borderBottom: '1px solid #3e3e3e',
+  }),
+
+  pill: (color: string): React.CSSProperties => ({
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: '2px 6px',
+    borderRadius: '10px',
+    backgroundColor: color,
+    color: '#fff',
+    fontSize: '10px',
+    fontWeight: 600,
   }),
 
   // Empty state
@@ -720,15 +751,55 @@ const PerformanceMetricCard: React.FC<PerformanceMetricCardProps> = ({ metric })
 // ============================================================================
 
 const PluginsTab: React.FC = () => {
-  return (
-    <div style={styles.emptyState}>
-      <div style={{ fontSize: '32px', marginBottom: '12px' }}>🧩</div>
-      <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
-        Plugins Coming Soon
+  const [plugins, setPlugins] = useState<ReturnType<typeof getActivePlugins>>([]);
+
+  useEffect(() => {
+    if (!isDevToolsEnabled()) return;
+    const refresh = () => setPlugins(getActivePlugins());
+    refresh();
+    const intervalId = window.setInterval(refresh, 1000);
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  if (!isDevToolsEnabled()) {
+    return <div style={styles.emptyState}>Enable DevTools to inspect plugins.</div>;
+  }
+
+  if (plugins.length === 0) {
+    return (
+      <div style={styles.emptyState}>
+        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>
+          No registered plugins
+        </div>
+        <div>Register logger, validation, time-travel, or custom plugins to inspect their hooks.</div>
       </div>
-      <div>Plugin inspection and management will be available in a future release</div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {plugins.map((plugin) => (
+        <div key={plugin.name} style={styles.metricCard}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <strong style={{ color: '#4fc3f7' }}>{plugin.name}</strong>
+              {plugin.version && <span style={{ color: '#858585', marginLeft: 8 }}>v{plugin.version}</span>}
+            </div>
+            <span style={styles.pill(plugin.enabled ? '#2d5a2d' : '#5a2d2d')}>{plugin.enabled ? 'enabled' : 'disabled'}</span>
+          </div>
+          <div style={{ marginTop: 10, color: '#858585' }}>
+            Hooks: {plugin.hookCount} | Tracked plugin signals: {plugin.signalCount}
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
+            {Object.entries(plugin.stats).map(([hook, enabled]) => (
+              <span key={hook} style={styles.pill(enabled ? '#0e639c' : '#3e3e3e')}>{hook}</span>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
+
 };
 
 // ============================================================================
@@ -804,6 +875,205 @@ const DependencyNode: React.FC<DependencyNodeProps> = ({ signal }) => {
   );
 };
 
+const GraphTab: React.FC = () => {
+  const [signals, setSignals] = useState<SignalMetadata[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<'all' | SignalMetadata['type']>('all');
+
+  useEffect(() => {
+    if (!isDevToolsEnabled()) return;
+    setSignals(listSignals());
+    return onDevToolsEvent('*', () => setSignals(listSignals()));
+  }, []);
+
+  const filteredSignals = useMemo(() => filterGraphSignals(signals, query, typeFilter), [signals, query, typeFilter]);
+  const layout = useMemo(() => buildGraphLayout(filteredSignals), [filteredSignals]);
+  const selected = selectedId ? signals.find((signal) => signal.id === selectedId) : null;
+
+  if (!isDevToolsEnabled() || signals.length === 0) {
+    return (
+      <div style={styles.emptyState}>
+        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>No graph data</div>
+        <div>Create signals and computed values to see dependency edges.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'grid', gap: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px', gap: 8 }}>
+        <input
+          type="text"
+          placeholder="Filter graph by name or ID..."
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          style={{ ...styles.searchInput, marginBottom: 0 }}
+        />
+        <select
+          value={typeFilter}
+          onChange={(event) => setTypeFilter(event.target.value as 'all' | SignalMetadata['type'])}
+          style={{ ...styles.searchInput, marginBottom: 0 }}
+        >
+          <option value="all">All types</option>
+          <option value="signal">Signals</option>
+          <option value="computed">Computed</option>
+          <option value="effect">Effects</option>
+        </select>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: '12px', minHeight: 420 }}>
+      <div style={{ ...styles.graphContainer, height: 420, overflow: 'hidden' }}>
+        <svg width="100%" height="420" viewBox={`0 0 ${layout.width} ${layout.height}`} role="img" aria-label="Signal dependency graph">
+          <defs>
+            <marker id="signalforge-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#5f6b73" />
+            </marker>
+          </defs>
+          {layout.edges.map((edge) => (
+            <line key={`${edge.from}-${edge.to}`} x1={edge.x1} y1={edge.y1} x2={edge.x2} y2={edge.y2} stroke="#5f6b73" strokeWidth="1.5" markerEnd="url(#signalforge-arrow)" />
+          ))}
+          {layout.nodes.map((node) => (
+            <g key={node.id} transform={`translate(${node.x}, ${node.y})`} onClick={() => setSelectedId(node.id)} style={{ cursor: 'pointer' }}>
+              <rect width="150" height="58" rx="6" fill={nodeColor(node.type)} stroke={selectedId === node.id ? '#ffffff' : '#3e3e3e'} strokeWidth={selectedId === node.id ? 2 : 1} />
+              <text x="10" y="22" fill="#ffffff" fontSize="11" fontWeight="600">{shortLabel(node.label)}</text>
+              <text x="10" y="40" fill="#d4d4d4" fontSize="10">{node.type} | {node.updateCount} updates</text>
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      <aside style={{ ...styles.metricCard, minHeight: 420 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ fontSize: '13px', fontWeight: 600 }}>Inspect</div>
+          <span style={{ color: '#858585', fontSize: 11 }}>{filteredSignals.length}/{signals.length}</span>
+        </div>
+        {selected ? (
+          <>
+            <div style={styles.signalName}>{selected.name || selected.id}</div>
+            <div style={{ marginTop: 8 }}><span style={styles.signalType(selected.type)}>{selected.type}</span></div>
+            <div style={{ marginTop: 12, color: '#858585' }}>Dependencies: {selected.dependencies.length}</div>
+            <div style={{ marginTop: 4, color: '#858585' }}>Subscribers: {selected.subscribers.length}</div>
+            <div style={{ marginTop: 4, color: '#858585' }}>Updates: {selected.updateCount}</div>
+            <pre style={{ marginTop: 12, whiteSpace: 'pre-wrap', color: '#ce9178', fontSize: 11 }}>{formatValue(selected.value)}</pre>
+          </>
+        ) : (
+          <div style={{ color: '#858585' }}>Select a node to inspect dependencies, subscribers, and current value.</div>
+        )}
+      </aside>
+      </div>
+    </div>
+  );
+};
+
+const TimelineTab: React.FC<{ events: DevToolsEvent[] }> = ({ events }) => {
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [grouped, setGrouped] = useState(true);
+  const visibleEvents = useMemo(() => {
+    const filtered = typeFilter === 'all'
+      ? events
+      : events.filter((event) => event.type === typeFilter);
+    return filtered.slice(-80).reverse();
+  }, [events, typeFilter]);
+  const groups = useMemo(() => groupTimelineEvents(visibleEvents), [visibleEvents]);
+  const eventTypes = useMemo(() => Array.from(new Set(events.map((event) => event.type))).sort(), [events]);
+
+  if (visibleEvents.length === 0) {
+    return (
+      <div style={styles.emptyState}>
+        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>No timeline events</div>
+        <div>Create or update signals to stream lifecycle events here.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8 }}>
+        <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} style={{ ...styles.searchInput, marginBottom: 0 }}>
+          <option value="all">All events</option>
+          {eventTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+        </select>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#cccccc' }}>
+          <input type="checkbox" checked={grouped} onChange={(event) => setGrouped(event.target.checked)} />
+          Group
+        </label>
+      </div>
+
+      {grouped ? groups.map((group) => (
+        <section key={group.key} style={{ display: 'grid', gap: 6 }}>
+          <div style={{ color: '#858585', fontSize: 11, fontWeight: 600 }}>{group.label} | {group.events.length} events</div>
+          {group.events.map((event) => <TimelineEventRow key={event.sequence} event={event} />)}
+        </section>
+      )) : visibleEvents.map((event) => <TimelineEventRow key={event.sequence} event={event} />)}
+    </div>
+  );
+};
+
+const TimelineEventRow: React.FC<{ event: DevToolsEvent }> = ({ event }) => (
+  <div style={styles.timelineItem(event.type)}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+      <strong style={{ color: '#cccccc' }}>{event.type}</strong>
+      <span style={{ color: '#858585' }}>{new Date(event.timestamp).toLocaleTimeString()}</span>
+    </div>
+    <div style={{ marginTop: 6, color: '#858585' }}>{formatTimelinePayload(event)}</div>
+  </div>
+);
+
+const RenderImpactTab: React.FC = () => {
+  const [signals, setSignals] = useState<SignalMetadata[]>([]);
+  const [metrics, setMetrics] = useState<PerformanceMetric[]>([]);
+
+  useEffect(() => {
+    if (!isDevToolsEnabled()) return;
+    const refresh = () => {
+      setSignals(listSignals());
+      setMetrics(getPerformanceMetrics());
+    };
+    refresh();
+    return onDevToolsEvent('*', refresh);
+  }, []);
+
+  const rows = useMemo(() => signals
+    .map((signal) => {
+      const signalMetrics = metrics.filter((metric) => metric.signalId === signal.id && !metric.skipped);
+      const maxDuration = signalMetrics.reduce((max, metric) => Math.max(max, metric.duration), 0);
+      const fanout = signal.subscribers.length;
+      const impactScore = signal.updateCount * Math.max(1, fanout);
+      return { signal, fanout, maxDuration, impactScore };
+    })
+    .sort((a, b) => b.impactScore - a.impactScore || b.maxDuration - a.maxDuration), [signals, metrics]);
+
+  if (rows.length === 0) {
+    return (
+      <div style={styles.emptyState}>
+        <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>No render impact data</div>
+        <div>Update tracked signals to identify high fan-out or slow nodes.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div style={{ ...styles.tableRow, color: '#858585', fontWeight: 600 }}>
+        <span>Signal</span><span>Type</span><span>Fan-out</span><span>Updates</span><span>Impact</span>
+      </div>
+      {rows.map(({ signal, fanout, maxDuration, impactScore }) => (
+        <div key={signal.id} style={styles.tableRow}>
+          <span style={{ color: '#4fc3f7', overflow: 'hidden', textOverflow: 'ellipsis' }}>{signal.name || signal.id}</span>
+          <span style={styles.signalType(signal.type)}>{signal.type}</span>
+          <span>{fanout}</span>
+          <span>{signal.updateCount}</span>
+          <span>
+            <span style={styles.pill(impactScore > 50 || maxDuration > 16 ? '#c72e2e' : impactScore > 10 ? '#9c6b0e' : '#2d5a2d')}>{impactScore}</span>
+            <span style={{ marginLeft: 8, color: '#858585' }}>max {maxDuration.toFixed(3)}ms</span>
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // ============================================================================
 // Main DevToolsPanel Component
 // ============================================================================
@@ -818,6 +1088,7 @@ export const DevToolsPanel: React.FC = () => {
   });
 
   const [activeTab, setActiveTab] = useState<TabType>('signals');
+  const [timelineEvents, setTimelineEvents] = useState<DevToolsEvent[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
 
@@ -834,6 +1105,13 @@ export const DevToolsPanel: React.FC = () => {
         });
       }
     }
+  }, []);
+
+  useEffect(() => {
+    if (!isDevToolsEnabled()) return;
+    return onDevToolsEvent('*', (event) => {
+      setTimelineEvents((previous) => [...previous.slice(-199), event]);
+    });
   }, []);
 
   const handleMinimize = useCallback(() => {
@@ -922,6 +1200,24 @@ export const DevToolsPanel: React.FC = () => {
               ⚡ Performance
             </button>
             <button
+              onClick={() => setActiveTab('graph')}
+              style={styles.tab(activeTab === 'graph')}
+            >
+              Graph
+            </button>
+            <button
+              onClick={() => setActiveTab('timeline')}
+              style={styles.tab(activeTab === 'timeline')}
+            >
+              Timeline
+            </button>
+            <button
+              onClick={() => setActiveTab('impact')}
+              style={styles.tab(activeTab === 'impact')}
+            >
+              Impact
+            </button>
+            <button
               onClick={() => setActiveTab('plugins')}
               style={styles.tab(activeTab === 'plugins')}
             >
@@ -933,6 +1229,9 @@ export const DevToolsPanel: React.FC = () => {
           <div style={styles.content}>
             {activeTab === 'signals' && <SignalsTab />}
             {activeTab === 'performance' && <PerformanceTab />}
+            {activeTab === 'graph' && <GraphTab />}
+            {activeTab === 'timeline' && <TimelineTab events={timelineEvents} />}
+            {activeTab === 'impact' && <RenderImpactTab />}
             {activeTab === 'plugins' && <PluginsTab />}
           </div>
         </>
@@ -1002,6 +1301,171 @@ function formatValue(value: any): string {
     return `{${keys.length} keys}`;
   }
   return String(value);
+}
+
+interface GraphLayoutNode {
+  id: string;
+  label: string;
+  type: SignalMetadata['type'];
+  updateCount: number;
+  x: number;
+  y: number;
+}
+
+export function buildGraphLayout(signals: SignalMetadata[]): {
+  width: number;
+  height: number;
+  nodes: GraphLayoutNode[];
+  edges: Array<{ from: string; to: string; x1: number; y1: number; x2: number; y2: number }>;
+} {
+  const depthById = new Map<string, number>();
+  const signalById = new Map(signals.map((signal) => [signal.id, signal]));
+
+  const getDepth = (signal: SignalMetadata, seen = new Set<string>()): number => {
+    if (depthById.has(signal.id)) return depthById.get(signal.id)!;
+    if (seen.has(signal.id) || signal.dependencies.length === 0) {
+      depthById.set(signal.id, 0);
+      return 0;
+    }
+
+    seen.add(signal.id);
+    const depth = 1 + Math.max(
+      0,
+      ...signal.dependencies
+        .map((id) => signalById.get(id))
+        .filter((dependency): dependency is SignalMetadata => Boolean(dependency))
+        .map((dependency) => getDepth(dependency, seen))
+    );
+    depthById.set(signal.id, depth);
+    return depth;
+  };
+
+  for (const signal of signals) getDepth(signal);
+
+  const columns = new Map<number, SignalMetadata[]>();
+  for (const signal of signals) {
+    const depth = depthById.get(signal.id) || 0;
+    const column = columns.get(depth) || [];
+    column.push(signal);
+    columns.set(depth, column);
+  }
+
+  const nodes: GraphLayoutNode[] = [];
+  for (const [depth, column] of columns) {
+    column.forEach((signal, index) => {
+      nodes.push({
+        id: signal.id,
+        label: signal.name || signal.id,
+        type: signal.type,
+        updateCount: signal.updateCount,
+        x: 24 + depth * 210,
+        y: 24 + index * 92,
+      });
+    });
+  }
+
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const edges = signals.flatMap((signal) => {
+    const target = nodeById.get(signal.id);
+    if (!target) return [];
+
+    return signal.dependencies
+      .map((dependencyId) => {
+        const source = nodeById.get(dependencyId);
+        if (!source) return null;
+        return {
+          from: dependencyId,
+          to: signal.id,
+          x1: source.x + 150,
+          y1: source.y + 29,
+          x2: target.x,
+          y2: target.y + 29,
+        };
+      })
+      .filter((edge): edge is { from: string; to: string; x1: number; y1: number; x2: number; y2: number } => Boolean(edge));
+  });
+
+  const maxX = Math.max(600, ...nodes.map((node) => node.x + 190));
+  const maxY = Math.max(420, ...nodes.map((node) => node.y + 90));
+
+  return { width: maxX, height: maxY, nodes, edges };
+}
+
+export function filterGraphSignals(
+  signals: SignalMetadata[],
+  query: string,
+  typeFilter: 'all' | SignalMetadata['type'],
+): SignalMetadata[] {
+  const normalized = query.trim().toLowerCase();
+  const directMatches = new Set<string>();
+
+  for (const signal of signals) {
+    const typeMatches = typeFilter === 'all' || signal.type === typeFilter;
+    const queryMatches = !normalized
+      || signal.id.toLowerCase().includes(normalized)
+      || signal.name?.toLowerCase().includes(normalized);
+
+    if (typeMatches && queryMatches) {
+      directMatches.add(signal.id);
+    }
+  }
+
+  if (!normalized && typeFilter === 'all') return signals;
+
+  const idsToKeep = new Set(directMatches);
+  const signalById = new Map(signals.map((signal) => [signal.id, signal]));
+
+  for (const id of directMatches) {
+    const signal = signalById.get(id);
+    if (!signal) continue;
+
+    for (const dependency of signal.dependencies) idsToKeep.add(dependency);
+    for (const subscriber of signal.subscribers) idsToKeep.add(subscriber);
+  }
+
+  return signals.filter((signal) => idsToKeep.has(signal.id));
+}
+
+function nodeColor(type: SignalMetadata['type']): string {
+  if (type === 'computed') return '#5a4d2d';
+  if (type === 'effect') return '#4d2d5a';
+  return '#2d5a2d';
+}
+
+function shortLabel(label: string): string {
+  return label.length > 18 ? `${label.slice(0, 15)}...` : label;
+}
+
+function formatTimelinePayload(event: DevToolsEvent): string {
+  const payload: any = event.payload || {};
+  if (payload.id) return payload.id;
+  if (payload.signalId) return `${payload.signalId} ${payload.duration ? `${payload.duration.toFixed(3)}ms` : ''}`;
+  if (payload.subscriberId && payload.dependencyId) {
+    return `${payload.subscriberId} -> ${payload.dependencyId}`;
+  }
+  return JSON.stringify(payload).slice(0, 160);
+}
+
+export function groupTimelineEvents(events: DevToolsEvent[]): Array<{
+  key: string;
+  label: string;
+  events: DevToolsEvent[];
+}> {
+  const groups = new Map<string, DevToolsEvent[]>();
+
+  for (const event of events) {
+    const time = new Date(event.timestamp);
+    const key = `${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`;
+    const group = groups.get(key) || [];
+    group.push(event);
+    groups.set(key, group);
+  }
+
+  return Array.from(groups.entries()).map(([key, groupedEvents]) => ({
+    key,
+    label: new Date(groupedEvents[0]?.timestamp || Date.now()).toLocaleTimeString(),
+    events: groupedEvents,
+  }));
 }
 
 // ============================================================================

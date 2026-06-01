@@ -34,7 +34,7 @@ export default function BatchUpdatesDemo() {
 
   return (
     <DemoLayout
-      title="🚀 Batch Updates - 33x Faster Performance"
+      title="🚀 Batch Updates - Coalesced Writes"
       description="Update multiple signals at once. Prevent unnecessary re-renders and boost speed!"
     >
       <div className="space-y-8">
@@ -106,7 +106,7 @@ export default function BatchUpdatesDemo() {
           <div className="grid md:grid-cols-3 gap-4">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
               <div className="text-3xl mb-2">⚡</div>
-              <h4 className="font-bold mb-1">33x Faster</h4>
+              <h4 className="font-bold mb-1">Fewer Flushes</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 3 re-renders → 1 re-render = 3x speed boost per update
               </p>

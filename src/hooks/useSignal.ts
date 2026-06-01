@@ -9,12 +9,18 @@
  * The core SignalForge system is framework-agnostic.
  */
 
-import { Signal, createSignal } from '../core/store';
-import { useState, useEffect } from 'react';
+import { Signal, createComputed, createSignal } from '../core/store';
+import type { SignalStore, StoreSelectorEquality } from '../core/storeApi';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 
 // Runtime guard to surface duplicate React or missing hook dispatcher early
 function assertReactHooksAvailable() {
-  if (typeof useState !== 'function' || typeof useEffect !== 'function') {
+  if (
+    typeof useState !== 'function' ||
+    typeof useEffect !== 'function' ||
+    typeof useMemo !== 'function' ||
+    typeof useSyncExternalStore !== 'function'
+  ) {
     throw new Error('[SignalForge] React hooks unavailable. Possible duplicate React instance or invalid bundler resolution.\n' +
       'Troubleshooting:\n' +
       '  1. Ensure only one react copy: node_modules/react (no nested copy under library).\n' +
@@ -44,14 +50,34 @@ assertReactHooksAvailable();
  * ```
  */
 export function useSignalValue<T>(signal: Signal<T>): T {
-  const [value, setValue] = useState(() => signal.get());
-  
-  useEffect(() => {
-    setValue(signal.get()); // Update to current value
-    return signal.subscribe(() => setValue(signal.get()));
-  }, [signal]);
-  
-  return value;
+  return useSyncExternalStore(
+    (notify) => signal.subscribe(notify),
+    () => signal.get(),
+    () => signal.get()
+  );
+}
+
+export function useComputed<T>(computeFn: () => T, deps: any[] = []): T {
+  const computed = useMemo(() => createComputed(computeFn), deps);
+  useEffect(() => () => computed.destroy(), [computed]);
+  return useSignalValue(computed);
+}
+
+export function useStore<T extends Record<string, any>>(
+  store: SignalStore<T>
+): T {
+  return useSignalValue(store.signal);
+}
+
+export function useStoreSelector<T extends Record<string, any>, R>(
+  store: SignalStore<T>,
+  selector: (state: T) => R,
+  deps: any[] = [],
+  equals?: StoreSelectorEquality<R>
+): R {
+  const selected = useMemo(() => store.select(selector, equals), [store, equals, ...deps]);
+  useEffect(() => () => selected.destroy(), [selected]);
+  return useSignalValue(selected);
 }
 
 /**
@@ -92,5 +118,4 @@ export function useSignal<T>(
 
 /**
  * Note: For useSignalEffect, please import from './useSignalEffect'
- * This file only contains useSignal and useSignalValue hooks.
  */

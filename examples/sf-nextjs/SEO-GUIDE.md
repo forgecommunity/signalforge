@@ -1,226 +1,144 @@
-# SEO Implementation Guide for SignalForge Next.js
+# SignalForge SEO Launch Guide
 
-## Overview
+This Next.js app is the public SignalForge site and documentation surface. Keep the SEO setup factual, release-aligned, and easy to audit before every launch.
 
-This Next.js project has been optimized for search engines with comprehensive SEO features.
+## Canonical URL
 
-## Implemented SEO Features
+The current production URL is:
 
-### 1. **Metadata Configuration** (`app/layout.tsx`)
-
-- ✅ **Title Templates**: Dynamic titles with fallback
-- ✅ **Meta Descriptions**: Detailed, keyword-rich descriptions
-- ✅ **Keywords**: Comprehensive keyword list for indexing
-- ✅ **Open Graph Tags**: Social media sharing optimization
-- ✅ **Twitter Cards**: Twitter-specific metadata
-- ✅ **Canonical URLs**: Prevent duplicate content issues
-- ✅ **Robots Meta**: Control search engine indexing
-- ✅ **Author & Publisher**: Attribution metadata
-
-### 2. **Structured Data** (JSON-LD Schema)
-
-Located in `app/layout.tsx`, we've implemented:
-
-```typescript
-{
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  // ... complete software application schema
-}
+```text
+https://signalforge-fogecommunity.vercel.app
 ```
 
-**Benefits:**
-- Rich snippets in search results
-- Better understanding by search engines
-- Enhanced visibility with ratings and features
+If SignalForge moves to a custom domain, update the URL in these files in the same change:
 
-### 3. **Sitemap** (`app/sitemap.ts`)
+- `app/layout.tsx`
+- `app/sitemap.ts`
+- `app/robots.ts`
+- `app/demos/metadata.ts`
+- root `README.md`
+- root `docs/getting-started.md`
 
-- ✅ Automatically generated XML sitemap
-- ✅ Includes all demo pages
-- ✅ Priority and change frequency indicators
-- ✅ Accessible at: `/sitemap.xml`
+Do not split canonical URLs across multiple domains unless there is a deliberate migration plan with redirects.
 
-### 4. **Robots.txt** (`app/robots.ts`)
+## Indexed Pages
 
-- ✅ Search engine crawling rules
-- ✅ Sitemap reference
-- ✅ Disallow private routes (`/api/`, `/_next/`)
+The sitemap includes the launch-critical routes:
 
-### 5. **Web App Manifest** (`app/manifest.ts`)
+- `/`
+- `/docs`
+- `/docs/api`
+- `/docs/examples`
+- `/docs/benchmarks`
+- `/docs/migration`
+- `/docs/production`
+- `/demos/array`
+- `/demos/basic`
+- `/demos/batch`
+- `/demos/benchmark`
+- `/demos/bigdata`
+- `/demos/cart`
+- `/demos/chains`
+- `/demos/collaboration`
+- `/demos/comparison`
+- `/demos/computed`
+- `/demos/dashboard`
+- `/demos/devtools`
+- `/demos/effects`
+- `/demos/form`
+- `/demos/hooks`
+- `/demos/persistent`
+- `/demos/plugin`
+- `/demos/subscribe`
+- `/demos/timetravel`
+- `/demos/todo`
+- `/demos/untrack`
 
-- ✅ PWA support
-- ✅ App name and description
-- ✅ Theme colors
-- ✅ Icon configuration
+When a new public route ships, add it to `app/sitemap.ts` and give it route-level metadata when the page targets a distinct search intent.
 
-### 6. **Security & Performance Headers** (`next.config.ts`)
+## Metadata Policy
 
-- ✅ DNS Prefetch Control
-- ✅ Content Type Options
-- ✅ Frame Options (clickjacking protection)
-- ✅ XSS Protection
-- ✅ Referrer Policy
+SignalForge should rank on clear technical value, not unsupported marketing claims.
 
-### 7. **Demo-Specific Metadata**
+Use metadata for:
 
-Each major demo has its own layout file with specific metadata:
+- React state management
+- React Native state management
+- Next.js state management
+- TypeScript signals
+- SSR-safe state management
+- Fine-grained reactivity
+- Store selectors
+- DevTools and plugin debugging
+- Redux and Zustand migration paths
 
-- `/demos/comparison/layout.tsx`
-- `/demos/benchmark/layout.tsx`
-- `/demos/cart/layout.tsx`
+Avoid metadata for:
 
-**Easy to extend** to other demos using the same pattern.
+- Unsupported ratings or review counts
+- Unverified benchmark superiority
+- Absolute ranking claims
+- Placeholder search verification codes
+- Demo-only routes that are not in the sitemap
 
-## SEO Best Practices Implemented
+## Structured Data
 
-### Technical SEO
+`app/layout.tsx` emits JSON-LD for:
 
-- ✅ Clean, semantic URLs
-- ✅ Fast page load times (Next.js optimization)
-- ✅ Mobile-responsive design
-- ✅ Proper heading hierarchy
-- ✅ Alt text for images
-- ✅ Canonical URLs to avoid duplicates
+- `WebSite`
+- `SoftwareApplication`
+- `SoftwareSourceCode`
 
-### Content SEO
+Keep these schemas conservative. Only include fields that are true for the current release and public repository. Do not add review schemas unless there is a real public review source.
 
-- ✅ Keyword-rich titles and descriptions
-- ✅ Unique content for each page
-- ✅ Clear value proposition
-- ✅ Internal linking structure
+## Search Verification
 
-### Social SEO
+Search engine verification values should come from the deployment environment or be added only after the real ownership tokens are available.
 
-- ✅ Open Graph tags for Facebook/LinkedIn
-- ✅ Twitter Card tags
-- ✅ Social sharing preview images
-- ✅ Proper social meta descriptions
+Do not commit sample verification strings for Google, Bing, or Yandex. A missing verification block is better than an invalid one.
 
-## Testing Your SEO
+## Launch Checks
 
-### 1. **Google Search Console**
-
-Once deployed, submit your sitemap:
-```
-https://signalforge-fogecommunity.vercel.app/sitemap.xml
-```
-
-### 2. **Test Tools**
-
-- **Open Graph Debugger**: https://developers.facebook.com/tools/debug/
-- **Twitter Card Validator**: https://cards-dev.twitter.com/validator
-- **Google Rich Results Test**: https://search.google.com/test/rich-results
-- **PageSpeed Insights**: https://pagespeed.web.dev/
-
-### 3. **Local Testing**
+Run these before publishing a release:
 
 ```bash
-npm run build
-npm start
-
-# Test these URLs:
-# http://localhost:3000/sitemap.xml
-# http://localhost:3000/robots.txt
-# http://localhost:3000/manifest.json
+npm run build --prefix examples/sf-nextjs
+npm run lint --prefix examples/sf-nextjs
+npm audit --prefix examples/sf-nextjs
 ```
 
-## Adding SEO to New Demo Pages
+After deployment, inspect:
 
-To add metadata to a new demo page, create a `layout.tsx` file:
+- `/sitemap.xml`
+- `/robots.txt`
+- `/manifest.webmanifest`
+- Open Graph preview
+- Twitter/X preview
+- Google Rich Results output
+- PageSpeed Insights output
 
-```typescript
-// app/demos/your-demo/layout.tsx
-import { Metadata } from 'next';
+Then submit the sitemap through Google Search Console and Bing Webmaster Tools.
 
-export const metadata: Metadata = {
-  title: 'Your Demo Title',
-  description: 'Your demo description with keywords',
-  keywords: ['keyword1', 'keyword2', 'signalforge'],
-  openGraph: {
-    title: 'Your Demo Title',
-    description: 'Your demo description',
-    images: [{
-      url: 'https://raw.githubusercontent.com/forgecommunity/signalforge/refs/heads/master/docs/assets/signalforge.png',
-      width: 1200,
-      height: 630,
-    }],
-  },
-};
+## Content Quality
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return children;
-}
+The docs site should answer production questions directly:
+
+- How to install and start
+- Which APIs are stable
+- How React hooks behave under SSR and hydration
+- How selectors avoid unnecessary renders
+- How plugins are registered and debugged
+- How benchmarks are measured
+- How to migrate from common alternatives
+- What is production-ready now and what is still intentionally out of scope
+
+Keep docs and examples aligned with the package exports. If an example imports an API, that API must be exported, tested, and present in the package smoke test.
+
+## Release Rule
+
+Before launch, search for stale work markers and unsupported claims:
+
+```bash
+rg -n "TODO|FIXME|placeholder" README.md docs examples package.json .github -S
 ```
 
-Then add the route to `app/sitemap.ts`:
-
-```typescript
-const demos = [
-  // ... existing demos
-  'your-demo',
-];
-```
-
-## Verification Codes
-
-To verify ownership with search engines, add verification codes to `app/layout.tsx`:
-
-```typescript
-export const metadata: Metadata = {
-  // ... other metadata
-  verification: {
-    google: 'your-google-verification-code',
-    yandex: 'your-yandex-verification-code',
-    bing: 'your-bing-verification-code',
-  },
-};
-```
-
-## Analytics Integration
-
-Consider adding:
-
-1. **Google Analytics 4**
-```typescript
-// Add to app/layout.tsx <head>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-```
-
-2. **Vercel Analytics** (already built-in if deployed on Vercel)
-```typescript
-import { Analytics } from '@vercel/analytics/react';
-
-// Add to layout
-<Analytics />
-```
-
-## Performance Monitoring
-
-The project includes:
-- ✅ Compressed responses
-- ✅ ETags enabled
-- ✅ Optimized images via Next.js Image component
-- ✅ Code splitting
-- ✅ Tree shaking
-
-## Next Steps
-
-1. **Deploy to production** (Vercel recommended)
-2. **Submit sitemap** to Google Search Console
-3. **Monitor** search performance
-4. **Add verification codes** for search engines
-5. **Set up analytics** (Google Analytics or alternatives)
-6. **Create backlinks** to improve domain authority
-7. **Regular content updates** to maintain freshness
-
-## Resources
-
-- [Next.js Metadata Documentation](https://nextjs.org/docs/app/building-your-application/optimizing/metadata)
-- [Google Search Central](https://developers.google.com/search)
-- [Schema.org Documentation](https://schema.org/SoftwareApplication)
-- [Open Graph Protocol](https://ogp.me/)
-
----
-
-**Built with ❤️ for SignalForge**
+Review each result manually. Form input placeholders are fine; launch-facing placeholders are not.

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal } from 'signalforge';
+import { createSignal } from 'signalforge/core';
 import { useSignalValue } from 'signalforge/react';
 
 // Create a signal (like a smart variable)

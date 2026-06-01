@@ -86,6 +86,18 @@ function assertEquals<T>(actual: T, expected: T, message?: string): void {
   }
 }
 
+function assertThrows(fn: () => void, expectedMessage: string): void {
+  try {
+    fn();
+  } catch (error: any) {
+    if (error.message.includes(expectedMessage)) {
+      return;
+    }
+    throw new Error(`[${currentTest}] Expected error containing "${expectedMessage}", got "${error.message}"`);
+  }
+  throw new Error(`[${currentTest}] Expected function to throw`);
+}
+
 function assertArrayEquals<T>(actual: T[], expected: T[], message?: string): void {
   if (actual.length !== expected.length) {
     throw new Error(
@@ -637,7 +649,7 @@ test('Destroyed signal cleans up all subscriptions', () => {
   // Destroy signal
   signal.destroy();
   
-  signal.set(2);
+  assertThrows(() => signal.set(2), 'destroyed signal');
   flushSync();
   
   // None should receive update after destroy

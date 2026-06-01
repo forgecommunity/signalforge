@@ -5,13 +5,11 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal, createComputed, batch } from 'signalforge';
+import { createSignal, createComputed, batch } from 'signalforge/core';
 import { useSignalValue } from 'signalforge/react';
 
 const firstName = createSignal('John');
 const lastName = createSignal('Doe');
-const fullName = createComputed(() => `${firstName.get()} ${lastName.get()}`);
-
 let computeCount = 0;
 const fullNameWithCount = createComputed(() => {
   computeCount++;
@@ -21,7 +19,7 @@ const fullNameWithCount = createComputed(() => {
 export default function BatchUpdatesScreen() {
   const currentFirstName = useSignalValue(firstName);
   const currentLastName = useSignalValue(lastName);
-  const currentFullName = useSignalValue(fullName);
+  const currentFullName = useSignalValue(fullNameWithCount);
   const [updateCount, setUpdateCount] = useState(0);
   const [log, setLog] = useState<string[]>([]);
 
@@ -47,7 +45,7 @@ export default function BatchUpdatesScreen() {
     });
     const endCount = computeCount;
     const computes = endCount - startCount;
-    addLog(`With batch: Computed ${computes} time ✅ (33x faster!)`);
+    addLog(`With batch: Computed ${computes} time ✅ (coalesced updates)`);
     setUpdateCount(prev => prev + 1);
   };
 
@@ -56,7 +54,7 @@ export default function BatchUpdatesScreen() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>🚀 Batch Updates</Text>
         <Text style={styles.description}>
-          Batch multiple signal updates together for better performance. Instead of recalculating after each change, batch waits until all updates are done!
+          Batch multiple signal updates together. Instead of recalculating after each change, batch waits until all updates are done!
         </Text>
 
         <View style={styles.display}>
@@ -88,7 +86,7 @@ export default function BatchUpdatesScreen() {
             onPress={updateWithBatch}
           >
             <Text style={styles.buttonText}>✅ Update WITH Batch</Text>
-            <Text style={styles.buttonSubtext}>(1 recalculation - 33x faster!)</Text>
+            <Text style={styles.buttonSubtext}>(1 recalculation - coalesced updates)</Text>
           </TouchableOpacity>
         </View>
 
@@ -114,7 +112,7 @@ export default function BatchUpdatesScreen() {
         <View style={styles.codeBlock}>
           <Text style={styles.codeTitle}>💡 Code Example:</Text>
           <Text style={styles.code}>
-            {`// Without batch - recalculates twice ❌\nfirstName.set('Jane');\nlastName.set('Smith');\n// fullName recalculates TWICE\n\n// With batch - recalculates once ✅\nbatch(() => {\n  firstName.set('Jane');\n  lastName.set('Smith');\n});\n// fullName recalculates ONCE\n// 33x faster! 🚀`}
+            {`// Without batch - recalculates twice ❌\nfirstName.set('Jane');\nlastName.set('Smith');\n// fullName recalculates TWICE\n\n// With batch - recalculates once ✅\nbatch(() => {\n  firstName.set('Jane');\n  lastName.set('Smith');\n});\n// fullName recalculates ONCE`}
           </Text>
         </View>
       </View>

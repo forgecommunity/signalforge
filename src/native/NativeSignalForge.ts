@@ -253,12 +253,12 @@ export default getNativeModule();
  * 
  * TypeScript Wrapper (jsiBridge.ts):
  *   jsiBridge.createSignal(value)
- *   └─> Tries JSI direct first
- *       └─> Falls back to TurboModule
- *           └─> Falls back to JS implementation
+ *   -> Tries JSI direct first
+ *      -> Falls back to TurboModule
+ *         -> Falls back to JS implementation
  * 
  * Performance Comparison (1 million operations):
- * - JSI Direct:     ~50ms  (fastest, no bridge)
+ * - JSI Direct:     ~50ms  (no bridge)
  * - TurboModule:    ~150ms (good, some serialization)
  * - Old Bridge:     ~500ms (slow, JSON serialization)
  * - JS Fallback:    ~200ms (pure JS, no native)

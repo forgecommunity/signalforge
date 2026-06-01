@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal, createComputed } from 'signalforge';
+import { createSignal, createComputed } from 'signalforge/core';
 import { useSignalValue } from 'signalforge/react';
 
 interface Todo {

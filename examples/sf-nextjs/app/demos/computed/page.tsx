@@ -1,6 +1,7 @@
 'use client';
 
-import { useSignal, createComputed, useSignalValue } from 'signalforge/react';
+import { createComputed } from 'signalforge/core';
+import { useSignal, useSignalValue } from 'signalforge/react';
 import { useState } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 

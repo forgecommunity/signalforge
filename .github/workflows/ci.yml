@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Node ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version:
+          - 18
+          - 20
+          - 22
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm run test:all
+
+      - name: Package smoke test
+        run: npm run test:package
+
+      - name: Package contents test
+        run: npm run test:package-contents
+
+      - name: Install React example
+        run: npm ci --prefix examples/react-store
+
+      - name: Build React example
+        run: npm run build --prefix examples/react-store
+
+      - name: Install Next docs site
+        run: npm ci --prefix examples/sf-nextjs
+
+      - name: Build Next docs site
+        run: npm run build --prefix examples/sf-nextjs
+
+      - name: Lint Next docs site
+        run: npm run lint --prefix examples/sf-nextjs
+
+      - name: Install React Native example
+        run: npm ci --prefix examples/sfReactNative
+
+      - name: Test React Native example
+        run: npm test --prefix examples/sfReactNative -- --runInBand
+
+      - name: Lint React Native example
+        run: npm run lint --prefix examples/sfReactNative
+
+      - name: Security audit
+        run: npm run audit:high
+
+      - name: React example security audit
+        run: npm audit --prefix examples/react-store
+
+      - name: Next docs site security audit
+        run: npm audit --prefix examples/sf-nextjs
+
+      - name: React Native example security audit
+        run: npm audit --prefix examples/sfReactNative
+
+      - name: Size
+        run: npm run size

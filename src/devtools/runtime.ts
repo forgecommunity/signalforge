@@ -27,6 +27,7 @@
  */
 
 import type { Signal, ComputedSignal } from '../core/store';
+import { __getPluginDebugSnapshot } from '../core/plugins';
 import { 
   startLatencyMeasurement, 
   endLatencyMeasurement,
@@ -856,29 +857,37 @@ export function getActivePlugins(): Array<{
   name: string;
   version?: string;
   enabled: boolean;
-  registeredAt: string;
+  hookCount: number;
+  signalCount: number;
   stats: {
-    enableCount: number;
-    disableCount: number;
-    errorCount: number;
+    onSignalCreate: boolean;
+    onBeforeUpdate: boolean;
+    onSignalUpdate: boolean;
+    onSignalDestroy: boolean;
   };
 }> {
   if (!isDevToolsEnabled()) {
     return [];
   }
-  
-  try {
-    // Dynamically import plugin manager to avoid circular dependencies
-    const pluginManager = require('../core/pluginManager');
-    if (pluginManager && pluginManager.__getPluginInfoForDevTools) {
-      return pluginManager.__getPluginInfoForDevTools();
-    }
-  } catch (error) {
-    // Plugin manager not available or not loaded
-    console.debug('[DevTools] Plugin manager not available');
-  }
-  
-  return [];
+
+  const snapshot = __getPluginDebugSnapshot();
+
+  return snapshot.plugins.map((plugin) => {
+    const hookValues = Object.values(plugin.hooks);
+    return {
+      name: plugin.name,
+      version: plugin.version,
+      enabled: snapshot.enabled,
+      hookCount: hookValues.filter(Boolean).length,
+      signalCount: snapshot.signalCount,
+      stats: {
+        onSignalCreate: plugin.hooks.onSignalCreate,
+        onBeforeUpdate: plugin.hooks.onBeforeUpdate,
+        onSignalUpdate: plugin.hooks.onSignalUpdate,
+        onSignalDestroy: plugin.hooks.onSignalDestroy,
+      },
+    };
+  });
 }
 
 /**

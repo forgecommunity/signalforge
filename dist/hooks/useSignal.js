@@ -1,7 +1,10 @@
-import { createSignal } from '../core/store';
-import { useState, useEffect } from 'react';
+import { createComputed, createSignal } from '../core/store';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 function assertReactHooksAvailable() {
-    if (typeof useState !== 'function' || typeof useEffect !== 'function') {
+    if (typeof useState !== 'function' ||
+        typeof useEffect !== 'function' ||
+        typeof useMemo !== 'function' ||
+        typeof useSyncExternalStore !== 'function') {
         throw new Error('[SignalForge] React hooks unavailable. Possible duplicate React instance or invalid bundler resolution.\n' +
             'Troubleshooting:\n' +
             '  1. Ensure only one react copy: node_modules/react (no nested copy under library).\n' +
@@ -11,12 +14,20 @@ function assertReactHooksAvailable() {
 }
 assertReactHooksAvailable();
 export function useSignalValue(signal) {
-    const [value, setValue] = useState(() => signal.get());
-    useEffect(() => {
-        setValue(signal.get());
-        return signal.subscribe(() => setValue(signal.get()));
-    }, [signal]);
-    return value;
+    return useSyncExternalStore((notify) => signal.subscribe(notify), () => signal.get(), () => signal.get());
+}
+export function useComputed(computeFn, deps = []) {
+    const computed = useMemo(() => createComputed(computeFn), deps);
+    useEffect(() => () => computed.destroy(), [computed]);
+    return useSignalValue(computed);
+}
+export function useStore(store) {
+    return useSignalValue(store.signal);
+}
+export function useStoreSelector(store, selector, deps = [], equals) {
+    const selected = useMemo(() => store.select(selector, equals), [store, equals, ...deps]);
+    useEffect(() => () => selected.destroy(), [selected]);
+    return useSignalValue(selected);
 }
 export function useSignal(initialValue) {
     const [signal] = useState(() => {

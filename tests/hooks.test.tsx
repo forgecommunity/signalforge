@@ -27,7 +27,8 @@ import React, { useState } from 'react';
 import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import { act } from '@testing-library/react';
 import { createSignal, createComputed, flushSync } from '../src/core/store';
-import { useSignal, useSignalValue } from '../src/hooks/useSignal';
+import { createStore } from '../src/core/storeApi';
+import { useComputed, useSignal, useSignalValue, useStoreSelector } from '../src/hooks/useSignal';
 import { useSignalEffect } from '../src/hooks/useSignalEffect';
 
 // ============================================================================
@@ -609,11 +610,104 @@ function testUseSignalEffectNoInfiniteLoop() {
 }
 
 // ============================================================================
-// Test 12: Render Count Metrics Summary
+// Test 12: useComputed Hook
+// ============================================================================
+
+function testUseComputedHook() {
+  console.log('\n=== Test 12: useComputed Hook ===');
+
+  const first = createSignal('Ada');
+  const last = createSignal('Lovelace');
+
+  function Component() {
+    incrementRenderCount('ComputedHook');
+    const fullName = useComputed(() => `${first.get()} ${last.get()}`);
+    return <span data-testid="full-name">{fullName}</span>;
+  }
+
+  const { container } = render(<Component />);
+  const getFullName = () => container.querySelector('[data-testid="full-name"]')?.textContent;
+
+  assertEquals(getFullName(), 'Ada Lovelace');
+  assertEquals(getRenderCount('ComputedHook'), 1);
+
+  act(() => {
+    first.set('Grace');
+    flushSync();
+  });
+
+  assertEquals(getFullName(), 'Grace Lovelace');
+  assertEquals(getRenderCount('ComputedHook'), 2);
+
+  console.log('✓ useComputed tracks signals and re-renders');
+}
+
+// ============================================================================
+// Test 13: Store Selector Hook
+// ============================================================================
+
+function testUseStoreSelector() {
+  console.log('\n=== Test 13: useStoreSelector ===');
+
+  const store = createStore({
+    count: 1,
+    label: 'items',
+  });
+
+  function CountView() {
+    incrementRenderCount('CountView');
+    const count = useStoreSelector(store, (state) => state.count);
+    return <span data-testid="count">{count}</span>;
+  }
+
+  function LabelView() {
+    incrementRenderCount('LabelView');
+    const label = useStoreSelector(store, (state) => state.label);
+    return <span data-testid="label">{label}</span>;
+  }
+
+  const { container } = render(
+    <div>
+      <CountView />
+      <LabelView />
+    </div>
+  );
+
+  const getCount = () => container.querySelector('[data-testid="count"]')?.textContent;
+  const getLabel = () => container.querySelector('[data-testid="label"]')?.textContent;
+
+  assertEquals(getCount(), '1');
+  assertEquals(getLabel(), 'items');
+
+  act(() => {
+    store.set({ count: 2 });
+    flushSync();
+  });
+
+  assertEquals(getCount(), '2');
+  assertEquals(getLabel(), 'items');
+  assertEquals(getRenderCount('CountView'), 2);
+  assertEquals(getRenderCount('LabelView'), 1);
+
+  act(() => {
+    store.set((state) => ({ ...state, label: 'products' }));
+    flushSync();
+  });
+
+  assertEquals(getLabel(), 'products');
+  assertEquals(getRenderCount('CountView'), 2);
+  assertEquals(getRenderCount('LabelView'), 2);
+
+  store.destroy();
+  console.log('✓ useStoreSelector only re-renders selected consumers');
+}
+
+// ============================================================================
+// Test 14: Render Count Metrics Summary
 // ============================================================================
 
 function testRenderCountMetrics() {
-  console.log('\n=== Test 12: Render Count Metrics Summary ===');
+  console.log('\n=== Test 14: Render Count Metrics Summary ===');
   
   const signal1 = createSignal(0);
   const signal2 = createSignal(0);
@@ -722,6 +816,8 @@ async function runAllTests() {
     { name: 'Computed with React', fn: testComputedSignalInReact },
     { name: 'No Re-render on Same Value', fn: testNoRerenderOnSameValue },
     { name: 'No Infinite Loops', fn: testUseSignalEffectNoInfiniteLoop },
+    { name: 'useComputed Hook', fn: testUseComputedHook },
+    { name: 'Store Selector', fn: testUseStoreSelector },
     { name: 'Render Count Metrics', fn: testRenderCountMetrics },
   ];
   

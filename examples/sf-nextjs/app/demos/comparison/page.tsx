@@ -1,6 +1,7 @@
 'use client';
 
-import { useSignal, createSignal, createComputed, useSignalValue } from 'signalforge/react';
+import { createSignal, createComputed } from 'signalforge/core';
+import { useSignal, useSignalValue } from 'signalforge/react';
 import { useState, useEffect, useRef } from 'react';
 import DemoLayout from '../../components/DemoLayout';
 
@@ -202,7 +203,7 @@ export default function ComparisonDemo() {
           <div className="grid md:grid-cols-3 gap-4">
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
               <div className="text-3xl mb-2">⚡</div>
-              <h4 className="font-bold mb-2">90% Less Code</h4>
+              <h4 className="font-bold mb-2">Less Boilerplate</h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 No actions, reducers, or selectors. Just signals.
               </p>
@@ -285,7 +286,7 @@ function Header() {
           </div>
         </div>
 
-        {/* Live Demo */}
+        {/* Interactive comparison */}
         <div>
           <h3 className="text-2xl font-bold mb-4 text-center">
             🎮 Try Both Implementations
@@ -338,13 +339,13 @@ function Header() {
           </h3>
           <div className="grid md:grid-cols-3 gap-4 text-center">
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-              <div className="text-4xl font-bold text-purple-600 mb-2">33x</div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">Batched</div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Faster batch updates than individual setState calls
               </p>
             </div>
             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-              <div className="text-4xl font-bold text-purple-600 mb-2">2KB</div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">Budgeted</div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Total bundle size (gzipped) vs 40KB+ for Redux + middleware
               </p>

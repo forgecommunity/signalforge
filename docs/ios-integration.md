@@ -210,7 +210,7 @@ Pod::Spec.new do |s|
   s.authors      = package['author']
   s.platform     = :ios, "13.0"
   
-  s.source       = { :git => "https://github.com/yourorg/signalforge.git", :tag => "v#{s.version}" }
+  s.source       = { :git => "https://github.com/forgecommunity/signalforge.git", :tag => "v#{s.version}" }
   s.source_files = "src/native/**/*.{h,cpp,mm}"
   s.public_header_files = "src/native/**/*.h"
   

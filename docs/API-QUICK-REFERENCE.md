@@ -1,470 +1,245 @@
 # SignalForge API Quick Reference
 
-## 🎯 Core Concepts
+Use this as the compact reference for the public API. The full API guide is in [API.md](./API.md).
 
-### Two Ways to Use Signals in React Components
+## Entry Points
 
-```typescript
-// Method 1: Local component state (like useState)
-function Counter() {
-  const [count, setCount] = useSignal(0);
-  return <Button onPress={() => setCount(count + 1)}>Count: {count}</Button>;
-}
-
-// Method 2: Shared global state
-const globalCount = createSignal(0);  // Outside component
-
-function Counter() {
-  const count = useSignalValue(globalCount);  // Read external signal
-  return <Button onPress={() => globalCount.set(globalCount.get() + 1)}>Count: {count}</Button>;
-}
+```ts
+import { createSignal, createComputed, createEffect, batch, untrack } from 'signalforge/core';
+import { useSignalValue, useSignal, useComputed, useStoreSelector } from 'signalforge/react';
+import { registerPlugin } from 'signalforge/plugins';
+import { DevToolsProvider } from 'signalforge/devtools';
 ```
 
----
+The root package also exports the common core and React APIs for convenience, but docs and examples prefer subpath imports so bundlers can keep boundaries clear.
 
-## 📦 Installation
+## Core Signals
 
-npm install signalforge
-```
+```ts
+import { createSignal, createComputed, createEffect, batch, untrack } from 'signalforge/core';
 
----
-
-## 🔥 Core APIs
-
-### From `'signalforge'`
-
-#### `createSignal<T>(initialValue: T): Signal<T>`
-
-Create a reactive signal (shared state).
-
-```typescript
-const count = createSignal(0);
-const user = createSignal({ name: 'John', age: 30 });
-
-// Read
-const value = count.get();
-
-// Write
-count.set(prev => prev + 1);
-
-// Subscribe to changes
-const unsubscribe = count.subscribe(value => console.log(value));
-
-// Cleanup
-unsubscribe();
-
-#### `createComputed<T>(fn: () => T): ComputedSignal<T>`
-
-Create derived value that auto-updates.
-
-```typescript
 const count = createSignal(0);
 const doubled = createComputed(() => count.get() * 2);
 
-console.log(doubled.get());  // 0
-count.set(5);
-console.log(doubled.get());  // 10 (auto-updated!)
-```
-
-#### `createEffect(fn: () => void): () => void`
-
-Run side effects when signals change.
-
-```typescript
-const count = createSignal(0);
-
-const cleanup = createEffect(() => {
-  console.log('Count is:', count.get());
+const stop = createEffect(() => {
+  console.log('count changed', count.get());
 });
 
-count.set(1);  // Logs: "Count is: 1"
-count.set(2);  // Logs: "Count is: 2"
-
-cleanup();  // Stop effect
-```
-
-#### `batch<T>(fn: () => T): T`
-
-Batch multiple updates into one.
-
-```typescript
-const a = createSignal(1);
-const b = createSignal(2);
-const sum = createComputed(() => a.get() + b.get());
-
-// Without batch: sum recomputes twice
-a.set(10);
-b.set(20);
-
-// With batch: sum recomputes once
 batch(() => {
-  a.set(10);
-  b.set(20);
+  count.set((value) => value + 1);
+  count.set((value) => value + 1);
 });
 
+const snapshot = untrack(() => doubled.get());
+stop();
 ```
 
-#### `untrack<T>(fn: () => T): T`
+### `createSignal<T>(initialValue: T)`
 
-Read signals without creating dependencies.
+Creates a writable signal.
 
-```typescript
-const a = createSignal(1);
-const b = createSignal(2);
+```ts
+const user = createSignal({ name: 'Ada', role: 'admin' });
 
-const computed = createComputed(() => {
-  const valA = a.get();                // Tracked
-  const valB = untrack(() => b.get()); // NOT tracked
-  return valA + valB;
+user.get();
+user.set({ name: 'Grace', role: 'editor' });
+user.set((previous) => ({ ...previous, role: 'owner' }));
+
+const unsubscribe = user.subscribe((next, previous) => {
+  console.log({ next, previous });
 });
 
-a.set(10);  // Triggers recomputation
-b.set(20);  // Does NOT trigger recomputation
+unsubscribe();
+user.destroy();
 ```
 
----
+Destroyed signals reject later reads, writes, and subscriptions. Treat `destroy()` as final cleanup.
 
-## ⚛️ React Hooks
+### `createComputed<T>(compute: () => T)`
 
-### From `'signalforge/react'`
+Creates a derived read-only signal. Dependencies are tracked from signal reads inside `compute`.
 
-#### `useSignal<T>(initialValue: T): [T, (value: T | ((prev: T) => T)) => void]`
+```ts
+const firstName = createSignal('Ada');
+const lastName = createSignal('Lovelace');
+const fullName = createComputed(() => `${firstName.get()} ${lastName.get()}`);
+```
 
-Create a local signal within a component (like `useState`).
+SignalForge detects direct circular computed reads and throws instead of recursing forever.
 
-```typescript
-function Counter() {
-  const [count, setCount] = useSignal(0);
-  
+### `createEffect(fn: () => void | (() => void))`
+
+Runs side effects and re-runs when tracked dependencies change.
+
+```ts
+const dispose = createEffect(() => {
+  const current = count.get();
+  document.title = `Count: ${current}`;
+
+  return () => {
+    document.title = 'SignalForge';
+  };
+});
+```
+
+### `batch(fn)`
+
+Groups multiple writes into one notification flush.
+
+```ts
+batch(() => {
+  firstName.set('Grace');
+  lastName.set('Hopper');
+});
+```
+
+### `untrack(fn)`
+
+Reads signals without registering dependencies.
+
+```ts
+const summary = createComputed(() => {
+  const visible = count.get();
+  const debugOnly = untrack(() => fullName.get());
+  return `${visible}:${debugOnly}`;
+});
+```
+
+## Store API
+
+```ts
+import { createStore, defineStore, shallowEqual } from 'signalforge/core';
+
+const counter = createStore({
+  count: 0,
+  label: 'Counter',
+});
+
+counter.get();
+counter.set({ count: 1, label: 'Counter' });
+counter.update((state) => ({ ...state, count: state.count + 1 }));
+
+const unsubscribe = counter.subscribe((next) => {
+  console.log(next.count);
+});
+
+const countOnly = counter.select((state) => state.count);
+```
+
+`defineStore` is the same primitive with a name, useful for tooling and app-level stores.
+
+```ts
+const sessionStore = defineStore('session', {
+  userId: null as string | null,
+  roles: [] as string[],
+});
+```
+
+Use `shallowEqual` with selectors that return small objects or arrays.
+
+```ts
+const viewModel = counter.select(
+  (state) => ({ count: state.count, label: state.label }),
+  shallowEqual,
+);
+```
+
+## React
+
+```tsx
+import { createSignal } from 'signalforge/core';
+import { useSignal, useSignalValue, useComputed, useStoreSelector } from 'signalforge/react';
+
+const sharedCount = createSignal(0);
+
+export function Counter() {
+  const [localCount, setLocalCount] = useSignal(0);
+  const shared = useSignalValue(sharedCount);
+  const doubled = useComputed(() => sharedCount.get() * 2, []);
+
   return (
-    <View>
-      <Text>{count}</Text>
-      <Button onPress={() => setCount(count + 1)}>Increment</Button>
-      <Button onPress={() => setCount(c => c + 1)}>Increment (functional)</Button>
-    </View>
+    <button onClick={() => setLocalCount((value) => value + 1)}>
+      {localCount} / {shared} / {doubled}
+    </button>
   );
 }
 ```
 
-**When to use:** Local component state that doesn't need to be shared.
+`useSignalValue` and store selectors are implemented with `useSyncExternalStore`, so they are safe for React 18/19 concurrent rendering and SSR hydration.
 
-#### `useSignalValue<T>(signal: Signal<T>): T`
+### Store Selectors
 
-Read an external signal and re-render when it changes.
+```tsx
+import { shallowEqual } from 'signalforge/core';
+import { useStoreSelector } from 'signalforge/react';
 
-```typescript
-// Outside component - shared state
-const globalCount = createSignal(0);
+function Header() {
+  const session = useStoreSelector(
+    sessionStore,
+    (state) => ({ userId: state.userId, roles: state.roles }),
+    [],
+    shallowEqual,
+  );
 
-function Counter() {
-  const count = useSignalValue(globalCount);  // Subscribe to external signal
-  
+  return <span>{session.userId ?? 'Guest'}</span>;
+}
+```
+
+## DevTools
+
+```tsx
+import { DevToolsProvider } from 'signalforge/devtools';
+
+export function App() {
   return (
-    <View>
-      <Text>{count}</Text>
-      <Button onPress={() => globalCount.set(globalCount.get() + 1)}>
-        Increment
-      </Button>
-    </View>
+    <DevToolsProvider enabled={process.env.NODE_ENV !== 'production'}>
+      <Routes />
+    </DevToolsProvider>
   );
 }
 ```
 
-**When to use:** Reading signals created outside the component (shared state).
+Runtime APIs:
 
-#### `useSignalEffect(effectFn: () => void | (() => void), deps?: any[]): void`
-
-Run effects that automatically track signal dependencies.
-
-```typescript
-function Logger() {
-  const count = createSignal(0);
-  
-  useSignalEffect(() => {
-    console.log('Count changed:', count.get());
-    // Automatically re-runs when count changes!
-  });
-  
-  // With cleanup
-  useSignalEffect(() => {
-    const timer = setInterval(() => console.log(count.get()), 1000);
-    return () => clearInterval(timer);  // Cleanup
-  });
-  
-  return <Button onPress={() => count.set(count.get() + 1)}>Increment</Button>;
-}
+```ts
+import {
+  getSignalGraph,
+  getPerformanceMetrics,
+  getRenderImpact,
+  getActivePlugins,
+  onProfilerEvent,
+} from 'signalforge/devtools';
 ```
 
-**Features:**
-- ✅ Auto-tracks signal dependencies
-- ✅ No manual dependency array needed
-- ✅ Cleanup support
-- ✅ Prevents infinite loops
+The embedded panel includes signal graph, timeline, render impact, and plugin diagnostics.
 
----
+## Plugins
 
-## 🔌 Plugins
-
-### From `'signalforge/plugins'`
-
-#### Logger Plugin
-
-Log all signal changes automatically.
-
-```typescript
+```ts
 import { registerPlugin } from 'signalforge/plugins';
-if (__DEV__) {
-  const logger = new LoggerPlugin({ 
-    verbose: true,
-}
 
-// Now all signal changes are logged!
-
-Undo/redo functionality.
-
-const timeTravel = new TimeTravelPlugin({ 
-});
-registerPlugin('timeTravel', timeTravel);
-
-// Use anywhere
-timeTravel.undo();  // Go back
-timeTravel.redo();  // Go forward
-timeTravel.canUndo();  // Check if can undo
-timeTravel.canRedo();  // Check if can redo
-```
-
-#### Persistence
-
-Auto-save signals to AsyncStorage (React Native) or localStorage (Web).
-
-```typescript
-import { persist, createPersistentSignal } from 'signalforge/plugins';
-
-// Method 1: Make existing signal persistent
-const count = createSignal(0);
-persist(count, { 
-  key: 'counter',
-  debounce: 500  // Save at most once per 500ms
+const unregister = registerPlugin({
+  name: 'audit-log',
+  version: '1.0.0',
+  onSignalUpdate(signal, nextValue, previousValue) {
+    console.log(signal.id, previousValue, nextValue);
+  },
 });
 
-// Method 2: Create persistent signal
-const theme = createPersistentSignal('app-theme', 'light');
-theme.set('dark');  // Automatically saved!
+unregister();
 ```
 
----
+Plugins are lazy on the core hot path. Only register them when you need instrumentation, persistence, or app-specific integration.
 
-## 🛠️ Utilities
+## Release Checks
 
-### From `'signalforge/utils'`
+Run the full local gate before publishing:
 
-#### `derive<T, R>(signals: Signal<T>[], deriveFn: (...values: T[]) => R): ComputedSignal<R>`
-
-Combine multiple signals.
-
-```typescript
-const x = createSignal(2);
-const y = createSignal(3);
-const sum = derive([x, y], (a, b) => a + b);
-
-console.log(sum.get());  // 5
+```bash
+npm run test:all
+npm run test:package
+npm run test:package-contents
+npm run size
+npm audit
+npm run build --prefix examples/react-store
 ```
-
-#### `map<T, R>(signal: Signal<T>, mapFn: (value: T) => R): ComputedSignal<R>`
-
-Transform a signal's value.
-
-```typescript
-const count = createSignal(5);
-const doubled = map(count, n => n * 2);
-
-console.log(doubled.get());  // 10
-```
-
-#### `filter<T>(signal: Signal<T>, predicate: (value: T) => boolean, defaultValue: T): ComputedSignal<T>`
-
-Filter signal updates.
-
-```typescript
-const num = createSignal(5);
-const evenOnly = filter(num, n => n % 2 === 0, 0);
-
-console.log(evenOnly.get());  // 0 (5 is odd)
-num.set(8);
-console.log(evenOnly.get());  // 8 (8 is even)
-```
-
-#### `debounce<T>(signal: Signal<T>, delayMs: number): Signal<T>`
-
-Debounce signal updates.
-
-```typescript
-const search = createSignal('');
-const debouncedSearch = debounce(search, 300);
-
-// Typing fast...
-search.set('a');
-search.set('ap');
-search.set('app');
-// debouncedSearch only updates once after 300ms!
-```
-
-#### `throttle<T>(signal: Signal<T>, intervalMs: number): Signal<T>`
-
-Throttle signal updates.
-
-```typescript
-const scroll = createSignal(0);
-const throttledScroll = throttle(scroll, 100);
-
-// Scrolling fast...
-// throttledScroll updates at most once per 100ms
-```
-
-#### `createArraySignal<T>(initialArray: T[]): ArraySignal<T>`
-
-Array with helper methods.
-
-```typescript
-const todos = createArraySignal(['Buy milk', 'Walk dog']);
-
-todos.push('Read book');
-todos.filter((_, i) => i !== 1);  // Remove index 1
-console.log(todos.get());  // ['Buy milk', 'Read book']
-console.log(todos.length);  // 2
-```
-
-#### `createRecordSignal<T>(initialRecord: Record<string, T>): RecordSignal<T>`
-
-Object with helper methods.
-
-```typescript
-const user = createRecordSignal({ name: 'John', age: 30 });
-
-user.setKey('email', '[email protected]');
-console.log(user.getKey('email'));  // '[email protected]'
-console.log(user.keys());  // ['name', 'age', 'email']
-```
-
----
-
-## 📊 Common Patterns
-
-### Pattern 1: Global Store
-
-```typescript
-// store/userStore.ts
-import { createSignal, createComputed } from 'signalforge';
-
-export const currentUser = createSignal(null);
-export const isLoggedIn = createComputed(() => currentUser.get() !== null);
-
-export const login = (user) => currentUser.set(user);
-export const logout = () => currentUser.set(null);
-```
-
-```typescript
-// screens/HomeScreen.tsx
-import { useSignalValue } from 'signalforge/react';
-import { currentUser, login, logout, isLoggedIn } from '../store/userStore';
-
-function HomeScreen() {
-  const user = useSignalValue(currentUser);
-  const loggedIn = useSignalValue(isLoggedIn);
-  
-  return (
-    <View>
-      {loggedIn ? (
-        <>
-          <Text>Welcome, {user.name}!</Text>
-          <Button onPress={logout}>Logout</Button>
-        </>
-      ) : (
-        <Button onPress={() => login({ name: 'John' })}>Login</Button>
-      )}
-    </View>
-  );
-}
-```
-
-### Pattern 2: Form State
-
-```typescript
-function LoginForm() {
-  const [email, setEmail] = useSignal('');
-  const [password, setPassword] = useSignal('');
-  
-  const isValid = email.includes('@') && password.length >= 8;
-  
-  return (
-    <View>
-      <TextInput value={email} onChangeText={setEmail} />
-      <TextInput value={password} onChangeText={setPassword} secureTextEntry />
-      <Button disabled={!isValid} onPress={handleSubmit}>Login</Button>
-    </View>
-  );
-}
-```
-
-### Pattern 3: Real-time Search
-
-```typescript
-const allProducts = createSignal([...]);
-const searchQuery = createSignal('');
-
-const filteredProducts = createComputed(() => {
-  const query = searchQuery.get().toLowerCase();
-  return allProducts.get().filter(p => 
-    p.name.toLowerCase().includes(query)
-  );
-});
-
-function SearchScreen() {
-  const products = useSignalValue(filteredProducts);
-  
-  return (
-    <View>
-      <TextInput onChangeText={text => searchQuery.set(text)} />
-      <FlatList data={products} ... />
-    </View>
-  );
-}
-```
-
----
-
-## ❓ FAQ
-
-**Q: `useSignal` vs `useSignalValue` - which to use?**
-
-- Use `useSignal(initialValue)` for **local component state** (like `useState`)
-- Use `useSignalValue(signal)` for **shared/global state** (reading external signals)
-
-**Q: Do I need to specify dependencies for `useSignalEffect`?**
-
-No! It automatically tracks which signals you access.
-
-**Q: Can I use SignalForge without React?**
-
-Yes! The core (`createSignal`, `createComputed`, etc.) is framework-agnostic.
-
-**Q: How do I persist state across app restarts?**
-
-Use `persist()` or `createPersistentSignal()` from the plugins package.
-
-**Q: Is SignalForge production-ready?**
-
-Yes! It's battle-tested, fully typed, and zero runtime dependencies.
-
----
-
-## 🚀 Next Steps
-
-1. Read the [Getting Started Guide](./getting-started.md)
-2. Check out [Examples](../examples/)
-3. Read the [Full API Documentation](./API.md)
-4. Join our [Discord Community](https://discord.gg/signalforge)
-
----
-
-**Last Updated:** November 22, 2025

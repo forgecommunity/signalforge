@@ -424,7 +424,7 @@ function Counter() {
               <div className="font-semibold text-green-600 dark:text-green-400 mb-2">✅ SignalForge useSignal:</div>
               <ul className="space-y-1 text-sm">
                 <li>• Only re-renders what changed</li>
-                <li>• 33x faster with batching</li>
+                <li>• Batches related writes into one flush</li>
                 <li>• No extra optimization needed</li>
                 <li>• Global state built-in</li>
               </ul>

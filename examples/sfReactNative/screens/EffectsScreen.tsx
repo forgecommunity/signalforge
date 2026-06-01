@@ -5,16 +5,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { createSignal, createEffect } from 'signalforge';
-import { useSignalValue } from 'signalforge/react';
+import { createSignal, createEffect } from 'signalforge/core';
 
 // Create signal
 const userName = createSignal('John');
 const messageCount = createSignal(0);
 
 export default function EffectsScreen() {
-  const currentUserName = useSignalValue(userName);
-  const currentMessageCount = useSignalValue(messageCount);
   const [logs, setLogs] = useState<string[]>([]);
 
   useEffect(() => {

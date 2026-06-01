@@ -17,8 +17,7 @@
  * - Falls back on Web/Node.js environments
  */
 
-// Note: Store import removed - fallback implementation would need full Store API
-// For now, native implementation is primary target
+import { createSignal as createJsSignal, type Signal } from '../core/store';
 
 // ============================================================================
 // Type Definitions
@@ -113,6 +112,9 @@ interface FallbackStore {
   createSignal<T>(value: T): { __id: string };
   getSignal<T>(id: string): T;
   setSignal<T>(id: string, value: T): void;
+  hasSignal(id: string): boolean;
+  deleteSignal(id: string): void;
+  getSignalVersion(id: string): number;
 }
 
 let jsStore: FallbackStore | null = null;
@@ -123,8 +125,47 @@ let jsStore: FallbackStore | null = null;
  */
 const getJsStore = (): FallbackStore => {
   if (!jsStore) {
-    // Placeholder implementation - in production, import from '../core/store'
-    throw new Error('JavaScript fallback store not initialized. Native JSI bindings required.');
+    let nextId = 0;
+    const signals = new Map<string, { signal: Signal<any>; version: number }>();
+
+    jsStore = {
+      createSignal<T>(value: T) {
+        const id = `js_${++nextId}`;
+        signals.set(id, { signal: createJsSignal(value), version: 0 });
+        return { __id: id };
+      },
+      getSignal<T>(id: string): T {
+        const entry = signals.get(id);
+        if (!entry) {
+          throw new Error(`Signal "${id}" does not exist`);
+        }
+        return entry.signal.get() as T;
+      },
+      setSignal<T>(id: string, value: T): void {
+        const entry = signals.get(id);
+        if (!entry) {
+          throw new Error(`Signal "${id}" does not exist`);
+        }
+        const previous = entry.signal.get();
+        entry.signal.set(value);
+        if (!Object.is(previous, entry.signal.get())) {
+          entry.version++;
+        }
+      },
+      hasSignal(id: string): boolean {
+        return signals.has(id);
+      },
+      deleteSignal(id: string): void {
+        const entry = signals.get(id);
+        if (entry) {
+          entry.signal.destroy();
+          signals.delete(id);
+        }
+      },
+      getSignalVersion(id: string): number {
+        return signals.get(id)?.version ?? 0;
+      },
+    };
   }
   return jsStore;
 };
@@ -187,8 +228,7 @@ export const getSignal = <T = any>(signalRef: SignalRef): T => {
   
   // Fallback: retrieve from JS Store
   const store = getJsStore();
-  // In production, you'd need to maintain a map from ID to signal reference
-  throw new Error('JavaScript fallback for getSignal not fully implemented');
+  return store.getSignal<T>(signalRef.id);
 };
 
 /**
@@ -224,7 +264,7 @@ export const setSignal = <T = any>(signalRef: SignalRef, value: T): void => {
   
   // Fallback: update in JS Store
   const store = getJsStore();
-  throw new Error('JavaScript fallback for setSignal not fully implemented');
+  store.setSignal(signalRef.id, value);
 };
 
 /**
@@ -242,8 +282,8 @@ export const hasSignal = (signalRef: SignalRef): boolean => {
     return global.__signalForgeHasSignal!(signalRef.id);
   }
   
-  // Fallback
-  return false;
+  const store = getJsStore();
+  return store.hasSignal(signalRef.id);
 };
 
 /**
@@ -265,8 +305,8 @@ export const deleteSignal = (signalRef: SignalRef): void => {
     return;
   }
   
-  // Fallback: remove from JS Store
-  // (Would need implementation in Store class)
+  const store = getJsStore();
+  store.deleteSignal(signalRef.id);
 };
 
 /**
@@ -294,12 +334,12 @@ export const deleteSignal = (signalRef: SignalRef): void => {
  */
 export const getSignalVersion = (signalRef: SignalRef): number => {
   if (NATIVE_READY) {
-    // Lock-free atomic read - fastest possible change detection
+    // Lock-free atomic read for low-overhead change detection.
     return global.__signalForgeGetVersion!(signalRef.id);
   }
   
-  // Fallback: would need version tracking in JS Store
-  return 0;
+  const store = getJsStore();
+  return store.getSignalVersion(signalRef.id);
 };
 
 /**

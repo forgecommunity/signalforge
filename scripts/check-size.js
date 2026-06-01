@@ -13,7 +13,7 @@ const limits = {
   'entries/devtools.mjs': 25.0, // 25KB max (dev only)
   'entries/plugins.mjs': 15.0, // 15KB max
   'entries/utils.mjs': 8.0, // 8KB max
-  'index.mjs': 25.0, // 25KB max (full bundle includes everything)
+  'index.mjs': 12.0, // focused root toolkit export
 };
 
 console.log('📏 Checking bundle sizes...\n');

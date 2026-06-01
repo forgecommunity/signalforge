@@ -44,12 +44,12 @@ export function generateDemoMetadata(demo: DemoMetadata): Metadata {
 export const demoMetadata = {
   comparison: {
     title: 'SignalForge vs Redux/Zustand - Side-by-Side Comparison',
-    description: 'Compare SignalForge with Redux and Zustand. See 90% less code with the same shopping cart functionality and better performance.',
+    description: 'Compare SignalForge with Redux and Zustand through the same shopping cart workflow, API shape, and update model.',
     keywords: ['redux', 'zustand', 'comparison', 'shopping cart', 'performance'],
   },
   collaboration: {
     title: 'Fine-Grained Reactivity Demo - Real-time Collaboration',
-    description: 'Experience fine-grained reactivity with real-time collaboration. Only edited cells re-render, unlike Redux/Context.',
+    description: 'Explore fine-grained reactivity with a collaboration-style grid and per-cell update tracking.',
     keywords: ['fine-grained', 'reactivity', 'collaboration', 'real-time', 'performance'],
   },
   chains: {
@@ -58,8 +58,8 @@ export const demoMetadata = {
     keywords: ['computed', 'chains', 'dependency', 'automatic', 'reactive'],
   },
   benchmark: {
-    title: 'Live Performance Benchmark - Speed Comparison',
-    description: 'Real-time performance comparison showing render counts and speed differences. SignalForge is 33x faster.',
+    title: 'Interactive Performance Benchmark - Render Behavior',
+    description: 'Real-time performance comparison showing render counts and update behavior.',
     keywords: ['benchmark', 'performance', 'speed', 'comparison', 'render'],
   },
   basic: {
@@ -84,7 +84,7 @@ export const demoMetadata = {
   },
   batch: {
     title: 'Batched Updates - Performance Optimization',
-    description: 'Batch multiple updates into a single render. 33x faster than individual updates.',
+    description: 'Batch multiple updates into a single notification flush.',
     keywords: ['batch', 'performance', 'optimization', 'updates', 'render'],
   },
   subscribe: {

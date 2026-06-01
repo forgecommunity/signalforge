@@ -197,6 +197,47 @@ export function getRegisteredPlugins(): readonly Plugin[] {
   return [...registeredPlugins];
 }
 
+export interface PluginDebugInfo {
+  name: string;
+  version?: string;
+  enabled: boolean;
+  hooks: {
+    onSignalCreate: boolean;
+    onBeforeUpdate: boolean;
+    onSignalUpdate: boolean;
+    onSignalDestroy: boolean;
+    onRegister: boolean;
+    onUnregister: boolean;
+  };
+}
+
+/**
+ * Internal snapshot used by DevTools plugin debugging.
+ */
+export function __getPluginDebugSnapshot(): {
+  enabled: boolean;
+  signalCount: number;
+  plugins: PluginDebugInfo[];
+} {
+  return {
+    enabled: pluginsEnabled,
+    signalCount: signalMetadataMap.size,
+    plugins: registeredPlugins.map((plugin) => ({
+      name: plugin.name,
+      version: plugin.version,
+      enabled: pluginsEnabled,
+      hooks: {
+        onSignalCreate: typeof plugin.onSignalCreate === 'function',
+        onBeforeUpdate: typeof plugin.onBeforeUpdate === 'function',
+        onSignalUpdate: typeof plugin.onSignalUpdate === 'function',
+        onSignalDestroy: typeof plugin.onSignalDestroy === 'function',
+        onRegister: typeof plugin.onRegister === 'function',
+        onUnregister: typeof plugin.onUnregister === 'function',
+      },
+    })),
+  };
+}
+
 /**
  * Clear all registered plugins
  */
@@ -239,6 +280,13 @@ export function disablePlugins(): void {
  */
 export function arePluginsEnabled(): boolean {
   return pluginsEnabled;
+}
+
+/**
+ * Internal fast-path check used by the core signal hot path.
+ */
+export function __hasActivePlugins(): boolean {
+  return pluginsEnabled && registeredPlugins.length > 0;
 }
 
 /**

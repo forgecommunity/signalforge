@@ -13,7 +13,7 @@ const largeArray = createSignal<any[]>([]);
 const filteredData = createSignal<any[]>([]);
 const stats = createSignal({ total: 0, filtered: 0, renderTime: 0 });
 
-// Generate fake data
+// Generate a synthetic dataset for the performance demo.
 const generateData = (count: number) => {
   const data = [];
   for (let i = 0; i < count; i++) {
@@ -29,7 +29,6 @@ const generateData = (count: number) => {
 };
 
 function BigDataScreen() {
-  const arrayData = useSignalValue(largeArray);
   const filtered = useSignalValue(filteredData);
   const statsData = useSignalValue(stats);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
